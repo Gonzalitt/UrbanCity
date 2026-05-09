@@ -258,6 +258,8 @@ before update on public.store_settings
 for each row
 execute function public.set_updated_at();
 
+drop function if exists public.create_order_with_items(text, text, text, text, jsonb);
+
 create or replace function public.create_order_with_items(
   p_order_code text,
   p_customer_name text,
