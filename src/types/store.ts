@@ -29,11 +29,20 @@ export interface CheckoutFormValues {
   customerMessage: string
 }
 
+export interface CheckoutOrderItem {
+  productId: string
+  productName: string
+  unitPrice: number
+  quantity: number
+  subtotal: number
+}
+
 export interface GeneratedOrderDraft {
   orderCode: string
   customerName: string
   customerPhone: string
   customerMessage: string
+  items: CheckoutOrderItem[]
   whatsappMessage: string
   whatsappUrl: string
   total: number
@@ -45,5 +54,5 @@ export interface StorefrontState {
   categories: CategoryRow[]
   products: StorefrontProduct[]
   storeSettings: StoreSettingsRow
-  source: 'demo' | 'supabase'
+  source: 'mock' | 'supabase'
 }

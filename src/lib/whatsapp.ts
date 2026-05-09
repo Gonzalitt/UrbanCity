@@ -1,5 +1,5 @@
 import { formatCurrency } from '@/lib/formatters'
-import type { CartItem } from '@/types/store'
+import type { CheckoutOrderItem } from '@/types/store'
 
 interface BuildMessageInput {
   orderCode: string
@@ -8,7 +8,7 @@ interface BuildMessageInput {
   customerPhone: string
   customerMessage: string
   checkoutMessage: string | null
-  items: CartItem[]
+  items: CheckoutOrderItem[]
   total: number
 }
 
@@ -17,15 +17,15 @@ export function normalizeWhatsAppPhone(phone: string) {
 }
 
 export function generateOrderCode() {
-  const now = new Date()
-  const datePart = [
-    now.getFullYear().toString().slice(-2),
-    `${now.getMonth() + 1}`.padStart(2, '0'),
-    `${now.getDate()}`.padStart(2, '0'),
-  ].join('')
-  const randomPart = Math.random().toString(36).slice(2, 6).toUpperCase()
+  const randomBuffer = new Uint32Array(1)
+  globalThis.crypto.getRandomValues(randomBuffer)
+  const currentDate = new Date()
+  const year = String(currentDate.getFullYear()).slice(-2)
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0')
+  const day = String(currentDate.getDate()).padStart(2, '0')
+  const randomPart = String((randomBuffer.at(0) ?? 0) % 1_000_000).padStart(6, '0')
 
-  return `UC-${datePart}-${randomPart}`
+  return `PED-${year}${month}${day}-${randomPart}`
 }
 
 export function buildWhatsAppMessage({
@@ -48,10 +48,10 @@ export function buildWhatsAppMessage({
     'Detalle del pedido:',
     ...items.map(
       (item) =>
-        `- ${item.name} x${item.quantity} | ${formatCurrency(item.price * item.quantity)}`,
+        `- ${item.productName} x${item.quantity} | ${formatCurrency(item.subtotal)}`,
     ),
     '',
-    `Total estimado: ${formatCurrency(total)}`,
+    `Total del pedido: ${formatCurrency(total)}`,
     'Estado inicial: pendiente de confirmacion',
   ]
 
