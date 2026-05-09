@@ -7,7 +7,7 @@ UrbanCity es una tienda web simple para un comercio chico que vende por catalogo
 - Storefront publico implementado con datos mock locales.
 - Catalogo con categorias, buscador y detalle de producto.
 - Carrito persistente con Zustand y `localStorage`.
-- Checkout simple sin backend que genera un codigo local `PED-XXXX`.
+- Checkout simple sin backend que genera un codigo local `PED-YYMMDD-XXXXXX`.
 - La UI usa mocks solo cuando `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` no estan configuradas.
 - Si Supabase esta configurado, la UI lee `categories`, `products`, `product_images` y `store_settings` desde Supabase.
 - Si falta una fila valida en `store_settings`, la app muestra error y oculta las acciones de WhatsApp.
@@ -109,7 +109,7 @@ Hace esto:
 - pide nombre
 - pide telefono
 - acepta mensaje opcional
-- genera un codigo local `PED-XXXX`
+- genera un codigo local `PED-YYMMDD-XXXXXX`
 - arma un resumen
 - genera un mensaje de WhatsApp
 - abre `wa.me` con el mensaje precargado
@@ -117,8 +117,18 @@ Hace esto:
 Si Supabase esta configurado:
 
 - guarda el pedido con la RPC `create_order_with_items`
-- usa el total final devuelto por Supabase para reconstruir el mensaje de WhatsApp
+- usa el total final y los items finales devueltos por Supabase para reconstruir el mensaje de WhatsApp
 - bloquea la generacion duplicada mientras exista un draft valido para el carrito actual
+
+Formato de `order_code`:
+
+- prefijo `PED`
+- fecha local en formato `YYMMDD`
+- sufijo aleatorio de 6 digitos generado con `crypto.getRandomValues`
+
+Ejemplo:
+
+- `PED-260508-381204`
 
 ## Variables de entorno
 
@@ -157,6 +167,17 @@ El schema crea estas tablas:
 Tambien crea la RPC:
 
 - `create_order_with_items`
+
+La RPC `create_order_with_items` devuelve:
+
+- `order_id`
+- `order_code`
+- `total`
+- `product_id`
+- `product_name`
+- `unit_price`
+- `quantity`
+- `subtotal`
 
 Y agrega esta tabla para acceso admin:
 
@@ -201,4 +222,4 @@ El archivo [public/_redirects](public/_redirects) deja lista la app para SPA rou
 
 ## Proximo paso recomendado
 
-El siguiente paso sano es completar CRUD de pedidos y configuracion del comercio, manteniendo la logica de checkout sin pagos online ni usuarios compradores.
+El siguiente paso sano es completar la configuracion del comercio y pulir los flujos admin restantes, manteniendo la logica de checkout sin pagos online ni usuarios compradores.

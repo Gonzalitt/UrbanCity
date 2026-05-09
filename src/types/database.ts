@@ -252,6 +252,11 @@ export interface Database {
           order_id: string
           order_code: string
           total: number
+          product_id: string
+          product_name: string
+          unit_price: number
+          quantity: number
+          subtotal: number
         }[]
       }
     }

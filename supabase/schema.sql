@@ -10,21 +10,6 @@ begin
 end;
 $$;
 
-create or replace function public.is_active_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.admin_users
-    where user_id = auth.uid()
-      and is_active = true
-  );
-$$;
-
 create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -40,6 +25,21 @@ create table if not exists public.admin_users (
   is_active boolean not null default true,
   created_at timestamptz not null default timezone('utc', now())
 );
+
+create or replace function public.is_active_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.admin_users
+    where user_id = auth.uid()
+      and is_active = true
+  );
+$$;
 
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
@@ -268,7 +268,12 @@ create or replace function public.create_order_with_items(
 returns table (
   order_id uuid,
   order_code text,
-  total numeric
+  total numeric,
+  product_id uuid,
+  product_name text,
+  unit_price numeric,
+  quantity integer,
+  subtotal numeric
 )
 language plpgsql
 security definer
@@ -369,7 +374,18 @@ begin
   where id = v_order_id;
 
   return query
-  select v_order_id, p_order_code, v_total;
+  select
+    v_order_id,
+    p_order_code,
+    v_total,
+    order_items.product_id,
+    order_items.product_name,
+    order_items.unit_price,
+    order_items.quantity,
+    order_items.subtotal
+  from public.order_items
+  where order_items.order_id = v_order_id
+  order by order_items.created_at, order_items.id;
 exception
   when unique_violation then
     raise exception 'El codigo de pedido ya existe. Reintenta la operacion.';

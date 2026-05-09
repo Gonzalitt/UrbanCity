@@ -29,11 +29,20 @@ export interface CheckoutFormValues {
   customerMessage: string
 }
 
+export interface CheckoutOrderItem {
+  productId: string
+  productName: string
+  unitPrice: number
+  quantity: number
+  subtotal: number
+}
+
 export interface GeneratedOrderDraft {
   orderCode: string
   customerName: string
   customerPhone: string
   customerMessage: string
+  items: CheckoutOrderItem[]
   whatsappMessage: string
   whatsappUrl: string
   total: number

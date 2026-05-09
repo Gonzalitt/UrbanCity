@@ -4,6 +4,7 @@ import { MessageCircle, ShieldCheck, ShoppingBag } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
+import { buttonStyles } from '@/components/ui/buttonStyles'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Input } from '@/components/ui/Input'
@@ -19,7 +20,12 @@ import {
 } from '@/lib/whatsapp'
 import { checkoutSchema, type CheckoutSchema } from '@/schemas/checkout'
 import { useCartStore } from '@/store/cartStore'
-import type { GeneratedOrderDraft } from '@/types/store'
+import type { Database } from '@/types/database'
+import type {
+  CartItem,
+  CheckoutOrderItem,
+  GeneratedOrderDraft,
+} from '@/types/store'
 
 const checkoutDraftStorageKey = 'urbancity-checkout-draft'
 
@@ -27,13 +33,30 @@ interface PersistedCheckoutDraft extends GeneratedOrderDraft {
   cartFingerprint: string
 }
 
-function buildCartFingerprint(
-  items: ReturnType<typeof useCartStore.getState>['items'],
-) {
+type CreateOrderWithItemsRow =
+  Database['public']['Functions']['create_order_with_items']['Returns'][number]
+
+function buildCartFingerprint(items: CartItem[]) {
   return items
     .map((item) => `${item.productId}:${item.quantity}`)
     .sort()
     .join('|')
+}
+
+function buildCheckoutOrderItems(items: CartItem[]): CheckoutOrderItem[] {
+  return items.map((item) => ({
+    productId: item.productId,
+    productName: item.name,
+    unitPrice: item.price,
+    quantity: item.quantity,
+    subtotal: item.price * item.quantity,
+  }))
+}
+
+function clearPersistedDraft() {
+  if (typeof window !== 'undefined') {
+    window.localStorage.removeItem(checkoutDraftStorageKey)
+  }
 }
 
 function readPersistedDraft(cartFingerprint: string) {
@@ -69,6 +92,7 @@ function readPersistedDraft(cartFingerprint: string) {
 
 export function CheckoutPage() {
   const items = useCartStore((state) => state.items)
+  const clearCart = useCartStore((state) => state.clearCart)
   const { storeSettings } = useStorefrontData()
   const [draftState, setDraftState] = useState<PersistedCheckoutDraft | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -94,6 +118,14 @@ export function CheckoutPage() {
     },
   })
 
+  function handleResetDraft() {
+    setDraftState(null)
+    setSubmitError(null)
+    clearPersistedDraft()
+    clearCart()
+    form.reset()
+  }
+
   if (items.length === 0) {
     return (
       <EmptyState
@@ -118,6 +150,7 @@ export function CheckoutPage() {
     const orderCode = generateOrderCode()
     let finalOrderCode = orderCode
     let finalTotal = total
+    let finalItems = buildCheckoutOrderItems(items)
 
     if (isSupabaseConfigured && supabase) {
       const { data, error: rpcError } = await supabase.rpc(
@@ -141,15 +174,8 @@ export function CheckoutPage() {
         return
       }
 
-      const savedOrder = (
-        data as
-          | {
-              order_id: string
-              order_code: string
-              total: number
-            }[]
-          | null
-      )?.[0]
+      const savedOrderRows = (data as CreateOrderWithItemsRow[] | null) ?? []
+      const savedOrder = savedOrderRows[0]
 
       if (!savedOrder) {
         setSubmitError(
@@ -160,6 +186,13 @@ export function CheckoutPage() {
 
       finalOrderCode = savedOrder.order_code || orderCode
       finalTotal = Number(savedOrder.total)
+      finalItems = savedOrderRows.map((row) => ({
+        productId: row.product_id,
+        productName: row.product_name,
+        unitPrice: Number(row.unit_price),
+        quantity: row.quantity,
+        subtotal: Number(row.subtotal),
+      }))
     }
 
     const whatsappMessage = buildWhatsAppMessage({
@@ -169,7 +202,7 @@ export function CheckoutPage() {
       customerPhone: values.customerPhone,
       customerMessage: values.customerMessage ?? '',
       checkoutMessage: storeSettings.checkout_message,
-      items,
+      items: finalItems,
       total: finalTotal,
     })
 
@@ -178,6 +211,7 @@ export function CheckoutPage() {
       customerName: values.customerName,
       customerPhone: values.customerPhone,
       customerMessage: values.customerMessage ?? '',
+      items: finalItems,
       whatsappMessage,
       whatsappUrl: buildWhatsAppUrl(
         storeSettings.whatsapp_phone,
@@ -311,11 +345,30 @@ export function CheckoutPage() {
                 href={draft.whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-success px-5 py-3 text-sm font-medium text-white transition hover:bg-emerald-700"
+                className={buttonStyles({
+                  variant: 'whatsapp',
+                  size: 'md',
+                })}
               >
                 <MessageCircle className="h-4 w-4" />
                 Enviar pedido por WhatsApp
               </a>
+
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to="/carrito"
+                  className={buttonStyles({ variant: 'outline', size: 'md' })}
+                >
+                  Editar carrito
+                </Link>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleResetDraft}
+                >
+                  Vaciar carrito y hacer nuevo pedido
+                </Button>
+              </div>
             </div>
           ) : null}
         </Card>
