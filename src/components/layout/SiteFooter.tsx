@@ -1,4 +1,5 @@
-import { AtSign, MapPin, MessageCircle, Timer } from 'lucide-react'
+import cityLogo from '@/assets/city-logo.jpg'
+import { AtSign, MapPin, MessageCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
@@ -8,85 +9,75 @@ export function SiteFooter() {
   const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
 
   return (
-    <footer className="mt-12 border-t border-stone-900/8 bg-white/55">
-      <div className="shell-container grid gap-8 py-10 sm:grid-cols-[1.2fr_0.8fr]">
-        <div className="space-y-4">
-          <p className="eyebrow">UrbanCity</p>
-          <div className="space-y-2">
-            <h2 className="text-2xl font-semibold tracking-[-0.03em] text-stone-950">
-              {storeSettings.store_name}
-            </h2>
-            <p className="max-w-xl text-sm leading-7 text-muted">
-              Tienda simple para compras resueltas por WhatsApp. Sin pagos
-              integrados, con confirmacion manual del comercio.
-            </p>
-          </div>
-          <div className="grid gap-3 text-sm text-muted sm:grid-cols-3">
-            <div className="flex items-start gap-3 rounded-2xl border border-stone-900/8 bg-white/75 p-4">
-              <MapPin className="mt-0.5 h-4 w-4 text-brand" />
-              <span>{storeSettings.address ?? 'Direccion a definir'}</span>
-            </div>
-            <div className="flex items-start gap-3 rounded-2xl border border-stone-900/8 bg-white/75 p-4">
-              <Timer className="mt-0.5 h-4 w-4 text-brand" />
-              <span>{storeSettings.opening_hours ?? 'Horarios a definir'}</span>
-            </div>
-            <div className="flex items-start gap-3 rounded-2xl border border-stone-900/8 bg-white/75 p-4">
-              <MessageCircle className="mt-0.5 h-4 w-4 text-brand" />
-              {hasWhatsApp ? (
-                <a
-                  href={buildWhatsAppUrl(
-                    storeSettings.whatsapp_phone,
-                    'Hola, quiero hacer una consulta.',
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-stone-950"
-                >
-                  WhatsApp directo
-                </a>
-              ) : (
-                <span>WhatsApp pendiente de configurar</span>
-              )}
+    <footer className="mt-10 border-t border-white/10 bg-[#050505]">
+      <div className="shell-container py-5">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src={cityLogo}
+              alt="City Calzado Urbano"
+              className="h-10 w-10 rounded-full border border-white/10 object-cover"
+            />
+            <div>
+              <p className="text-sm font-semibold tracking-[-0.03em] text-white sm:text-base">
+                {storeSettings.store_name || 'City Calzado Urbano'}
+              </p>
+              <p className="text-xs text-white/54">Sneakers y calzado urbano</p>
             </div>
           </div>
-        </div>
 
-        <div className="grid gap-6 text-sm text-muted sm:justify-self-end">
-          <div className="space-y-2">
-            <p className="font-medium text-stone-950">Enlaces</p>
-            <div className="grid gap-2">
-              <Link to="/" className="hover:text-stone-950">
-                Inicio
-              </Link>
-              <Link to="/catalogo" className="hover:text-stone-950">
-                Catalogo
-              </Link>
-              <Link to="/carrito" className="hover:text-stone-950">
-                Carrito
-              </Link>
-              <Link to="/contacto" className="hover:text-stone-950">
-                Contacto
-              </Link>
-            </div>
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/66">
+            <Link to="/" className="hover:text-white">
+              Inicio
+            </Link>
+            <Link to="/catalogo" className="hover:text-white">
+              {'Cat\u00e1logo'}
+            </Link>
+            <Link to="/contacto" className="hover:text-white">
+              Contacto
+            </Link>
+            <Link to="/carrito" className="hover:text-white">
+              Carrito
+            </Link>
           </div>
-          {storeSettings.instagram_url ? (
-            <div className="space-y-2">
-              <p className="font-medium text-stone-950">Redes</p>
+
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-white/66 md:justify-end">
+            {hasWhatsApp ? (
+              <a
+                href={buildWhatsAppUrl(
+                  storeSettings.whatsapp_phone,
+                  'Hola, quiero hacer una consulta.',
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 hover:text-white"
+              >
+                <MessageCircle className="h-4 w-4 text-brand-strong" />
+                WhatsApp
+              </a>
+            ) : null}
+            {storeSettings.instagram_url ? (
               <a
                 href={storeSettings.instagram_url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 hover:text-stone-950"
+                className="inline-flex items-center gap-2 hover:text-white"
               >
-                <AtSign className="h-4 w-4" />
+                <AtSign className="h-4 w-4 text-brand-strong" />
                 Instagram
               </a>
-            </div>
-          ) : null}
-          <div className="rounded-2xl border border-brand/12 bg-brand/7 p-4 text-sm leading-6 text-stone-700">
-            Pedido pendiente de confirmacion. La disponibilidad y el pago se
-            coordinan con el comercio.
+            ) : null}
+            {storeSettings.address ? (
+              <span className="inline-flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-brand-strong" />
+                {storeSettings.address}
+              </span>
+            ) : null}
           </div>
+        </div>
+
+        <div className="mt-4 border-t border-white/10 pt-3 text-center text-xs text-white/50">
+          {'Pedidos por WhatsApp \u00b7 Retiro coordinado \u00b7 City Calzado Urbano'}
         </div>
       </div>
     </footer>

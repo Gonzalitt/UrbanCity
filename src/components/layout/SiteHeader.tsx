@@ -1,16 +1,77 @@
-import { AtSign, MessageCircle, ShoppingBag } from 'lucide-react'
+import cityLogo from '@/assets/city-logo.jpg'
+import { AtSign, MessageCircle, Search, ShoppingBag } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
-import { buttonStyles } from '@/components/ui/buttonStyles'
 import { cn } from '@/lib/cn'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
-import { useCartStore } from '@/store/cartStore'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
+import { useCartStore } from '@/store/cartStore'
+
+const promoStripItems = [
+  'NUEVOS INGRESOS',
+  'CONSULT\u00c1 TALLES',
+  'RETIRO COORDINADO',
+  'PEDIDOS POR WHATSAPP',
+]
 
 const navLinks = [
   { to: '/', label: 'Inicio' },
-  { to: '/catalogo', label: 'Catalogo' },
+  { to: '/catalogo', label: 'Cat\u00e1logo' },
   { to: '/contacto', label: 'Contacto' },
 ]
+
+function HeaderAction({
+  href,
+  to,
+  label,
+  badge,
+  icon: Icon,
+  iconClassName,
+  mobileLabel = false,
+}: {
+  href?: string
+  to?: string
+  label: string
+  badge?: number
+  icon: typeof Search
+  iconClassName?: string
+  mobileLabel?: boolean
+}) {
+  const content = (
+    <>
+      <Icon className={cn('h-4 w-4', iconClassName)} />
+      <span
+        className={cn(
+          'hidden text-sm font-medium sm:inline',
+          mobileLabel && 'inline text-sm sm:inline',
+        )}
+      >
+        {label}
+      </span>
+      {typeof badge === 'number' ? (
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-strong px-1.5 text-[0.65rem] font-bold text-black">
+          {badge}
+        </span>
+      ) : null}
+    </>
+  )
+
+  const className =
+    'inline-flex items-center gap-2 whitespace-nowrap text-white/72 transition hover:text-white'
+
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={className}>
+        {content}
+      </a>
+    )
+  }
+
+  return (
+    <Link to={to ?? '/'} className={className}>
+      {content}
+    </Link>
+  )
+}
 
 export function SiteHeader() {
   const { storeSettings } = useStorefrontData()
@@ -20,109 +81,128 @@ export function SiteHeader() {
   )
 
   return (
-    <header className="sticky top-0 z-10 border-b border-stone-900/8 bg-white/72 backdrop-blur-xl">
-      <div className="border-b border-stone-900/6">
-        <div className="shell-container flex min-h-10 items-center gap-3 text-xs text-muted">
-          <p className="truncate">
-            Pedidos por WhatsApp. Pago manual y disponibilidad confirmada por el
-            comercio.
-          </p>
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050505]/96 backdrop-blur-xl">
+      <div className="promo-strip-full border-b border-black/10 bg-[#b6ff00] py-2 text-[#050505]">
+        <div className="promo-strip-track">
+          {[...promoStripItems, ...promoStripItems].map((item, index) => (
+            <span
+              key={`${item}-${index}`}
+              className="inline-flex items-center gap-4 px-5 text-[0.68rem] font-semibold uppercase tracking-[0.28em]"
+            >
+              {item}
+              <span className="h-1.5 w-1.5 rounded-full bg-[#050505]" />
+            </span>
+          ))}
         </div>
       </div>
 
-      <div className="shell-container flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center justify-between gap-4">
-          <Link to="/" className="min-w-0">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-sm font-semibold text-white">
-                UC
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-lg font-semibold tracking-[-0.03em] text-stone-950">
-                  {storeSettings.store_name || 'UrbanCity'}
-                </p>
-                <p className="truncate text-xs text-muted">
-                  Curaduria simple para compras rapidas
-                </p>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            to="/carrito"
-            className={cn(
-              buttonStyles({ variant: 'outline', size: 'sm' }),
-              'sm:hidden',
-            )}
-          >
-            <ShoppingBag className="h-4 w-4" />
-            <span>{itemCount}</span>
-          </Link>
-        </div>
-
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          <nav className="flex flex-wrap gap-2">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.to === '/'}
-                className={({ isActive }) =>
-                  cn(
-                    'rounded-full px-4 py-2 text-sm font-medium transition',
-                    isActive
-                      ? 'bg-stone-950 text-white'
-                      : 'text-stone-700 hover:bg-stone-900/6 hover:text-stone-950',
-                  )
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
-          </nav>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {storeSettings.instagram_url ? (
-              <a
-                href={storeSettings.instagram_url}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonStyles({ variant: 'ghost', size: 'sm' })}
-              >
-                <AtSign className="h-4 w-4" />
-                Instagram
-              </a>
-            ) : null}
-            {hasWhatsApp ? (
-              <a
-                href={buildWhatsAppUrl(
-                  storeSettings.whatsapp_phone,
-                  'Hola, quiero hacer una consulta sobre un producto.',
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonStyles({ variant: 'whatsapp', size: 'sm' })}
-              >
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp
-              </a>
-            ) : null}
+      <div className="shell-container">
+        <div className="grid min-h-[72px] items-center gap-4 py-3 lg:grid-cols-[1fr_auto_1fr] lg:gap-6 lg:py-0">
+          <div className="hidden lg:block">
             <Link
-              to="/carrito"
-              className={cn(
-                buttonStyles({ variant: 'outline', size: 'sm' }),
-                'hidden sm:inline-flex',
-              )}
+              to="/catalogo"
+              aria-label="Ir al cat\u00e1logo para buscar productos"
+              className="inline-flex h-11 w-full max-w-[290px] items-center gap-3 rounded-full border border-white/10 bg-[#111111] px-4 text-sm text-white/44 transition hover:bg-white/8 hover:text-white/62"
             >
-              <ShoppingBag className="h-4 w-4" />
-              Carrito
-              <span className="rounded-full bg-stone-950 px-2 py-0.5 text-[0.7rem] font-semibold text-white">
-                {itemCount}
-              </span>
+              <Search className="h-4 w-4 text-white/54" />
+              <span>{'\u00bfQu\u00e9 est\u00e1s buscando?'}</span>
+            </Link>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 lg:contents">
+            <Link to="/" className="min-w-0 lg:justify-self-center">
+              <div className="flex items-center gap-3 lg:flex-col lg:gap-2">
+                <img
+                  src={cityLogo}
+                  alt="City Calzado Urbano"
+                  className="h-12 w-12 rounded-full border border-white/10 object-cover shadow-[0_14px_34px_rgba(0,0,0,0.28)] lg:h-14 lg:w-14"
+                />
+                <div className="min-w-0 lg:text-center">
+                  <p className="truncate text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
+                    {storeSettings.store_name || 'City Calzado Urbano'}
+                  </p>
+                  <p className="truncate text-[0.68rem] uppercase tracking-[0.18em] text-white/46 sm:text-[0.72rem]">
+                    Sneakers y calzado urbano
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <div className="flex items-center gap-2 lg:justify-self-end">
+              {storeSettings.instagram_url ? (
+                <HeaderAction
+                  href={storeSettings.instagram_url}
+                  label="Instagram"
+                  icon={AtSign}
+                  mobileLabel={false}
+                />
+              ) : null}
+
+              {storeSettings.instagram_url ? (
+                <span className="hidden h-4 w-px bg-white/12 sm:block" />
+              ) : null}
+
+              {hasWhatsApp ? (
+                <HeaderAction
+                  href={buildWhatsAppUrl(
+                    storeSettings.whatsapp_phone,
+                    'Hola, quiero consultar talles y disponibilidad.',
+                  )}
+                  label="WhatsApp"
+                  icon={MessageCircle}
+                  iconClassName="text-brand-strong"
+                  mobileLabel={false}
+                />
+              ) : null}
+
+              {hasWhatsApp ? (
+                <span className="hidden h-4 w-px bg-white/12 sm:block" />
+              ) : null}
+
+              <HeaderAction
+                to="/carrito"
+                label="Carrito"
+                badge={itemCount}
+                icon={ShoppingBag}
+                mobileLabel={false}
+              />
+            </div>
+          </div>
+
+          <div className="lg:hidden">
+            <Link
+              to="/catalogo"
+              aria-label="Ir al cat\u00e1logo para buscar productos"
+              className="inline-flex h-11 w-full items-center gap-3 rounded-full border border-white/10 bg-[#111111] px-4 text-sm text-white/44 transition hover:bg-white/8 hover:text-white/62"
+            >
+              <Search className="h-4 w-4 text-white/54" />
+              <span>{'\u00bfQu\u00e9 est\u00e1s buscando?'}</span>
             </Link>
           </div>
         </div>
       </div>
+
+      <nav className="border-t border-white/10">
+        <div className="shell-container flex justify-start gap-6 overflow-x-auto py-3 text-[0.85rem] uppercase tracking-[0.16em] [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden">
+          {navLinks.map((link, index) => (
+            <NavLink
+              key={`${link.to}-${link.label}-${index}`}
+              to={link.to}
+              end
+              className={({ isActive }) =>
+                cn(
+                  'border-b-2 border-transparent pb-2 whitespace-nowrap text-white/70 transition hover:text-white',
+                  isActive
+                    ? 'border-brand-strong text-brand-strong'
+                    : 'hover:border-white/10',
+                )
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
     </header>
   )
 }

@@ -15,7 +15,7 @@ export function CatalogPage() {
   const deferredSearch = useDeferredValue(searchValue)
 
   if (loading) {
-    return <LoadingState label="Cargando catalogo..." />
+    return <LoadingState label={'Cargando cat\u00e1logo...'} />
   }
 
   const normalizedSearch = deferredSearch.trim().toLowerCase()
@@ -34,9 +34,12 @@ export function CatalogPage() {
     <div className="space-y-8">
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
-          eyebrow="Catalogo"
-          title="Productos con foco comercial, sin capas innecesarias."
-          description="Buscador simple, filtros por categoria y estados de disponibilidad legibles para que el cliente resuelva rapido."
+          eyebrow={'Cat\u00e1logo'}
+          title={'Encontr\u00e1 tu pr\u00f3ximo par'}
+          description={
+            'Filtr\u00e1 por categor\u00eda, revis\u00e1 disponibilidad y hac\u00e9 tu pedido por WhatsApp.'
+          }
+          tone="light"
         />
       </section>
 
@@ -52,7 +55,9 @@ export function CatalogPage() {
       {visibleProducts.length === 0 ? (
         <EmptyState
           title="No encontramos productos con ese filtro"
-          description="Probá limpiar la busqueda o cambiar de categoria para volver al catalogo completo."
+          description={
+            'Prob\u00e1 limpiar la b\u00fasqueda o cambiar de categor\u00eda para volver al cat\u00e1logo completo.'
+          }
           action={
             <Button
               type="button"
@@ -67,24 +72,16 @@ export function CatalogPage() {
           }
         />
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}
 
-      <div className="surface-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-stone-950">
-            El pago se coordina con el comercio.
-          </p>
-          <p className="text-sm text-muted">
-            Si un producto figura como “consultar disponibilidad”, el cierre se
-            termina por WhatsApp.
-          </p>
-        </div>
-        <Link to="/carrito" className="text-sm font-medium text-brand-strong">
+      <div className="flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-2 text-sm text-white/62 sm:flex-row sm:items-center">
+        <p>{'Consult\u00e1 disponibilidad y coordin\u00e1 el pago por WhatsApp.'}</p>
+        <Link to="/carrito" className="font-medium text-brand-strong">
           Ver carrito
         </Link>
       </div>
