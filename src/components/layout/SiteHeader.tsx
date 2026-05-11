@@ -8,14 +8,14 @@ import { useCartStore } from '@/store/cartStore'
 
 const promoStripItems = [
   'NUEVOS INGRESOS',
-  'CONSULTA TALLES',
+  'CONSULT\u00c1 TALLES',
   'RETIRO COORDINADO',
   'PEDIDOS POR WHATSAPP',
 ]
 
 const navLinks = [
   { to: '/', label: 'Inicio' },
-  { to: '/catalogo', label: 'Catalogo' },
+  { to: '/catalogo', label: 'Cat\u00e1logo' },
   { to: '/contacto', label: 'Contacto' },
 ]
 
@@ -101,10 +101,11 @@ export function SiteHeader() {
           <div className="hidden lg:block">
             <Link
               to="/catalogo"
+              aria-label="Ir al cat\u00e1logo para buscar productos"
               className="inline-flex h-11 w-full max-w-[290px] items-center gap-3 rounded-full border border-white/10 bg-[#111111] px-4 text-sm text-white/44 transition hover:bg-white/8 hover:text-white/62"
             >
               <Search className="h-4 w-4 text-white/54" />
-              <span>Que estas buscando?</span>
+              <span>{'\u00bfQu\u00e9 est\u00e1s buscando?'}</span>
             </Link>
           </div>
 
@@ -171,10 +172,11 @@ export function SiteHeader() {
           <div className="lg:hidden">
             <Link
               to="/catalogo"
+              aria-label="Ir al cat\u00e1logo para buscar productos"
               className="inline-flex h-11 w-full items-center gap-3 rounded-full border border-white/10 bg-[#111111] px-4 text-sm text-white/44 transition hover:bg-white/8 hover:text-white/62"
             >
               <Search className="h-4 w-4 text-white/54" />
-              <span>Que estas buscando?</span>
+              <span>{'\u00bfQu\u00e9 est\u00e1s buscando?'}</span>
             </Link>
           </div>
         </div>

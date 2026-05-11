@@ -48,7 +48,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.22em] text-brand-strong/78">
-              {product.category?.name ?? 'Catalogo'}
+              {product.category?.name ?? 'Cat\u00e1logo'}
             </p>
             <Link
               to={`/catalogo/${product.slug}`}

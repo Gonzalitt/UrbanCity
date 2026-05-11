@@ -31,7 +31,7 @@ export function SiteFooter() {
               Inicio
             </Link>
             <Link to="/catalogo" className="hover:text-white">
-              Catalogo
+              {'Cat\u00e1logo'}
             </Link>
             <Link to="/contacto" className="hover:text-white">
               Contacto
@@ -77,7 +77,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-4 border-t border-white/10 pt-3 text-center text-xs text-white/50">
-          Pedidos por WhatsApp · Retiro coordinado · City Calzado Urbano
+          {'Pedidos por WhatsApp \u00b7 Retiro coordinado \u00b7 City Calzado Urbano'}
         </div>
       </div>
     </footer>

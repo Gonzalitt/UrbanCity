@@ -47,7 +47,7 @@ export function HomePage() {
           product.category?.id,
           {
             id: product.category?.id ?? product.id,
-            name: product.category?.name ?? 'Categoria',
+            name: product.category?.name ?? 'Categor\u00eda',
           },
         ]),
     ).values(),
@@ -59,9 +59,9 @@ export function HomePage() {
     {
       eyebrow: 'NUEVOS INGRESOS',
       title: 'ZAPATILLAS URBANAS',
-      subtitle: 'PARA TODOS LOS DIAS',
-      description: 'Elegi tu modelo y coordina talles por WhatsApp.',
-      primaryLabel: 'Ver catalogo',
+      subtitle: 'PARA TODOS LOS D\u00cdAS',
+      description: 'Eleg\u00ed tu modelo y coordin\u00e1 talles por WhatsApp.',
+      primaryLabel: 'Ver cat\u00e1logo',
       primaryTo: '/catalogo',
       secondaryLabel: 'Consultar talles',
       secondaryHref: hasWhatsApp
@@ -77,7 +77,7 @@ export function HomePage() {
     {
       eyebrow: 'MODELOS DESTACADOS',
       title: 'CITY DROP',
-      subtitle: 'ELEGI TU PROXIMO PAR',
+      subtitle: 'ELEG\u00cd TU PR\u00d3XIMO PAR',
       description: 'Sneakers y urbanas listas para combinar con tu estilo.',
       primaryLabel: 'Ver destacados',
       primaryTo: '/catalogo',
@@ -94,10 +94,10 @@ export function HomePage() {
     },
     {
       eyebrow: 'PEDIDOS POR WHATSAPP',
-      title: 'ARMA TU PEDIDO',
-      subtitle: 'RETIRA EN EL LOCAL',
+      title: 'ARM\u00c1 TU PEDIDO',
+      subtitle: 'RETIR\u00c1 EN EL LOCAL',
       description: 'Confirmamos disponibilidad, talle y retiro por WhatsApp.',
-      primaryLabel: 'Ir al catalogo',
+      primaryLabel: 'Ir al cat\u00e1logo',
       primaryTo: '/catalogo',
       secondaryLabel: 'Consultar disponibilidad',
       secondaryHref: hasWhatsApp
@@ -268,8 +268,8 @@ export function HomePage() {
         {[
           {
             icon: MessageCircle,
-            title: 'Consulta talles por WhatsApp',
-            copy: 'Te respondemos rapido para ayudarte a elegir.',
+            title: 'Consult\u00e1 talles por WhatsApp',
+            copy: 'Te respondemos r\u00e1pido para ayudarte a elegir.',
           },
           {
             icon: Store,
@@ -278,8 +278,8 @@ export function HomePage() {
           },
           {
             icon: Ruler,
-            title: 'Atencion personalizada',
-            copy: 'Escribinos y te ayudamos con el modelo que buscas.',
+            title: 'Atenci\u00f3n personalizada',
+            copy: 'Escribinos y te ayudamos con el modelo que busc\u00e1s.',
           },
         ].map((item) => {
           const Icon = item.icon
@@ -305,7 +305,7 @@ export function HomePage() {
         <SectionTitle
           eyebrow="Destacados"
           title="Modelos destacados"
-          description="Elegi tu proximo par y consulta disponibilidad."
+          description="Elegí tu próximo par y consultá disponibilidad."
           tone="light"
         />
 
@@ -317,11 +317,11 @@ export function HomePage() {
           </div>
         ) : (
           <EmptyState
-            title="Todavia no hay modelos destacados"
-            description="En cuanto haya productos publicados, los vas a ver aqui primero."
+            title="Todavía no hay modelos destacados"
+            description="En cuanto haya productos publicados, los vas a ver aquí primero."
             action={
               <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-                Ver catalogo
+                {'Ver catálogo'}
               </Link>
             }
           />
@@ -330,9 +330,9 @@ export function HomePage() {
 
       <section className="space-y-5">
         <SectionTitle
-          eyebrow="Categorias"
-          title="Compra por categoria"
-          description="Sneakers, urbanas y accesorios para encontrar rapido tu proximo par."
+          eyebrow="Categorías"
+          title="Compra por categoría"
+          description="Sneakers, urbanas y accesorios para encontrar rápido tu próximo par."
           tone="light"
         />
 
@@ -344,13 +344,13 @@ export function HomePage() {
               className="rounded-[26px] border border-white/10 bg-[#151515] p-5 shadow-[0_20px_44px_rgba(0,0,0,0.22)] transition hover:border-brand-strong/30 hover:bg-[#1a1a1a]"
             >
               <p className="text-xs uppercase tracking-[0.24em] text-brand-strong/82">
-                Categoria
+                {'Categoría'}
               </p>
               <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
                 {category.name}
               </h3>
               <p className="mt-2 text-sm leading-7 text-white/64">
-                Ver modelos y consultar disponibilidad.
+                Ver modelos y consultá disponibilidad.
               </p>
             </Link>
           ))}
@@ -366,7 +366,8 @@ export function HomePage() {
             </h2>
             <p className="text-lg text-brand-strong">@citycalzadourbano</p>
             <p className="max-w-lg text-sm leading-7 text-white/68">
-              Mira nuevos ingresos, combinaciones urbanas y modelos que van
+              {'Mirá nuevos ingresos, combinaciones urbanas y modelos que van'}
+              {' '}
               entrando al local.
             </p>
           </div>
@@ -426,7 +427,7 @@ export function HomePage() {
           <div className="space-y-4">
             <p className="eyebrow">WhatsApp</p>
             <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
-              Queres consultar talles o disponibilidad?
+              {'¿Querés consultar talles o disponibilidad?'}
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-white/72 sm:text-base">
               Escribinos y coordinamos directo con el local.

@@ -27,7 +27,7 @@ export function ProductFilters({
           <input
             value={searchValue}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Buscar por nombre o descripcion"
+            placeholder={'Buscar por nombre o descripci\u00f3n'}
             className="h-12 w-full rounded-2xl border border-white/10 bg-[#101010] pl-11 pr-4 text-sm text-white placeholder:text-white/38 focus:border-brand-strong/55 focus:ring-4 focus:ring-brand-strong/10"
           />
         </label>
