@@ -18,15 +18,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { buttonStyles } from '@/components/ui/buttonStyles'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { cn } from '@/lib/cn'
-import { formatCurrency } from '@/lib/formatters'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
-
-const promoStripItems = [
-  'PEDIDOS POR WHATSAPP',
-  'CONSULTA TALLES',
-  'RETIRO COORDINADO',
-  'NUEVOS INGRESOS',
-]
 
 const instagramTiles = [
   'Streetwear diario',
@@ -40,6 +32,7 @@ const instagramTiles = [
 export function HomePage() {
   const { products, storeSettings, loading } = useStorefrontData()
   const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
+  const [activeSlide, setActiveSlide] = useState(0)
 
   const featuredProducts = products.filter((product) => product.featured)
   const visibleProducts =
@@ -64,12 +57,12 @@ export function HomePage() {
 
   const heroSlides = [
     {
-      eyebrow: 'Nuevos ingresos',
-      title: 'Zapatillas urbanas para moverte con estilo.',
-      description:
-        'Elegi tu modelo, arma tu pedido y coordinamos disponibilidad por WhatsApp.',
-      ctaLabel: 'Ver catalogo',
-      ctaTo: '/catalogo',
+      eyebrow: 'NUEVOS INGRESOS',
+      title: 'ZAPATILLAS URBANAS',
+      subtitle: 'PARA TODOS LOS DIAS',
+      description: 'Elegi tu modelo y coordina talles por WhatsApp.',
+      primaryLabel: 'Ver catalogo',
+      primaryTo: '/catalogo',
       secondaryLabel: 'Consultar talles',
       secondaryHref: hasWhatsApp
         ? buildWhatsAppUrl(
@@ -77,43 +70,47 @@ export function HomePage() {
             'Hola, quiero consultar talles disponibles.',
           )
         : null,
+      backdropWord: 'CITY',
+      badge: 'NUEVO',
       product: heroProducts[0] ?? null,
     },
     {
-      eyebrow: 'Modelos destacados',
-      title: 'Comodidad para todos los dias.',
-      description:
-        'Pares faciles de combinar para sumar estilo urbano en cualquier momento del dia.',
-      ctaLabel: 'Ver destacados',
-      ctaTo: '/catalogo',
-      secondaryLabel: 'Consultar disponibilidad',
+      eyebrow: 'MODELOS DESTACADOS',
+      title: 'CITY DROP',
+      subtitle: 'ELEGI TU PROXIMO PAR',
+      description: 'Sneakers y urbanas listas para combinar con tu estilo.',
+      primaryLabel: 'Ver destacados',
+      primaryTo: '/catalogo',
+      secondaryLabel: 'WhatsApp',
       secondaryHref: hasWhatsApp
         ? buildWhatsAppUrl(
             storeSettings.whatsapp_phone,
             'Hola, quiero consultar disponibilidad de un modelo destacado.',
           )
         : null,
+      backdropWord: 'DROP',
+      badge: 'DESTACADO',
       product: heroProducts[1] ?? heroProducts[0] ?? null,
     },
     {
-      eyebrow: 'Consulta tu talle',
-      title: 'Te ayudamos a elegir tu proximo par.',
-      description:
-        'Escribinos, consultanos talles y coordinamos retiro directo con el local.',
-      ctaLabel: 'Arma tu pedido',
-      ctaTo: '/catalogo',
-      secondaryLabel: 'Hablar por WhatsApp',
+      eyebrow: 'PEDIDOS POR WHATSAPP',
+      title: 'ARMA TU PEDIDO',
+      subtitle: 'RETIRA EN EL LOCAL',
+      description: 'Confirmamos disponibilidad, talle y retiro por WhatsApp.',
+      primaryLabel: 'Ir al catalogo',
+      primaryTo: '/catalogo',
+      secondaryLabel: 'Consultar disponibilidad',
       secondaryHref: hasWhatsApp
         ? buildWhatsAppUrl(
             storeSettings.whatsapp_phone,
-            'Hola, quiero ayuda para elegir talle y modelo.',
+            'Hola, quiero consultar disponibilidad de un modelo.',
           )
         : null,
+      backdropWord: 'SNEAKERS',
+      badge: 'WHATSAPP',
       product: heroProducts[2] ?? heroProducts[0] ?? null,
     },
   ]
-
-  const [activeSlide, setActiveSlide] = useState(0)
 
   useEffect(() => {
     if (heroSlides.length <= 1) {
@@ -143,169 +140,126 @@ export function HomePage() {
 
   return (
     <div className="space-y-10 sm:space-y-14">
-      <section className="space-y-4">
-        <div className="promo-strip rounded-full border border-white/10 bg-[#111111] py-3 text-white/72">
-          <div className="promo-strip-track">
-            {[...promoStripItems, ...promoStripItems].map((item, index) => (
-              <span
-                key={`${item}-${index}`}
-                className="inline-flex items-center gap-6 px-6 text-[0.72rem] font-semibold uppercase tracking-[0.26em]"
-              >
-                {item}
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-strong/70" />
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="surface-panel relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(182,255,0,0.14),transparent_20%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.05),transparent_24%)]" />
-          <div className="absolute -top-16 right-8 h-52 w-52 rounded-full bg-brand-strong/10 blur-3xl" />
-
-          <div className="relative min-h-[640px] sm:min-h-[600px]">
-            {heroSlides.map((slide, index) => (
-              <div
-                key={slide.eyebrow}
-                className={cn(
-                  'absolute inset-0 transition duration-500',
-                  activeSlide === index
-                    ? 'translate-y-0 opacity-100'
-                    : 'pointer-events-none translate-y-2 opacity-0',
-                )}
-              >
-                <div className="grid h-full gap-8 p-6 sm:p-8 lg:grid-cols-[1.02fr_0.98fr] lg:p-10">
-                  <div className="flex flex-col justify-between gap-8">
-                    <div className="space-y-6">
+      <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-b border-white/10 bg-[#050505]">
+        <div className="relative min-h-[520px] lg:min-h-[620px]">
+          <div
+            className="hero-slider-track"
+            style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+          >
+            {heroSlides.map((slide) => (
+              <div key={slide.eyebrow} className="hero-slide">
+                <div className="shell-container grid min-h-[520px] items-center gap-8 py-10 sm:py-12 lg:min-h-[620px] lg:grid-cols-[0.92fr_1.08fr] lg:gap-10 lg:py-16">
+                  <div className="relative z-10 max-w-xl space-y-6">
+                    <div className="space-y-4">
                       <p className="eyebrow">{slide.eyebrow}</p>
-                      <div className="space-y-4">
-                        <h1 className="page-title">{slide.title}</h1>
-                        <p className="page-copy">{slide.description}</p>
+                      <div className="space-y-1">
+                        <h1 className="font-[var(--font-display)] text-5xl leading-[0.94] font-bold uppercase tracking-[-0.05em] text-white sm:text-6xl lg:text-7xl">
+                          {slide.title}
+                        </h1>
+                        <p className="font-[var(--font-display)] text-4xl leading-[0.94] font-bold uppercase tracking-[-0.04em] text-brand-strong sm:text-5xl lg:text-6xl">
+                          {slide.subtitle}
+                        </p>
                       </div>
-
-                      <div className="flex flex-wrap gap-3">
-                        <Link
-                          to={slide.ctaTo}
-                          className={buttonStyles({
-                            size: 'lg',
-                            variant: 'secondary',
-                          })}
-                        >
-                          {slide.ctaLabel}
-                          <ArrowRight className="h-4 w-4" />
-                        </Link>
-                        {slide.secondaryHref ? (
-                          <a
-                            href={slide.secondaryHref}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={buttonStyles({
-                              variant: 'outline',
-                              size: 'lg',
-                            })}
-                          >
-                            <MessageCircle className="h-4 w-4" />
-                            {slide.secondaryLabel}
-                          </a>
-                        ) : null}
-                      </div>
+                      <p className="max-w-lg text-sm leading-7 text-white/72 sm:text-base">
+                        {slide.description}
+                      </p>
                     </div>
 
-                    <div className="flex flex-wrap gap-3 text-sm text-white/72">
-                      <span className="rounded-full border border-white/10 bg-white/6 px-4 py-2">
-                        Zapatillas urbanas
-                      </span>
-                      <span className="rounded-full border border-white/10 bg-white/6 px-4 py-2">
-                        Comodidad diaria
-                      </span>
-                      <span className="rounded-full border border-white/10 bg-white/6 px-4 py-2">
-                        Retiro coordinado
-                      </span>
+                    <div className="flex flex-wrap gap-3">
+                      <Link
+                        to={slide.primaryTo}
+                        className={buttonStyles({
+                          variant: 'secondary',
+                          size: 'lg',
+                        })}
+                      >
+                        {slide.primaryLabel}
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                      {slide.secondaryHref ? (
+                        <a
+                          href={slide.secondaryHref}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={buttonStyles({
+                            variant: 'outline',
+                            size: 'lg',
+                          })}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          {slide.secondaryLabel}
+                        </a>
+                      ) : null}
                     </div>
                   </div>
 
-                  <div className="relative flex min-h-[360px] items-end overflow-hidden rounded-[34px] border border-white/10 bg-[#0d0d0d] p-5 sm:p-6">
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.18)),radial-gradient(circle_at_top_left,rgba(182,255,0,0.12),transparent_18%)]" />
-                    <img
-                      src={cityLogo}
-                      alt="City Calzado Urbano"
-                      className="absolute top-6 right-6 h-20 w-20 rounded-full border border-white/10 object-cover opacity-95 shadow-[0_20px_50px_rgba(0,0,0,0.32)]"
-                    />
-                    <div className="absolute left-5 top-6 text-[5rem] leading-none font-black uppercase tracking-[-0.08em] text-white/6 sm:text-[7rem]">
-                      CITY
+                  <div className="relative flex min-h-[280px] items-center justify-center lg:min-h-[500px]">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(182,255,0,0.18),transparent_20%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.06),transparent_28%)]" />
+                    <div className="absolute top-4 left-0 text-[4.4rem] leading-none font-black uppercase tracking-[-0.08em] text-white/6 sm:text-[6rem] lg:top-0 lg:text-[9rem]">
+                      {slide.backdropWord}
+                    </div>
+                    <div className="absolute top-6 right-0 rounded-full border border-white/10 bg-white/6 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white">
+                      {slide.badge}
                     </div>
 
-                    <div className="relative z-10 grid w-full gap-5 lg:grid-cols-[1.12fr_0.88fr] lg:items-end">
-                      <ProductVisual
-                        seed={slide.product?.slug ?? slide.eyebrow}
-                        name={slide.product?.name ?? 'City Calzado Urbano'}
-                        categoryName={slide.product?.category?.name ?? slide.eyebrow}
-                        imageUrl={slide.product?.primaryImage?.url}
-                        className="aspect-[4/4.35] min-h-[250px]"
-                      />
-
-                      <div className="rounded-[28px] border border-white/10 bg-[#101010] p-5">
-                        <p className="text-xs uppercase tracking-[0.24em] text-brand-strong/82">
-                          {slide.product?.category?.name ?? 'City Calzado Urbano'}
-                        </p>
-                        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
-                          {slide.product?.name ?? 'Streetwear para todos los dias'}
-                        </h2>
-                        <p className="mt-2 text-sm leading-7 text-white/68">
-                          {slide.product?.description ??
-                            'Modelos listos para combinar con tu estilo diario.'}
-                        </p>
-                        <div className="mt-4 flex items-center justify-between gap-3">
-                          <span className="text-sm text-white/58">
-                            Consulta talles
-                          </span>
-                          <span className="text-xl font-semibold text-white">
-                            {slide.product ? formatCurrency(slide.product.price) : 'Nuevo ingreso'}
-                          </span>
-                        </div>
+                    {slide.product ? (
+                      <div className="relative z-10 w-full max-w-[640px] lg:translate-x-6 lg:rotate-[-6deg]">
+                        <ProductVisual
+                          seed={slide.product.slug}
+                          name={slide.product.name}
+                          categoryName={slide.product.category?.name}
+                          imageUrl={slide.product.primaryImage?.url}
+                          className="h-[300px] sm:h-[380px] lg:h-[500px]"
+                        />
                       </div>
-                    </div>
+                    ) : (
+                      <div className="relative z-10 flex h-[320px] w-full max-w-[620px] items-center justify-center rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.12))] lg:h-[500px]">
+                        <img
+                          src={cityLogo}
+                          alt="City Calzado Urbano"
+                          className="h-44 w-44 rounded-full border border-white/10 object-cover shadow-[0_28px_60px_rgba(0,0,0,0.28)] sm:h-52 sm:w-52"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="absolute right-6 bottom-6 left-6 z-20 flex items-center justify-between gap-4">
-            <div className="flex gap-2">
-              {heroSlides.map((slide, index) => (
-                <button
-                  key={slide.eyebrow}
-                  type="button"
-                  aria-label={`Ir al slide ${index + 1}`}
-                  onClick={() => setActiveSlide(index)}
-                  className={cn(
-                    'h-2.5 rounded-full transition',
-                    activeSlide === index
-                      ? 'w-8 bg-brand-strong'
-                      : 'w-2.5 bg-white/28 hover:bg-white/42',
-                  )}
-                />
-              ))}
-            </div>
+          <button
+            type="button"
+            aria-label="Slide anterior"
+            onClick={goToPreviousSlide}
+            className="absolute top-1/2 left-4 z-20 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#0f0f0f]/88 text-white backdrop-blur-sm hover:bg-white/10"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
 
-            <div className="flex gap-2">
+          <button
+            type="button"
+            aria-label="Slide siguiente"
+            onClick={goToNextSlide}
+            className="absolute top-1/2 right-4 z-20 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#0f0f0f]/88 text-white backdrop-blur-sm hover:bg-white/10"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+
+          <div className="absolute right-0 bottom-6 left-0 z-20 flex justify-center gap-2">
+            {heroSlides.map((slide, index) => (
               <button
+                key={slide.eyebrow}
                 type="button"
-                aria-label="Slide anterior"
-                onClick={goToPreviousSlide}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-[#111111]/88 text-white hover:bg-white/10"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                aria-label="Slide siguiente"
-                onClick={goToNextSlide}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-[#111111]/88 text-white hover:bg-white/10"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
+                aria-label={`Ir al slide ${index + 1}`}
+                onClick={() => setActiveSlide(index)}
+                className={cn(
+                  'h-2.5 rounded-full transition',
+                  activeSlide === index
+                    ? 'w-9 bg-brand-strong'
+                    : 'w-2.5 bg-white/26 hover:bg-white/42',
+                )}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -314,8 +268,8 @@ export function HomePage() {
         {[
           {
             icon: MessageCircle,
-            title: 'Atencion por WhatsApp',
-            copy: 'Te respondemos directo para ayudarte con el pedido.',
+            title: 'Consulta talles por WhatsApp',
+            copy: 'Te respondemos rapido para ayudarte a elegir.',
           },
           {
             icon: Store,
@@ -324,8 +278,8 @@ export function HomePage() {
           },
           {
             icon: Ruler,
-            title: 'Consulta talles',
-            copy: 'Escribinos y te ayudamos a elegir el talle correcto.',
+            title: 'Atencion personalizada',
+            copy: 'Escribinos y te ayudamos con el modelo que buscas.',
           },
         ].map((item) => {
           const Icon = item.icon
@@ -351,7 +305,7 @@ export function HomePage() {
         <SectionTitle
           eyebrow="Destacados"
           title="Modelos destacados"
-          description="Zapatillas urbanas para todos los dias."
+          description="Elegi tu proximo par y consulta disponibilidad."
           tone="light"
         />
 
@@ -413,7 +367,7 @@ export function HomePage() {
             <p className="text-lg text-brand-strong">@citycalzadourbano</p>
             <p className="max-w-lg text-sm leading-7 text-white/68">
               Mira nuevos ingresos, combinaciones urbanas y modelos que van
-              entrando al local. Este bloque es visual y te lleva directo al perfil.
+              entrando al local.
             </p>
           </div>
 

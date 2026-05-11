@@ -120,22 +120,33 @@
     background-size: 28px 28px;
   }
 
-  .promo-strip {
+  .promo-strip-full {
     overflow: hidden;
   }
 
   .promo-strip-track {
     display: flex;
     width: max-content;
-    animation: promo-strip-scroll 22s linear infinite;
+    animation: marquee 22s linear infinite;
   }
 
-  .promo-strip:hover .promo-strip-track {
+  .promo-strip-full:hover .promo-strip-track {
     animation-play-state: paused;
+  }
+
+  .hero-slider-track {
+    display: flex;
+    height: 100%;
+    transition: transform 700ms ease-out;
+    will-change: transform;
+  }
+
+  .hero-slide {
+    min-width: 100%;
   }
 }
 
-@keyframes promo-strip-scroll {
+@keyframes marquee {
   from {
     transform: translateX(0);
   }
@@ -148,5 +159,9 @@
 @media (prefers-reduced-motion: reduce) {
   .promo-strip-track {
     animation: none;
+  }
+
+  .hero-slider-track {
+    transition: none;
   }
 }

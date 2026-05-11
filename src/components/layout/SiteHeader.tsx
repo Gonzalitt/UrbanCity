@@ -1,11 +1,17 @@
 import cityLogo from '@/assets/city-logo.jpg'
 import { AtSign, MessageCircle, ShoppingBag } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
-import { buttonStyles } from '@/components/ui/buttonStyles'
 import { cn } from '@/lib/cn'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { useCartStore } from '@/store/cartStore'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
+
+const promoStripItems = [
+  'NUEVOS INGRESOS',
+  'CONSULTA TALLES',
+  'RETIRO COORDINADO',
+  'PEDIDOS POR WHATSAPP',
+]
 
 const navLinks = [
   { to: '/', label: 'Inicio' },
@@ -21,62 +27,95 @@ export function SiteHeader() {
   )
 
   return (
-    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#050505]/94 backdrop-blur-xl">
-      <div className="border-b border-white/8">
-        <div className="shell-container flex min-h-11 items-center gap-3 text-xs text-white/68">
-          <span className="inline-flex h-2 w-2 rounded-full bg-brand-strong" />
-          <p className="truncate">
-            Pedidos por WhatsApp. El pago y la disponibilidad se coordinan con el
-            comercio.
-          </p>
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#050505]/94 backdrop-blur-xl">
+      <div className="promo-strip-full border-b border-white/10 bg-[#111111] py-2 text-[#b6ff00]">
+        <div className="promo-strip-track">
+          {[...promoStripItems, ...promoStripItems].map((item, index) => (
+            <span
+              key={`${item}-${index}`}
+              className="inline-flex items-center gap-5 px-5 text-[0.68rem] font-semibold uppercase tracking-[0.28em]"
+            >
+              {item}
+              <span className="h-1.5 w-1.5 rounded-full bg-[#b6ff00]" />
+            </span>
+          ))}
         </div>
       </div>
 
-      <div className="shell-container flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center justify-between gap-4">
-          <Link to="/" className="min-w-0">
-            <div className="flex items-center gap-3">
-              <img
-                src={cityLogo}
-                alt="City Calzado Urbano"
-                className="h-12 w-12 rounded-full border border-white/10 object-cover shadow-[0_14px_34px_rgba(0,0,0,0.28)]"
-              />
-              <div className="min-w-0">
-                <p className="truncate text-lg font-semibold tracking-[-0.03em] text-white">
-                  {storeSettings.store_name || 'City Calzado Urbano'}
-                </p>
-                <p className="truncate text-xs uppercase tracking-[0.18em] text-white/48">
-                  Sneakers y calzado urbano
-                </p>
+      <div className="shell-container py-3 sm:py-4">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <Link to="/" className="min-w-0">
+              <div className="flex items-center gap-3">
+                <img
+                  src={cityLogo}
+                  alt="City Calzado Urbano"
+                  className="h-11 w-11 rounded-full border border-white/10 object-cover shadow-[0_14px_34px_rgba(0,0,0,0.28)] sm:h-12 sm:w-12"
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
+                    {storeSettings.store_name || 'City Calzado Urbano'}
+                  </p>
+                  <p className="truncate text-[0.7rem] uppercase tracking-[0.18em] text-white/46 sm:text-xs">
+                    Sneakers y calzado urbano
+                  </p>
+                </div>
               </div>
+            </Link>
+
+            <div className="flex items-center gap-2">
+              {storeSettings.instagram_url ? (
+                <a
+                  href={storeSettings.instagram_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 text-sm text-white/78 transition hover:bg-white/10 hover:text-white"
+                >
+                  <AtSign className="h-4 w-4" />
+                  <span className="hidden sm:inline">Instagram</span>
+                </a>
+              ) : null}
+
+              {hasWhatsApp ? (
+                <a
+                  href={buildWhatsAppUrl(
+                    storeSettings.whatsapp_phone,
+                    'Hola, quiero consultar talles y disponibilidad.',
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-[#151515] px-3 text-sm text-white/82 transition hover:bg-white/10 hover:text-white"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span className="hidden sm:inline">WhatsApp</span>
+                </a>
+              ) : null}
+
+              <Link
+                to="/carrito"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-[#151515] px-3 text-sm text-white transition hover:bg-white/10"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                <span className="hidden sm:inline">Carrito</span>
+                <span className="rounded-full bg-brand-strong px-2 py-0.5 text-[0.68rem] font-semibold text-black">
+                  {itemCount}
+                </span>
+              </Link>
             </div>
-          </Link>
+          </div>
 
-          <Link
-            to="/carrito"
-            className={cn(
-              buttonStyles({ variant: 'outline', size: 'sm' }),
-              'sm:hidden',
-            )}
-          >
-            <ShoppingBag className="h-4 w-4" />
-            <span>{itemCount}</span>
-          </Link>
-        </div>
-
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          <nav className="flex flex-wrap gap-2">
-            {navLinks.map((link) => (
+          <nav className="flex items-center gap-5 overflow-x-auto pb-1 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {navLinks.map((link, index) => (
               <NavLink
-                key={link.to}
+                key={`${link.to}-${link.label}-${index}`}
                 to={link.to}
-                end={link.to === '/'}
+                end
                 className={({ isActive }) =>
                   cn(
-                    'rounded-full border px-4 py-2 text-sm font-medium transition',
+                    'border-b-2 border-transparent pb-2 whitespace-nowrap text-white/70 transition hover:text-white',
                     isActive
-                      ? 'border-brand-strong bg-brand-strong text-black'
-                      : 'border-white/10 text-white/72 hover:bg-white/6 hover:text-white',
+                      ? 'border-brand-strong text-brand-strong'
+                      : 'hover:border-white/10',
                   )
                 }
               >
@@ -84,47 +123,6 @@ export function SiteHeader() {
               </NavLink>
             ))}
           </nav>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {storeSettings.instagram_url ? (
-              <a
-                href={storeSettings.instagram_url}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonStyles({ variant: 'outline', size: 'sm' })}
-              >
-                <AtSign className="h-4 w-4" />
-                Instagram
-              </a>
-            ) : null}
-            {hasWhatsApp ? (
-              <a
-                href={buildWhatsAppUrl(
-                  storeSettings.whatsapp_phone,
-                  'Hola, quiero consultar por calzado y stock disponible.',
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonStyles({ variant: 'whatsapp', size: 'sm' })}
-              >
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp
-              </a>
-            ) : null}
-            <Link
-              to="/carrito"
-              className={cn(
-                buttonStyles({ variant: 'outline', size: 'sm' }),
-                'hidden sm:inline-flex',
-              )}
-            >
-              <ShoppingBag className="h-4 w-4" />
-              Carrito
-              <span className="rounded-full bg-black px-2 py-0.5 text-[0.7rem] font-semibold text-brand-strong">
-                {itemCount}
-              </span>
-            </Link>
-          </div>
         </div>
       </div>
     </header>
