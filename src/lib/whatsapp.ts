@@ -41,9 +41,9 @@ export function buildWhatsAppMessage({
   const lines = [
     `Hola, quiero confirmar un pedido de ${storeName}.`,
     '',
-    `Codigo: ${orderCode}`,
+    `Código: ${orderCode}`,
     `Cliente: ${customerName}`,
-    `Telefono: ${customerPhone}`,
+    `Teléfono: ${customerPhone}`,
     '',
     'Detalle del pedido:',
     ...items.map(
@@ -51,8 +51,10 @@ export function buildWhatsAppMessage({
         `- ${item.productName} x${item.quantity} | ${formatCurrency(item.subtotal)}`,
     ),
     '',
-    `Total del pedido: ${formatCurrency(total)}`,
-    'Estado inicial: pendiente de confirmacion',
+    `Total contado estimado: ${formatCurrency(total)}`,
+    'Estado inicial: pendiente de confirmación',
+    'Forma de pago a confirmar: efectivo / transferencia / billetera virtual / tarjeta / cuotas.',
+    'Importante: el precio publicado corresponde a pago contado estimado. El precio final se confirma por WhatsApp.',
   ]
 
   if (customerMessage.trim()) {

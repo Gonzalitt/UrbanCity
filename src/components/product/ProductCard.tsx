@@ -83,12 +83,17 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
         <div className="flex items-center justify-between gap-4">
           <div>
             {discountPercent ? (
-              <p className="text-sm font-medium text-white/42 line-through">
-                {formatCurrency(product.compare_at_price ?? 0)}
-              </p>
+              <>
+                <p className="text-sm font-medium text-white/42 line-through">
+                  {formatCurrency(product.compare_at_price ?? 0)}
+                </p>
+                <p className="text-[0.72rem] font-medium uppercase tracking-[0.22em] text-white/42">
+                  Contado
+                </p>
+              </>
             ) : (
               <p className="text-xs uppercase tracking-[0.22em] text-white/42">
-                Desde
+                Contado
               </p>
             )}
             <p className="text-2xl font-semibold tracking-[-0.03em] text-white">
