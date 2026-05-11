@@ -16,14 +16,8 @@ export function ContactPage() {
     'https://www.google.com/maps/place/Galer%C3%ADa+Provincial/@-31.5318519,-68.5324635,14870m/data=!3m1!1e3!4m6!3m5!1s0x96816b81c8db64d1:0xf4ab9011369707b3!8m2!3d-31.5368791!4d-68.5240926!16s%2Fg%2F11h1b08m_y?entry=ttu&g_ep=EgoyMDI2MDUwNi4wIKXMDSoASAFQAw%3D%3D'
   const normalizedAddress = storeSettings.address?.trim()
   const address = normalizedAddress || fallbackAddress
-  const mapQuery = normalizedAddress || fallbackAddress
-  const mapsQuery = encodeURIComponent(mapQuery)
-  const embeddedMapUrl = normalizedAddress
-    ? `https://www.google.com/maps?q=${mapsQuery}&output=embed`
-    : fallbackEmbedUrl
-  const openMapUrl = normalizedAddress
-    ? `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`
-    : fallbackPlaceUrl
+  const embeddedMapUrl = fallbackEmbedUrl
+  const openMapUrl = fallbackPlaceUrl
 
   return (
     <div className="space-y-8">
