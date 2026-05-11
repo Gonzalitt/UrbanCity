@@ -9,49 +9,39 @@ export function SiteFooter() {
   const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
 
   return (
-    <footer className="mt-12 border-t border-white/10 bg-[#050505]">
-      <div className="shell-container py-7">
-        <div className="grid gap-6 md:grid-cols-[1.1fr_0.8fr_1fr]">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <img
-                src={cityLogo}
-                alt="City Calzado Urbano"
-                className="h-11 w-11 rounded-full border border-white/10 object-cover"
-              />
-              <div>
-                <p className="text-base font-semibold tracking-[-0.03em] text-white">
-                  {storeSettings.store_name || 'City Calzado Urbano'}
-                </p>
-                <p className="text-sm text-white/58">Sneakers y calzado urbano</p>
-              </div>
+    <footer className="mt-10 border-t border-white/10 bg-[#050505]">
+      <div className="shell-container py-5">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src={cityLogo}
+              alt="City Calzado Urbano"
+              className="h-10 w-10 rounded-full border border-white/10 object-cover"
+            />
+            <div>
+              <p className="text-sm font-semibold tracking-[-0.03em] text-white sm:text-base">
+                {storeSettings.store_name || 'City Calzado Urbano'}
+              </p>
+              <p className="text-xs text-white/54">Sneakers y calzado urbano</p>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.22em] text-white/42">
-              Navegacion
-            </p>
-            <div className="grid gap-2 text-sm text-white/68">
-              <Link to="/" className="hover:text-white">
-                Inicio
-              </Link>
-              <Link to="/catalogo" className="hover:text-white">
-                Catalogo
-              </Link>
-              <Link to="/contacto" className="hover:text-white">
-                Contacto
-              </Link>
-              <Link to="/carrito" className="hover:text-white">
-                Carrito
-              </Link>
-            </div>
-          </div>
-
-          <div className="space-y-3 text-sm text-white/68">
-            <p className="text-xs uppercase tracking-[0.22em] text-white/42">
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/66">
+            <Link to="/" className="hover:text-white">
+              Inicio
+            </Link>
+            <Link to="/catalogo" className="hover:text-white">
+              Catalogo
+            </Link>
+            <Link to="/contacto" className="hover:text-white">
               Contacto
-            </p>
+            </Link>
+            <Link to="/carrito" className="hover:text-white">
+              Carrito
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-white/66 md:justify-end">
             {hasWhatsApp ? (
               <a
                 href={buildWhatsAppUrl(
@@ -78,17 +68,16 @@ export function SiteFooter() {
               </a>
             ) : null}
             {storeSettings.address ? (
-              <p className="inline-flex items-start gap-2">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-strong" />
-                <span>{storeSettings.address}</span>
-              </p>
+              <span className="inline-flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-brand-strong" />
+                {storeSettings.address}
+              </span>
             ) : null}
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col gap-2 border-t border-white/10 pt-4 text-xs text-white/52 sm:flex-row sm:items-center sm:justify-between">
-          <p>Pedidos coordinados por WhatsApp | Disponibilidad sujeta a confirmacion</p>
-          <p>City Calzado Urbano</p>
+        <div className="mt-4 border-t border-white/10 pt-3 text-center text-xs text-white/50">
+          Pedidos por WhatsApp · Retiro coordinado · City Calzado Urbano
         </div>
       </div>
     </footer>

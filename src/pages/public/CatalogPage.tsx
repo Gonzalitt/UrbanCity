@@ -75,17 +75,9 @@ export function CatalogPage() {
         </div>
       )}
 
-      <div className="surface-panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-white">
-            El pago se coordina con el comercio.
-          </p>
-          <p className="text-sm text-white/72">
-            Si un producto figura como consultar disponibilidad, el cierre se
-            termina por WhatsApp.
-          </p>
-        </div>
-        <Link to="/carrito" className="text-sm font-medium text-brand-strong">
+      <div className="flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-2 text-sm text-white/62 sm:flex-row sm:items-center">
+        <p>Consulta disponibilidad y coordina el pago por WhatsApp.</p>
+        <Link to="/carrito" className="font-medium text-brand-strong">
           Ver carrito
         </Link>
       </div>
