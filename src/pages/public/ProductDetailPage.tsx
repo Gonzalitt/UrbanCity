@@ -41,11 +41,11 @@ export function ProductDetailPage() {
   if (!product) {
     return (
       <EmptyState
-        title="Ese producto no existe o ya no esta visible"
-        description="Volve al catalogo para seguir navegando la tienda."
+        title="Ese producto no existe o ya no está visible"
+        description="Volvé al catálogo para seguir navegando la tienda."
         action={
           <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-            Ir al catalogo
+            Ir al catálogo
           </Link>
         }
       />
@@ -71,7 +71,7 @@ export function ProductDetailPage() {
         className="inline-flex items-center gap-2 text-sm font-medium text-white/72 hover:text-white"
       >
         <ArrowLeft className="h-4 w-4" />
-        Volver al catalogo
+        Volver al catálogo
       </Link>
 
       <section className="surface-panel overflow-hidden">
@@ -86,7 +86,7 @@ export function ProductDetailPage() {
 
           <div className="space-y-6">
             <div className="space-y-4">
-              <p className="eyebrow">{product.category?.name ?? 'Catalogo'}</p>
+              <p className="eyebrow">{product.category?.name ?? 'Catálogo'}</p>
               <div className="space-y-3">
                 <h1 className="text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
                   {product.name}
@@ -111,6 +111,9 @@ export function ProductDetailPage() {
                     {formatCurrency(product.compare_at_price ?? 0)}
                   </span>
                 ) : null}
+                <span className="text-xs font-medium uppercase tracking-[0.22em] text-white/42">
+                  Precio contado
+                </span>
                 <span className="text-3xl font-semibold tracking-[-0.04em] text-white">
                   {formatCurrency(product.price)}
                 </span>
@@ -120,11 +123,17 @@ export function ProductDetailPage() {
                   Oferta vigente sujeta a disponibilidad.
                 </p>
               ) : null}
+              <div className="space-y-2 rounded-[24px] border border-white/12 bg-white/6 p-4 text-sm leading-6 text-white/78">
+                <p>💳 3 cuotas sin interés disponibles</p>
+                <p>💰 20% OFF pago contado</p>
+                <p>📲 Billeteras virtuales incluidas como pago contado</p>
+              </div>
             </div>
 
             <div className="rounded-[24px] border border-white/12 bg-white/6 p-4 text-sm leading-6 text-white/78">
-              Pedido pendiente de confirmacion. El pago se coordina con el
-              comercio y la disponibilidad final sera confirmada por WhatsApp.
+              Pedido pendiente de confirmación. El total publicado corresponde a
+              precio contado estimado. Confirmamos disponibilidad, talle, forma de
+              pago y precio final por WhatsApp.
             </div>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -169,8 +178,8 @@ export function ProductDetailPage() {
         <section className="space-y-5">
           <SectionTitle
             eyebrow="Relacionados"
-            title="Tambien puede interesarte"
-            description="Productos de la misma categoria para completar el pedido sin salir del flujo."
+            title="También puede interesarte"
+            description="Productos de la misma categoría para completar el pedido sin salir del flujo."
             tone="light"
           />
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

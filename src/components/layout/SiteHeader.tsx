@@ -7,9 +7,9 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp'
 import { useCartStore } from '@/store/cartStore'
 
 const promoStripItems = [
-  'NUEVOS INGRESOS',
-  'CONSULT\u00c1 TALLES',
-  'RETIRO COORDINADO',
+  '\ud83d\udcb3 3 CUOTAS SIN INTER\u00c9S',
+  '\ud83d\udcb0 20% OFF PAGO CONTADO',
+  '\ud83d\udcf2 BILLETERAS VIRTUALES CON 20% OFF',
   'PEDIDOS POR WHATSAPP',
 ]
 

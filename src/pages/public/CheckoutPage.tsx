@@ -128,9 +128,9 @@ export function CheckoutPage() {
   const invalidQuantityItems = items.filter((item) => item.quantity > 99)
   const checkoutBlockingMessage =
     invalidAvailabilityItems.length > 0
-      ? 'Hay productos del carrito que ya no estan disponibles para pedir. Revisa el carrito antes de generar el pedido.'
+      ? 'Hay productos del carrito que ya no están disponibles para pedir. Revisá el carrito antes de generar el pedido.'
       : invalidQuantityItems.length > 0
-        ? 'Hay cantidades fuera del limite permitido. Revisa el carrito antes de generar el pedido.'
+        ? 'Hay cantidades fuera del límite permitido. Revisá el carrito antes de generar el pedido.'
         : null
 
   const form = useForm<CheckoutSchema>({
@@ -198,7 +198,7 @@ export function CheckoutPage() {
 
       if (rpcError) {
         setSubmitError(
-          'No pudimos confirmar el pedido en este momento. Intenta nuevamente en unos minutos.',
+          'No pudimos confirmar el pedido en este momento. Intentá nuevamente en unos minutos.',
         )
         return
       }
@@ -208,7 +208,7 @@ export function CheckoutPage() {
 
       if (!savedOrder) {
         setSubmitError(
-          'No pudimos confirmar el pedido en este momento. Intenta nuevamente en unos minutos.',
+          'No pudimos confirmar el pedido en este momento. Intentá nuevamente en unos minutos.',
         )
         return
       }
@@ -297,6 +297,11 @@ export function CheckoutPage() {
             </div>
           </div>
 
+          <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 text-sm leading-6 text-white/74">
+            Al generar el pedido no estás pagando online. Confirmamos
+            disponibilidad, talle, forma de pago y precio final por WhatsApp.
+          </div>
+
           <form
             className="space-y-5 [&_label>span]:text-white [&_label>p]:text-white/58 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/34 [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/34"
             onSubmit={form.handleSubmit(handleSubmit)}
@@ -368,8 +373,8 @@ export function CheckoutPage() {
                     Pedido generado
                   </p>
                   <p className="text-sm leading-6 text-white/74">
-                    Código {draft.orderCode}. La disponibilidad será confirmada
-                    por WhatsApp.
+                    Código {draft.orderCode}. Confirmamos disponibilidad, forma
+                    de pago y precio final por WhatsApp.
                   </p>
                 </div>
               </div>
@@ -445,11 +450,17 @@ export function CheckoutPage() {
 
             <div className="glass-divider bg-gradient-to-r from-transparent via-white/18 to-transparent" />
 
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-white/58">Total estimado</span>
-              <span className="text-2xl font-semibold tracking-[-0.03em] text-white">
-                {formatCurrency(total)}
-              </span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-white/58">Total contado estimado</span>
+                <span className="text-2xl font-semibold tracking-[-0.03em] text-white">
+                  {formatCurrency(total)}
+                </span>
+              </div>
+              <p className="text-sm leading-6 text-white/62">
+                El precio publicado corresponde a pago contado. Tarjeta/cuotas y
+                precio final se confirman por WhatsApp.
+              </p>
             </div>
           </Card>
         </div>

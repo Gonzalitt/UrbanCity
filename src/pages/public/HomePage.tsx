@@ -5,8 +5,9 @@ import {
   AtSign,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
+  HandCoins,
   MessageCircle,
-  Ruler,
   Store,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -295,19 +296,19 @@ export function HomePage() {
       <section className="grid gap-4 md:grid-cols-3">
         {[
           {
-            icon: MessageCircle,
-            title: 'Consult\u00e1 talles por WhatsApp',
-            copy: 'Te respondemos r\u00e1pido para ayudarte a elegir.',
+            icon: CreditCard,
+            title: '3 cuotas sin inter\u00e9s',
+            copy: 'Pag\u00e1 con tarjeta en 3 cuotas sin inter\u00e9s.',
+          },
+          {
+            icon: HandCoins,
+            title: '20% OFF pago contado',
+            copy: 'Efectivo, transferencia y billeteras virtuales incluidas.',
           },
           {
             icon: Store,
             title: 'Retiro coordinado',
             copy: 'Confirmamos disponibilidad y retiro con el local.',
-          },
-          {
-            icon: Ruler,
-            title: 'Atenci\u00f3n personalizada',
-            copy: 'Escribinos y te ayudamos con el modelo que busc\u00e1s.',
           },
         ].map((item) => {
           const Icon = item.icon

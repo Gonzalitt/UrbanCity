@@ -2,8 +2,8 @@ import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { buttonStyles } from '@/components/ui/buttonStyles'
-import { formatCurrency } from '@/lib/formatters'
 import { cn } from '@/lib/cn'
+import { formatCurrency } from '@/lib/formatters'
 
 interface CartSummaryProps {
   itemCount: number
@@ -21,7 +21,7 @@ export function CartSummary({
       <div className="space-y-1">
         <p className="eyebrow">Resumen</p>
         <h2 className="text-2xl font-semibold tracking-[-0.03em] text-white">
-          Total estimado
+          Tu pedido
         </h2>
       </div>
 
@@ -36,7 +36,7 @@ export function CartSummary({
         </div>
         <div className="glass-divider bg-gradient-to-r from-transparent via-white/18 to-transparent" />
         <div className="flex items-end justify-between gap-4">
-          <span className="text-sm text-white/70">Total</span>
+          <span className="text-sm text-white/70">Total contado estimado</span>
           <span className="text-3xl font-semibold tracking-[-0.04em]">
             {formatCurrency(total)}
           </span>
@@ -44,7 +44,7 @@ export function CartSummary({
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/72">
-        Coordinás pago, disponibilidad y retiro por WhatsApp.
+        Precio contado publicado. Tarjeta/cuotas y precio final se confirman por WhatsApp.
       </div>
 
       <Link

@@ -1,5 +1,5 @@
-import { MessageCircle } from 'lucide-react'
 import { Outlet } from 'react-router-dom'
+import whatsAppIcon from '@/assets/WhatsApp_icon.png'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { buttonStyles } from '@/components/ui/buttonStyles'
@@ -38,7 +38,11 @@ export function PublicLayout() {
           })}
           aria-label="Abrir WhatsApp"
         >
-          <MessageCircle className="h-5 w-5" />
+          <img
+            src={whatsAppIcon}
+            alt=""
+            className="h-10 w-10 object-contain"
+          />
         </a>
       ) : null}
     </div>
