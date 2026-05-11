@@ -25,6 +25,7 @@ interface AuthContextValue {
 interface AuthState {
   session: Session | null
   adminUser: AdminUserRow | null
+  initialized: boolean
   loading: boolean
   error: string | null
 }
@@ -34,6 +35,7 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 const initialAuthState: AuthState = {
   session: null,
   adminUser: null,
+  initialized: !isSupabaseConfigured,
   loading: isSupabaseConfigured,
   error: isSupabaseConfigured
     ? null
@@ -88,6 +90,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setState({
           session: null,
           adminUser: null,
+          initialized: true,
           loading: false,
           error: null,
         })
@@ -97,8 +100,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setState((current) => ({
         ...current,
         session: nextSession,
-        loading: true,
-        error: null,
+        adminUser:
+          current.session?.user.id === nextSession.user.id
+            ? current.adminUser
+            : null,
+        loading:
+          !current.initialized || current.session?.user.id !== nextSession.user.id,
+        error:
+          !current.initialized || current.session?.user.id !== nextSession.user.id
+            ? null
+            : current.error,
       }))
 
       const result = await fetchAdminUser(nextSession)
@@ -110,6 +121,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setState({
         session: nextSession,
         adminUser: result.adminUser,
+        initialized: true,
         loading: false,
         error: result.error,
       })
