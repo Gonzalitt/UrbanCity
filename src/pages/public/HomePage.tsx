@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
 import cityLogo from '@/assets/city-logo.jpg'
+import cuotasSinInteresImage from '@/assets/CuotasSinInteres.jpg'
+import estanteriaImage from '@/assets/Estanteria.jpg'
+import localExteriorImage from '@/assets/LocalExterior1.jpg'
+import promoContadoImage from '@/assets/PromoContado.jpg'
+import zapatillas1Image from '@/assets/Zapatillas1.jpg'
+import zapatillas2Image from '@/assets/Zapatillas2.jpg'
 import {
   ArrowRight,
   AtSign,
@@ -22,17 +28,41 @@ import { cn } from '@/lib/cn'
 import { isOnSale } from '@/lib/pricing'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 
-const instagramTiles = [
-  'Streetwear diario',
-  'New drop',
-  '@citycalzadourbano',
-  'Sneakers urbanas',
-  'City essentials',
-  'Comodidad urbana',
+const instagramShowcaseItems = [
+  {
+    label: 'Local',
+    image: localExteriorImage,
+    alt: 'Frente del local City Calzado Urbano',
+  },
+  {
+    label: 'Nuevos ingresos',
+    image: estanteriaImage,
+    alt: 'Estantería con nuevos ingresos de zapatillas',
+  },
+  {
+    label: '20% OFF contado',
+    image: promoContadoImage,
+    alt: 'Promoción de pago contado en City Calzado Urbano',
+  },
+  {
+    label: '3 cuotas sin interés',
+    image: cuotasSinInteresImage,
+    alt: 'Promoción de 3 cuotas sin interés',
+  },
+  {
+    label: 'Sneakers urbanos',
+    image: zapatillas1Image,
+    alt: 'Modelos de sneakers urbanos disponibles',
+  },
+  {
+    label: 'Disponibles en tienda',
+    image: zapatillas2Image,
+    alt: 'Modelos disponibles en tienda City Calzado Urbano',
+  },
 ]
 
 export function HomePage() {
-  const { products, storeSettings, loading } = useStorefrontData()
+  const { products, categories, storeSettings, loading } = useStorefrontData()
   const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
   const [activeSlide, setActiveSlide] = useState(0)
   const [autoplayVersion, setAutoplayVersion] = useState(0)
@@ -52,19 +82,7 @@ export function HomePage() {
       ]),
     ).values(),
   ).slice(0, 3)
-  const quickCategories = Array.from(
-    new Map(
-      products
-        .filter((product) => product.category)
-        .map((product) => [
-          product.category?.id,
-          {
-            id: product.category?.id ?? product.id,
-            name: product.category?.name ?? 'Categor\u00eda',
-          },
-        ]),
-    ).values(),
-  ).slice(0, 6)
+  const quickCategories = categories.slice(0, 8)
   const instagramUrl =
     storeSettings.instagram_url ?? 'https://www.instagram.com/citycalzadourbano/'
 
@@ -72,9 +90,9 @@ export function HomePage() {
     {
       eyebrow: 'NUEVOS INGRESOS',
       title: 'ZAPATILLAS URBANAS',
-      subtitle: 'PARA TODOS LOS D\u00cdAS',
-      description: 'Eleg\u00ed tu modelo y coordin\u00e1 talles por WhatsApp.',
-      primaryLabel: 'Ver cat\u00e1logo',
+      subtitle: 'PARA TODOS LOS DÍAS',
+      description: 'Elegí tu modelo y coordiná talles por WhatsApp.',
+      primaryLabel: 'Ver catálogo',
       primaryTo: '/catalogo',
       secondaryLabel: 'Consultar talles',
       secondaryHref: hasWhatsApp
@@ -90,7 +108,7 @@ export function HomePage() {
     {
       eyebrow: 'MODELOS DESTACADOS',
       title: 'CITY DROP',
-      subtitle: 'ELEG\u00cd TU PR\u00d3XIMO PAR',
+      subtitle: 'ELEGÍ TU PRÓXIMO PAR',
       description: 'Sneakers y urbanas listas para combinar con tu estilo.',
       primaryLabel: 'Ver destacados',
       primaryTo: '/catalogo',
@@ -107,10 +125,10 @@ export function HomePage() {
     },
     {
       eyebrow: 'PEDIDOS POR WHATSAPP',
-      title: 'ARM\u00c1 TU PEDIDO',
-      subtitle: 'RETIR\u00c1 EN EL LOCAL',
+      title: 'ARMÁ TU PEDIDO',
+      subtitle: 'RETIRÁ EN EL LOCAL',
       description: 'Confirmamos disponibilidad, talle y retiro por WhatsApp.',
-      primaryLabel: 'Ir al cat\u00e1logo',
+      primaryLabel: 'Ir al catálogo',
       primaryTo: '/catalogo',
       secondaryLabel: 'Consultar disponibilidad',
       secondaryHref: hasWhatsApp
@@ -297,8 +315,8 @@ export function HomePage() {
         {[
           {
             icon: CreditCard,
-            title: '3 cuotas sin inter\u00e9s',
-            copy: 'Pag\u00e1 con tarjeta en 3 cuotas sin inter\u00e9s.',
+            title: '3 cuotas sin interés',
+            copy: 'Pagá con tarjeta en 3 cuotas sin interés.',
           },
           {
             icon: HandCoins,
@@ -350,53 +368,53 @@ export function HomePage() {
             description="En cuanto haya productos publicados, los vas a ver aquí primero."
             action={
               <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-                {'Ver catálogo'}
+                Ver catálogo
               </Link>
             }
           />
         )}
       </section>
 
-      <section className="space-y-5">
-        <SectionTitle
-          eyebrow="Categorías"
-          title="Compra por categoría"
-          description="Sneakers, urbanas y accesorios para encontrar rápido tu próximo par."
-          tone="light"
-        />
+      {quickCategories.length > 0 ? (
+        <section className="space-y-5">
+          <SectionTitle
+            eyebrow="Categorías"
+            title="Compra por categoría"
+            description="Explorá categorías reales de la tienda y entrá directo al catálogo filtrado."
+            tone="light"
+          />
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {quickCategories.map((category) => (
-            <Link
-              key={category.id}
-              to="/catalogo"
-              className="rounded-[26px] border border-white/10 bg-[#151515] p-5 shadow-[0_20px_44px_rgba(0,0,0,0.22)] transition hover:border-brand-strong/30 hover:bg-[#1a1a1a]"
-            >
-              <p className="text-xs uppercase tracking-[0.24em] text-brand-strong/82">
-                {'Categoría'}
-              </p>
-              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
-                {category.name}
-              </h3>
-              <p className="mt-2 text-sm leading-7 text-white/64">
-                Ver modelos y consultá disponibilidad.
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {quickCategories.map((category) => (
+              <Link
+                key={category.id}
+                to={`/catalogo?categoria=${category.slug}`}
+                className="rounded-[26px] border border-white/10 bg-[#151515] p-5 shadow-[0_20px_44px_rgba(0,0,0,0.22)] transition hover:border-brand-strong/30 hover:bg-[#1a1a1a]"
+              >
+                <p className="text-xs uppercase tracking-[0.24em] text-brand-strong/82">
+                  Categoría
+                </p>
+                <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+                  {category.name}
+                </h3>
+                <p className="mt-2 text-sm leading-7 text-white/64">
+                  Ver modelos disponibles
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
-      <section className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
+      <section className="grid gap-6 lg:grid-cols-[0.86fr_1.14fr]">
         <div className="rounded-[32px] border border-white/10 bg-[#151515] p-6 shadow-[0_28px_60px_rgba(0,0,0,0.24)] sm:p-8">
           <p className="eyebrow">Instagram</p>
           <div className="mt-5 space-y-4">
             <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
               Seguinos en Instagram
             </h2>
-            <p className="text-lg text-brand-strong">@citycalzadourbano</p>
             <p className="max-w-lg text-sm leading-7 text-white/68">
-              {'Mirá nuevos ingresos, combinaciones urbanas y modelos que van'}
-              {' '}
+              Mirá nuevos ingresos, promos, talles disponibles y modelos que van
               entrando al local.
             </p>
           </div>
@@ -409,41 +427,34 @@ export function HomePage() {
               className={buttonStyles({ variant: 'outline', size: 'lg' })}
             >
               <AtSign className="h-4 w-4" />
-              Seguir en Instagram
+              Ver Instagram
             </a>
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          {instagramTiles.map((tile, index) => (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {instagramShowcaseItems.map((item) => (
             <a
-              key={tile}
+              key={item.label}
               href={instagramUrl}
               target="_blank"
               rel="noreferrer"
-              className="group relative min-h-[150px] overflow-hidden rounded-[26px] border border-white/10 bg-[#111111] p-4 shadow-[0_22px_50px_rgba(0,0,0,0.2)]"
+              className="group relative min-h-[220px] overflow-hidden rounded-[28px] border border-white/10 bg-[#111111] shadow-[0_22px_50px_rgba(0,0,0,0.2)]"
             >
-              <div
-                className={cn(
-                  'absolute inset-0',
-                  index % 3 === 0
-                    ? 'bg-[radial-gradient(circle_at_top_right,rgba(182,255,0,0.18),transparent_28%)]'
-                    : index % 3 === 1
-                      ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent)]'
-                      : 'bg-[radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.06),transparent_32%)]',
-                )}
-              />
               <img
-                src={cityLogo}
-                alt=""
-                className="pointer-events-none absolute -right-8 -bottom-8 h-24 w-24 rounded-full opacity-[0.08] grayscale"
+                src={item.image}
+                alt={item.alt}
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
               />
-              <div className="relative flex h-full flex-col justify-between">
-                <p className="text-xs uppercase tracking-[0.24em] text-brand-strong/82">
-                  Instagram
-                </p>
-                <p className="max-w-[12rem] text-lg font-semibold tracking-[-0.03em] text-white transition group-hover:text-brand-strong">
-                  {tile}
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.12),rgba(5,5,5,0.72))]" />
+              <div className="absolute inset-x-0 top-0 flex justify-start p-4">
+                <span className="rounded-full border border-white/12 bg-black/45 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white">
+                  {item.label}
+                </span>
+              </div>
+              <div className="absolute inset-x-0 bottom-0 p-4">
+                <p className="text-sm font-medium text-white/90">
+                  @citycalzadourbano
                 </p>
               </div>
             </a>
@@ -456,7 +467,7 @@ export function HomePage() {
           <div className="space-y-4">
             <p className="eyebrow">WhatsApp</p>
             <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
-              {'¿Querés consultar talles o disponibilidad?'}
+              ¿Querés consultar talles o disponibilidad?
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-white/72 sm:text-base">
               Escribinos y coordinamos directo con el local.
