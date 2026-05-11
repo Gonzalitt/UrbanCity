@@ -119,4 +119,34 @@
       linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: 28px 28px;
   }
+
+  .promo-strip {
+    overflow: hidden;
+  }
+
+  .promo-strip-track {
+    display: flex;
+    width: max-content;
+    animation: promo-strip-scroll 22s linear infinite;
+  }
+
+  .promo-strip:hover .promo-strip-track {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes promo-strip-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-strip-track {
+    animation: none;
+  }
 }
