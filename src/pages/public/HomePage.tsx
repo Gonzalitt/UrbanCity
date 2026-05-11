@@ -34,6 +34,8 @@ export function HomePage() {
   const { products, storeSettings, loading } = useStorefrontData()
   const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
   const [activeSlide, setActiveSlide] = useState(0)
+  const [autoplayVersion, setAutoplayVersion] = useState(0)
+  const [isHeroPaused, setIsHeroPaused] = useState(false)
 
   const featuredProducts = products.filter((product) => product.featured)
   const saleProducts = products.filter((product) =>
@@ -121,27 +123,37 @@ export function HomePage() {
       product: heroProducts[2] ?? heroProducts[0] ?? null,
     },
   ]
+  const slideCount = heroSlides.length
 
   useEffect(() => {
-    if (heroSlides.length <= 1) {
+    if (slideCount <= 1 || isHeroPaused) {
       return
     }
 
-    const intervalId = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % heroSlides.length)
+    const timeoutId = window.setTimeout(() => {
+      setActiveSlide((current) => (current + 1) % slideCount)
     }, 4800)
 
-    return () => window.clearInterval(intervalId)
-  }, [heroSlides.length])
+    return () => window.clearTimeout(timeoutId)
+  }, [activeSlide, autoplayVersion, isHeroPaused, slideCount])
+
+  function goToSlide(index: number) {
+    if (slideCount === 0) {
+      return
+    }
+
+    const normalizedIndex = ((index % slideCount) + slideCount) % slideCount
+
+    setActiveSlide(normalizedIndex)
+    setAutoplayVersion((current) => current + 1)
+  }
 
   function goToPreviousSlide() {
-    setActiveSlide((current) =>
-      current === 0 ? heroSlides.length - 1 : current - 1,
-    )
+    goToSlide(activeSlide - 1)
   }
 
   function goToNextSlide() {
-    setActiveSlide((current) => (current + 1) % heroSlides.length)
+    goToSlide(activeSlide + 1)
   }
 
   if (loading) {
@@ -151,7 +163,13 @@ export function HomePage() {
   return (
     <div className="space-y-10 sm:space-y-14">
       <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-b border-white/10 bg-[#050505]">
-        <div className="relative min-h-[520px] lg:min-h-[620px]">
+        <div
+          className="relative min-h-[520px] lg:min-h-[620px]"
+          onMouseEnter={() => setIsHeroPaused(true)}
+          onMouseLeave={() => setIsHeroPaused(false)}
+          onFocusCapture={() => setIsHeroPaused(true)}
+          onBlurCapture={() => setIsHeroPaused(false)}
+        >
           <div
             className="hero-slider-track"
             style={{ transform: `translateX(-${activeSlide * 100}%)` }}
@@ -261,7 +279,7 @@ export function HomePage() {
                 key={slide.eyebrow}
                 type="button"
                 aria-label={`Ir al slide ${index + 1}`}
-                onClick={() => setActiveSlide(index)}
+                onClick={() => goToSlide(index)}
                 className={cn(
                   'h-2.5 rounded-full transition',
                   activeSlide === index

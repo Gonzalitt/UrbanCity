@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import type { StoreSettingsRow } from '@/types/database'
@@ -46,6 +46,7 @@ function countValue(result: { count: number | null }) {
 
 export function useAdminShellData() {
   const [reloadKey, setReloadKey] = useState(0)
+  const hasLoadedOnceRef = useRef(!isSupabaseConfigured)
   const [state, setState] = useState<Omit<AdminShellOutletContext, 'refresh'>>({
     storeSettings: null,
     storeName: 'City Calzado Urbano',
@@ -65,10 +66,12 @@ export function useAdminShellData() {
     let ignore = false
 
     async function loadAdminShellData() {
+      const isInitialLoad = !hasLoadedOnceRef.current
+
       setState((current) => ({
         ...current,
-        loading: true,
-        error: null,
+        loading: isInitialLoad,
+        error: isInitialLoad ? null : current.error,
       }))
 
       const [
@@ -149,6 +152,7 @@ export function useAdminShellData() {
       ].find(Boolean)
 
       if (firstError) {
+        hasLoadedOnceRef.current = true
         setState((current) => ({
           ...current,
           loading: false,
@@ -159,6 +163,7 @@ export function useAdminShellData() {
 
       const storeSettings = settingsResult.data as StoreSettingsRow | null
 
+      hasLoadedOnceRef.current = true
       setState({
         storeSettings,
         storeName: storeSettings?.store_name || 'Comercio sin configurar',
