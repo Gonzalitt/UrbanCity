@@ -14,6 +14,7 @@ interface ProductVisualProps {
   imageUrl?: string | null
   seed: string
   className?: string
+  imageFit?: 'cover' | 'contain'
 }
 
 function hashSeed(seed: string) {
@@ -28,11 +29,19 @@ export function ProductVisual({
   imageUrl,
   seed,
   className,
+  imageFit = 'cover',
 }: ProductVisualProps) {
   if (imageUrl && /^(https?:\/\/|\/)/.test(imageUrl)) {
     return (
       <div className={cn('overflow-hidden rounded-[24px] bg-[#111111]', className)}>
-        <img src={imageUrl} alt={name} className="h-full w-full object-cover" />
+        <img
+          src={imageUrl}
+          alt={name}
+          className={cn(
+            'h-full w-full',
+            imageFit === 'contain' ? 'object-contain' : 'object-cover',
+          )}
+        />
       </div>
     )
   }
