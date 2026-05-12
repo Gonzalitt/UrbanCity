@@ -65,7 +65,7 @@ export function ProductDetailPage() {
   )
 
   return (
-    <div className="space-y-8 pb-20 sm:pb-0">
+    <div className="space-y-6 pb-20 sm:space-y-8 sm:pb-0">
       <Link
         to="/catalogo"
         className="inline-flex items-center gap-2 text-sm font-medium text-white/72 hover:text-white"
@@ -75,68 +75,72 @@ export function ProductDetailPage() {
       </Link>
 
       <section className="surface-panel overflow-hidden">
-        <div className="grid gap-5 p-4 sm:p-8 lg:grid-cols-[1fr_0.95fr] lg:p-10">
+        <div className="grid gap-4 p-3.5 sm:gap-5 sm:p-8 lg:grid-cols-[1fr_0.95fr] lg:p-10">
           <ProductVisual
             seed={product.slug}
             name={product.name}
             categoryName={product.category?.name}
             imageUrl={product.primaryImage?.url}
-            className="h-[260px] sm:h-auto sm:aspect-[1/1.05] sm:min-h-[320px]"
+            imageFit="contain"
+            className="h-[190px] sm:h-auto sm:aspect-[1/1.05] sm:min-h-[320px]"
           />
 
-          <div className="space-y-6">
-            <div className="space-y-4">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
               <p className="eyebrow">{product.category?.name ?? 'Catálogo'}</p>
               <div className="space-y-3">
-                <h1 className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
+                <h1 className="line-clamp-2 text-2xl leading-tight font-semibold tracking-[-0.04em] text-white sm:line-clamp-none sm:text-5xl">
                   {product.name}
                 </h1>
-                <p className="line-clamp-3 text-sm leading-7 text-white/72 sm:line-clamp-none sm:text-base sm:leading-8">
+                <p className="line-clamp-2 text-sm leading-6 text-white/72 sm:line-clamp-none sm:text-base sm:leading-8">
                   {product.description}
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <StatusBadge tone={availabilityTone(product.availability)}>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <StatusBadge
+                  tone={availabilityTone(product.availability)}
+                  className="px-2 py-1 text-[0.62rem] sm:px-3 sm:text-xs"
+                >
                   {formatAvailabilityLabel(product.availability)}
                 </StatusBadge>
                 {discountPercent ? (
-                  <span className="inline-flex items-center rounded-full bg-brand-strong px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-black">
+                  <span className="inline-flex items-center rounded-full bg-brand-strong px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-black sm:px-3 sm:text-xs">
                     {discountPercent}% OFF
                   </span>
                 ) : null}
               </div>
-              <div className="flex flex-wrap items-end gap-3">
+              <div className="space-y-1">
                 {discountPercent ? (
-                  <span className="text-lg font-medium text-white/42 line-through">
+                  <span className="text-sm font-medium text-white/42 line-through sm:text-lg">
                     {formatCurrency(product.compare_at_price ?? 0)}
                   </span>
                 ) : null}
-                <span className="text-xs font-medium uppercase tracking-[0.22em] text-white/42">
+                <p className="text-[0.68rem] font-medium uppercase tracking-[0.18em] text-white/42">
                   Precio contado
-                </span>
-                <span className="text-3xl font-semibold tracking-[-0.04em] text-white">
+                </p>
+                <p className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
                   {formatCurrency(product.price)}
-                </span>
+                </p>
               </div>
               {discountPercent ? (
                 <p className="text-sm font-medium text-brand-strong">
                   Oferta vigente sujeta a disponibilidad.
                 </p>
               ) : null}
-              <div className="space-y-2 rounded-[24px] border border-white/12 bg-white/6 p-3.5 text-sm leading-6 text-white/78 sm:p-4">
+              <div className="space-y-1.5 rounded-[24px] border border-white/12 bg-white/6 p-3 text-[0.8rem] leading-5 text-white/78 sm:space-y-2 sm:p-4 sm:text-sm sm:leading-6">
                 <p>💳 3 cuotas sin interés disponibles</p>
                 <p>💰 20% OFF pago contado</p>
                 <p>📲 Billeteras virtuales incluidas como pago contado</p>
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/12 bg-white/6 p-3.5 text-sm leading-6 text-white/78 sm:p-4">
+            <div className="order-3 rounded-[24px] border border-white/12 bg-white/6 p-3 text-xs leading-5 text-white/78 sm:order-none sm:p-4 sm:text-sm sm:leading-6">
               Pedido pendiente de confirmación. El total publicado corresponde a
               precio contado estimado. Confirmamos disponibilidad, talle, forma de
               pago y precio final por WhatsApp.
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="order-2 flex flex-col gap-3 sm:order-none sm:flex-row sm:items-center">
               <div className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-2 py-2 sm:w-auto">
                 <button
                   type="button"

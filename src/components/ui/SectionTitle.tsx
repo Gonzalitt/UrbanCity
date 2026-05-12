@@ -6,6 +6,7 @@ interface SectionTitleProps {
   description?: string
   align?: 'left' | 'center'
   tone?: 'dark' | 'light'
+  compactMobile?: boolean
 }
 
 export function SectionTitle({
@@ -14,18 +15,21 @@ export function SectionTitle({
   description,
   align = 'left',
   tone = 'dark',
+  compactMobile = false,
 }: SectionTitleProps) {
   return (
     <div
       className={cn(
-        'space-y-3',
+        compactMobile ? 'space-y-2 sm:space-y-3' : 'space-y-3',
         align === 'center' ? 'mx-auto max-w-3xl text-center' : '',
       )}
-      >
+    >
       {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
       <h2
         className={cn(
-          'text-3xl font-semibold tracking-[-0.04em] sm:text-4xl',
+          compactMobile
+            ? 'text-2xl font-semibold tracking-[-0.04em] sm:text-4xl'
+            : 'text-3xl font-semibold tracking-[-0.04em] sm:text-4xl',
           tone === 'light' ? 'text-white' : 'text-stone-950',
         )}
       >
@@ -34,7 +38,9 @@ export function SectionTitle({
       {description ? (
         <p
           className={cn(
-            'max-w-2xl text-sm leading-7 sm:text-base',
+            compactMobile
+              ? 'max-w-2xl text-sm leading-6 sm:text-base sm:leading-7'
+              : 'max-w-2xl text-sm leading-7 sm:text-base',
             tone === 'light' ? 'text-white/72' : 'text-stone-600',
           )}
         >

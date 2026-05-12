@@ -110,7 +110,7 @@ export function CatalogPage() {
 
   return (
     <div className="space-y-8">
-      <section className="surface-panel p-6 sm:p-8 lg:p-10">
+      <section className="surface-panel p-4 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow={'Cat\u00e1logo'}
           title={'Encontr\u00e1 tu pr\u00f3ximo par'}
@@ -118,6 +118,7 @@ export function CatalogPage() {
             'Filtr\u00e1 por categor\u00eda, revis\u00e1 disponibilidad y hac\u00e9 tu pedido por WhatsApp.'
           }
           tone="light"
+          compactMobile
         />
       </section>
 
