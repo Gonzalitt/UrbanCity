@@ -39,7 +39,10 @@ type CreateOrderWithItemsRow =
 
 function buildCartFingerprint(items: CartItem[]) {
   return items
-    .map((item) => `${item.productId}:${item.quantity}`)
+    .map(
+      (item) =>
+        `${item.cartItemId}:${item.productId}:${item.sizeLabel ?? 'sin-talle'}:${item.quantity}`,
+    )
     .sort()
     .join('|')
 }
@@ -48,6 +51,7 @@ function buildCheckoutOrderItems(items: CartItem[]): CheckoutOrderItem[] {
   return items.map((item) => ({
     productId: item.productId,
     productName: item.name,
+    sizeLabel: item.sizeLabel,
     unitPrice: item.price,
     quantity: item.quantity,
     subtotal: item.price * item.quantity,
@@ -193,13 +197,16 @@ export function CheckoutPage() {
           p_items: items.map((item) => ({
             product_id: item.productId,
             quantity: item.quantity,
+            size_label: item.sizeLabel,
           })),
         } as never,
       )
 
       if (rpcError) {
         setSubmitError(
-          'No pudimos confirmar el pedido en este momento. Intentá nuevamente en unos minutos.',
+          rpcError.message?.toLowerCase().includes('talle')
+            ? 'No pudimos confirmar el pedido. Revisá que el talle elegido siga disponible.'
+            : 'No pudimos confirmar el pedido en este momento. Intentá nuevamente en unos minutos.',
         )
         return
       }
@@ -219,6 +226,7 @@ export function CheckoutPage() {
       finalItems = savedOrderRows.map((row) => ({
         productId: row.product_id,
         productName: row.product_name,
+        sizeLabel: row.size_label,
         unitPrice: Number(row.unit_price),
         quantity: row.quantity,
         subtotal: Number(row.subtotal),

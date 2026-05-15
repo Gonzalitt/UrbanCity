@@ -12,6 +12,7 @@ import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
 import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
+import type { StorefrontProduct } from '@/types/store'
 
 function availabilityTone(availability: string) {
   switch (availability) {
@@ -26,37 +27,17 @@ function availabilityTone(availability: string) {
   }
 }
 
-export function ProductDetailPage() {
-  const { slug } = useParams()
-  const { products, loading } = useStorefrontData()
+function ProductDetailContent({
+  product,
+  relatedProducts,
+}: {
+  product: StorefrontProduct
+  relatedProducts: StorefrontProduct[]
+}) {
   const addItem = useCartStore((state) => state.addItem)
   const [quantity, setQuantity] = useState(1)
-
-  if (loading) {
-    return <LoadingState label="Cargando producto..." />
-  }
-
-  const product = products.find((item) => item.slug === slug)
-
-  if (!product) {
-    return (
-      <EmptyState
-        title="Ese producto no existe o ya no está visible"
-        description="Volvé al catálogo para seguir navegando la tienda."
-        action={
-          <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-            Ir al catálogo
-          </Link>
-        }
-      />
-    )
-  }
-
-  const relatedProducts = products
-    .filter(
-      (item) => item.id !== product.id && item.category_id === product.category_id,
-    )
-    .slice(0, 3)
+  const [selectedSizeLabel, setSelectedSizeLabel] = useState<string | null>(null)
+  const [sizeError, setSizeError] = useState<string | null>(null)
 
   const isSoldOut = product.availability === 'out_of_stock'
   const discountPercent = getDiscountPercent(
@@ -64,6 +45,15 @@ export function ProductDetailPage() {
     product.compare_at_price,
   )
   const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
+
+  function handleAddToCart() {
+    if (product.sizes.length > 0 && !selectedSizeLabel) {
+      setSizeError('Seleccioná un talle para continuar.')
+      return
+    }
+
+    addItem(product, quantity, selectedSizeLabel)
+  }
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -143,6 +133,43 @@ export function ProductDetailPage() {
               </div>
             </div>
 
+            {product.sizes.length > 0 ? (
+              <div className="space-y-3 rounded-[24px] border border-white/12 bg-white/6 p-3.5 sm:p-4">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-white">Elegí talle</p>
+                  <p className="text-xs leading-5 text-white/58 sm:text-sm">
+                    Seleccioná un talle disponible para agregar al carrito.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((size) => {
+                    const isSelected = selectedSizeLabel === size.size_label
+
+                    return (
+                      <button
+                        key={size.id}
+                        type="button"
+                        className={`inline-flex min-w-[52px] items-center justify-center rounded-full border px-3 py-2 text-sm font-medium transition ${
+                          isSelected
+                            ? 'border-brand-strong bg-brand-strong text-black'
+                            : 'border-white/12 bg-black/20 text-white/78 hover:border-white/24 hover:bg-white/8'
+                        }`}
+                        onClick={() => {
+                          setSelectedSizeLabel(size.size_label)
+                          setSizeError(null)
+                        }}
+                      >
+                        {size.size_label}
+                      </button>
+                    )
+                  })}
+                </div>
+                {sizeError ? (
+                  <p className="text-sm text-rose-200">{sizeError}</p>
+                ) : null}
+              </div>
+            ) : null}
+
             <div className="order-3 rounded-[24px] border border-white/12 bg-white/6 p-3 text-xs leading-5 text-white/78 sm:order-none sm:p-4 sm:text-sm sm:leading-6">
               Pedido pendiente de confirmación. Te contactamos para validar talle,
               disponibilidad y forma de pago.
@@ -177,7 +204,7 @@ export function ProductDetailPage() {
                 variant={isSoldOut ? 'outline' : 'secondary'}
                 className="w-full sm:w-auto"
                 disabled={isSoldOut}
-                onClick={() => addItem(product, quantity)}
+                onClick={handleAddToCart}
               >
                 <ShoppingBag className="h-4 w-4" />
                 {isSoldOut ? 'Sin stock' : 'Agregar al carrito'}
@@ -203,5 +230,44 @@ export function ProductDetailPage() {
         </section>
       ) : null}
     </div>
+  )
+}
+
+export function ProductDetailPage() {
+  const { slug } = useParams()
+  const { products, loading } = useStorefrontData()
+
+  if (loading) {
+    return <LoadingState label="Cargando producto..." />
+  }
+
+  const product = products.find((item) => item.slug === slug)
+
+  if (!product) {
+    return (
+      <EmptyState
+        title="Ese producto no existe o ya no está visible"
+        description="Volvé al catálogo para seguir navegando la tienda."
+        action={
+          <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
+            Ir al catálogo
+          </Link>
+        }
+      />
+    )
+  }
+
+  const relatedProducts = products
+    .filter(
+      (item) => item.id !== product.id && item.category_id === product.category_id,
+    )
+    .slice(0, 3)
+
+  return (
+    <ProductDetailContent
+      key={product.id}
+      product={product}
+      relatedProducts={relatedProducts}
+    />
   )
 }
