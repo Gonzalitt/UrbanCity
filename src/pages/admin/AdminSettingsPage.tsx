@@ -227,7 +227,10 @@ export function AdminSettingsPage() {
 
   const canCreateHeroSlide = heroSlides.length < maxHeroSlides
 
-  function replaceHeroSlide(savedSlide: HomeHeroSlideRow) {
+  function replaceHeroSlide(
+    savedSlide: HomeHeroSlideRow,
+    options?: { syncDraft?: boolean },
+  ) {
     setHeroSlides((current) => {
       const nextSlides = current.some((slide) => slide.id === savedSlide.id)
         ? current.map((slide) => (slide.id === savedSlide.id ? savedSlide : slide))
@@ -235,6 +238,10 @@ export function AdminSettingsPage() {
 
       return sortHeroSlides(nextSlides)
     })
+
+    if (options?.syncDraft === false) {
+      return
+    }
 
     setHeroSlideDrafts((current) => ({
       ...current,
@@ -265,7 +272,7 @@ export function AdminSettingsPage() {
 
   async function handleSubmit(values: AdminStoreSettingsSchema) {
     if (!supabase || !isSupabaseConfigured) {
-      setSubmitError('Configura Supabase para editar los datos de la tienda.')
+      setSubmitError('Configurá Supabase para editar los datos de la tienda.')
       return
     }
 
@@ -327,12 +334,12 @@ export function AdminSettingsPage() {
 
   async function handleCreateHeroSlide() {
     if (!supabase || !isSupabaseConfigured) {
-      setHeroSlidesError('Configura Supabase para editar el hero de inicio.')
+      setHeroSlidesError('Configurá Supabase para editar la portada de inicio.')
       return
     }
 
     if (!canCreateHeroSlide) {
-      setHeroSlidesError('Recomendado: máximo 3 slides.')
+      setHeroSlidesError('Recomendado: máximo 3 imágenes principales.')
       return
     }
 
@@ -346,10 +353,10 @@ export function AdminSettingsPage() {
     ) + 1
     const payload = {
       eyebrow: '',
-      title: `Slide ${heroSlides.length + 1}`,
+      title: `Imagen ${heroSlides.length + 1}`,
       subtitle: null,
       description: null,
-      image_url: buildHeroSlidePlaceholderUrl(`Slide ${heroSlides.length + 1}`),
+      image_url: buildHeroSlidePlaceholderUrl(`Imagen ${heroSlides.length + 1}`),
       image_alt: null,
       sort_order: nextSortOrder,
       is_active: false,
@@ -364,18 +371,20 @@ export function AdminSettingsPage() {
     setHeroSlideBusyId(null)
 
     if (result.error || !result.data) {
-      setHeroSlidesError(formatCrudError(result.error?.message ?? 'No se pudo crear el slide.'))
+      setHeroSlidesError(
+        formatCrudError(result.error?.message ?? 'No se pudo crear la imagen principal.'),
+      )
       return
     }
 
     replaceHeroSlide(result.data)
     setExpandedSlideId(result.data.id)
-    setHeroSlidesSuccess('Slide creado. Ahora podés completar el contenido.')
+    setHeroSlidesSuccess('Imagen creada. Ahora podés completar el texto y subir la foto.')
   }
 
   async function handleSaveHeroSlide(slideId: string) {
     if (!supabase || !isSupabaseConfigured) {
-      setHeroSlidesError('Configura Supabase para editar el hero de inicio.')
+      setHeroSlidesError('Configurá Supabase para editar la portada de inicio.')
       return
     }
 
@@ -386,7 +395,7 @@ export function AdminSettingsPage() {
     }
 
     if (!draft.title.trim()) {
-      setHeroSlidesError('El slide necesita un título.')
+      setHeroSlidesError('La imagen necesita un título.')
       return
     }
 
@@ -418,18 +427,20 @@ export function AdminSettingsPage() {
     setHeroSlideBusyId(null)
 
     if (result.error || !result.data) {
-      setHeroSlidesError(formatCrudError(result.error?.message ?? 'No se pudo guardar el slide.'))
+      setHeroSlidesError(
+        formatCrudError(result.error?.message ?? 'No se pudo guardar la imagen principal.'),
+      )
       return
     }
 
     replaceHeroSlide(result.data)
-    setHeroSlidesSuccess('Slide actualizado correctamente.')
+    setHeroSlidesSuccess('Imagen principal actualizada correctamente.')
     refreshStorefront()
   }
 
   async function handleToggleHeroSlide(slide: HomeHeroSlideRow) {
     if (!supabase || !isSupabaseConfigured) {
-      setHeroSlidesError('Configura Supabase para editar el hero de inicio.')
+      setHeroSlidesError('Configurá Supabase para editar la portada de inicio.')
       return
     }
 
@@ -439,7 +450,7 @@ export function AdminSettingsPage() {
     ).length
 
     if (nextIsActive && activeSlidesWithoutCurrent >= maxHeroSlides) {
-      setHeroSlidesError('Recomendado: máximo 3 slides visibles.')
+      setHeroSlidesError('Recomendado: máximo 3 imágenes visibles.')
       return
     }
 
@@ -458,13 +469,15 @@ export function AdminSettingsPage() {
 
     if (result.error || !result.data) {
       setHeroSlidesError(
-        formatCrudError(result.error?.message ?? 'No se pudo cambiar la visibilidad del slide.'),
+        formatCrudError(result.error?.message ?? 'No se pudo cambiar la visibilidad de la imagen.'),
       )
       return
     }
 
     replaceHeroSlide(result.data)
-    setHeroSlidesSuccess(nextIsActive ? 'Slide visible en la Home.' : 'Slide oculto en la Home.')
+    setHeroSlidesSuccess(
+      nextIsActive ? 'Imagen visible en el inicio.' : 'Imagen oculta del inicio.',
+    )
     refreshStorefront()
   }
 
@@ -514,12 +527,12 @@ export function AdminSettingsPage() {
 
     if (updateResult.error || !updateResult.data) {
       setHeroSlidesError(
-        formatCrudError(updateResult.error?.message ?? 'No se pudo guardar la imagen del slide.'),
+        formatCrudError(updateResult.error?.message ?? 'No se pudo guardar la foto de la portada.'),
       )
       return
     }
 
-    replaceHeroSlide(updateResult.data)
+    replaceHeroSlide(updateResult.data, { syncDraft: false })
     setHeroSlidesSuccess('Imagen principal actualizada correctamente.')
     refreshStorefront()
   }
@@ -752,9 +765,9 @@ export function AdminSettingsPage() {
       <Card className="space-y-4 border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
-            <p className="text-sm font-medium text-white">Hero de inicio</p>
+            <p className="text-sm font-medium text-white">Portada de inicio</p>
             <p className="text-sm leading-6 text-white/60">
-              Cambiá las imágenes y textos principales de la Home.
+              Cambiá las imágenes y textos principales que aparecen al entrar a la tienda.
             </p>
           </div>
 
@@ -766,10 +779,10 @@ export function AdminSettingsPage() {
               onClick={() => void handleCreateHeroSlide()}
             >
               <Plus className="h-4 w-4" />
-              {heroSlideBusyId === 'new' ? 'Creando...' : 'Nuevo slide'}
+              {heroSlideBusyId === 'new' ? 'Creando...' : 'Agregar imagen'}
             </Button>
           ) : (
-            <p className="text-xs text-white/50">Recomendado: máximo 3 slides.</p>
+            <p className="text-xs text-white/50">Recomendado: máximo 3 imágenes principales.</p>
           )}
         </div>
 
@@ -794,11 +807,11 @@ export function AdminSettingsPage() {
 
         {heroSlidesLoading ? (
           <div className="rounded-[18px] border border-white/10 bg-black/15 px-4 py-6 text-center text-sm text-white/60">
-            Cargando hero de inicio...
+            Cargando portada de inicio...
           </div>
         ) : heroSlides.length === 0 ? (
           <div className="rounded-[18px] border border-dashed border-white/12 bg-black/15 px-4 py-6 text-center text-sm text-white/60">
-            Todavía no cargaste slides para la Home. Mientras tanto, la tienda usa el hero de respaldo.
+            Todavía no cargaste imágenes para la portada. Mientras tanto, la tienda usa las imágenes predeterminadas.
           </div>
         ) : (
           <div className="space-y-3">
@@ -825,7 +838,7 @@ export function AdminSettingsPage() {
                     <div className="min-w-0 flex-1 space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-sm font-semibold tracking-[-0.03em] text-white sm:text-base">
-                          Slide {index + 1}
+                          Imagen {index + 1}
                         </p>
                         <span
                           className={cn(
@@ -835,7 +848,7 @@ export function AdminSettingsPage() {
                               : 'border-white/10 bg-white/6 text-white/55',
                           )}
                         >
-                          {slide.is_active ? 'Visible en Home' : 'Oculto'}
+                          {slide.is_active ? 'Visible en inicio' : 'Oculto'}
                         </span>
                       </div>
 
@@ -851,7 +864,7 @@ export function AdminSettingsPage() {
                       <div className="flex flex-wrap gap-2 text-xs text-white/45">
                         <span>Orden {slide.sort_order}</span>
                         <span>·</span>
-                        <span>{slide.image_url.startsWith('data:') ? 'Imagen pendiente' : 'Imagen cargada'}</span>
+                        <span>{slide.image_url.startsWith('data:') ? 'Foto pendiente' : 'Foto cargada'}</span>
                       </div>
                     </div>
                   </div>
@@ -962,7 +975,7 @@ export function AdminSettingsPage() {
 
                       <Input
                         label="Descripción de la imagen"
-                        placeholder="Slide principal con modelos nuevos"
+                        placeholder="Imagen principal con modelos nuevos"
                         value={draft.imageAlt}
                         onChange={(event) =>
                           updateHeroSlideDraft(slide.id, { imageAlt: event.target.value })
@@ -978,7 +991,7 @@ export function AdminSettingsPage() {
                             updateHeroSlideDraft(slide.id, { isActive: event.target.checked })
                           }
                         />
-                        Mostrar en la Home
+                        Mostrar en el inicio
                       </label>
 
                       <div className="flex flex-wrap gap-2.5">
