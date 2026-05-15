@@ -10,12 +10,12 @@ import {
   XCircle,
 } from 'lucide-react'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Input } from '@/components/ui/Input'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { SectionTitle } from '@/components/ui/SectionTitle'
 import { SelectField } from '@/components/ui/SelectField'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useAdminOutletData } from '@/hooks/useAdminShellData'
@@ -132,10 +132,7 @@ export function AdminOrdersPage() {
       setPageError(null)
 
       const [ordersResult, itemsResult] = await Promise.all([
-        client
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false }),
+        client.from('orders').select('*').order('created_at', { ascending: false }),
         client
           .from('order_items')
           .select('*')
@@ -192,8 +189,7 @@ export function AdminOrdersPage() {
     const normalizedSearch = deferredSearch.trim().toLowerCase()
 
     return orders.filter((order) => {
-      const matchesStatus =
-        statusFilter === 'all' || order.status === statusFilter
+      const matchesStatus = statusFilter === 'all' || order.status === statusFilter
       const matchesSearch =
         normalizedSearch.length === 0 ||
         order.order_code.toLowerCase().includes(normalizedSearch) ||
@@ -219,11 +215,7 @@ export function AdminOrdersPage() {
   }
 
   async function updateOrderStatus(order: OrderListItem, status: OrderStatus) {
-    if (!supabase) {
-      return
-    }
-
-    if (status === order.status) {
+    if (!supabase || status === order.status) {
       return
     }
 
@@ -251,10 +243,7 @@ export function AdminOrdersPage() {
     setActionError(null)
     setActionSuccess(null)
 
-    const { error } = await supabase
-      .from('orders')
-      .update({ status })
-      .eq('id', order.id)
+    const { error } = await supabase.from('orders').update({ status }).eq('id', order.id)
 
     setBusyOrderId(null)
 
@@ -269,7 +258,7 @@ export function AdminOrdersPage() {
     }
 
     setActionSuccess(
-      `Pedido ${order.order_code} actualizado a ${formatOrderStatus(status)}. El pago sigue coordinado por WhatsApp.`,
+      `Pedido ${order.order_code} actualizado a ${formatOrderStatus(status)}.`,
     )
     await reloadPage()
   }
@@ -294,39 +283,36 @@ export function AdminOrdersPage() {
     : ''
 
   return (
-    <div className="space-y-8">
-      <section className="surface-panel p-6 sm:p-8 lg:p-10">
-        <SectionTitle
-          eyebrow="Pedidos"
-          title="Seguimiento operativo de pedidos"
-          description="Listado, filtros, detalle, contacto por WhatsApp y cambios de estado sin mezclar el flujo con pagos online."
-          tone="light"
-        />
-      </section>
+    <div className="space-y-6 sm:space-y-8">
+      <AdminPageHeader
+        eyebrow="Pedidos"
+        title="Pedidos"
+        description="Revisa pedidos recibidos y actualiza su estado."
+      />
 
-      <div className="grid gap-5 xl:grid-cols-4 md:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <AdminMetricCard
           title="Total"
           value={counts.ordersTotal}
-          description="Pedidos guardados en Supabase."
+          description="Recibidos"
           icon={ShoppingBag}
         />
         <AdminMetricCard
           title="Pendientes"
           value={counts.ordersPending}
-          description="Requieren confirmacion inicial por WhatsApp."
+          description="A confirmar"
           icon={Clock3}
         />
         <AdminMetricCard
-          title="Confirmados + listos"
+          title="En curso"
           value={counts.ordersConfirmed + counts.ordersReady}
-          description="Pedidos que ya avanzaron en el circuito comercial."
+          description="Confirmados o listos"
           icon={CheckCheck}
         />
         <AdminMetricCard
           title="Cancelados"
           value={counts.ordersCancelled}
-          description="Pedidos cerrados sin entrega."
+          description="Sin entrega"
           icon={XCircle}
         />
       </div>
@@ -349,13 +335,13 @@ export function AdminOrdersPage() {
         </div>
       ) : null}
 
-      <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
-        <div className="grid gap-4 lg:grid-cols-[1fr_240px_auto]">
+      <Card className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
+        <div className="grid gap-3 lg:grid-cols-[1fr_220px_auto] sm:gap-4">
           <div className="relative">
             <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-white/40" />
             <Input
               label="Buscar"
-              placeholder="Código, nombre o teléfono"
+              placeholder="Codigo, nombre o telefono"
               className="pl-10"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
@@ -365,9 +351,7 @@ export function AdminOrdersPage() {
           <SelectField
             label="Estado"
             value={statusFilter}
-            onChange={(event) =>
-              setStatusFilter(event.target.value as 'all' | OrderStatus)
-            }
+            onChange={(event) => setStatusFilter(event.target.value as 'all' | OrderStatus)}
           >
             {orderStatusOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -392,14 +376,10 @@ export function AdminOrdersPage() {
 
       {orders.length === 0 ? (
         <EmptyState
-          title="Todavia no hay pedidos generados"
-          description="Los pedidos apareceran aqui cuando un cliente complete el checkout y envie su pedido por WhatsApp."
+          title="Todavia no hay pedidos"
+          description="Los pedidos apareceran aqui cuando un cliente termine su pedido."
           action={
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => void reloadPage()}
-            >
+            <Button type="button" variant="secondary" onClick={() => void reloadPage()}>
               Revisar nuevamente
             </Button>
           }
@@ -407,7 +387,7 @@ export function AdminOrdersPage() {
       ) : filteredOrders.length === 0 ? (
         <EmptyState
           title="No encontramos pedidos con ese filtro"
-          description="Prueba otro estado, otro termino de busqueda o limpia los filtros para volver al listado completo."
+          description="Prueba otro estado o limpia la busqueda."
           action={
             <Button
               type="button"
@@ -422,16 +402,13 @@ export function AdminOrdersPage() {
           }
         />
       ) : (
-        <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-          <Card className="space-y-4 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium text-white">Listado</p>
-                <p className="text-sm text-white/58">
-                  {filteredOrders.length} pedido
-                  {filteredOrders.length === 1 ? '' : 's'} visibles.
-                </p>
-              </div>
+        <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+          <Card className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6">
+            <div>
+              <p className="text-sm font-medium text-white">Listado</p>
+              <p className="text-sm text-white/58">
+                {filteredOrders.length} pedido{filteredOrders.length === 1 ? '' : 's'} visibles.
+              </p>
             </div>
 
             <div className="space-y-3">
@@ -440,25 +417,23 @@ export function AdminOrdersPage() {
                   key={order.id}
                   type="button"
                   onClick={() => setSelectedOrderId(order.id)}
-                  className={`w-full rounded-[24px] border p-4 text-left transition ${
+                  className={`w-full rounded-[22px] border p-3.5 text-left transition sm:p-4 ${
                     selectedOrder?.id === order.id
                       ? 'border-brand-strong/40 bg-[#161616] text-white shadow-[0_22px_44px_rgba(0,0,0,0.2)]'
                       : 'border-white/10 bg-black/20 text-white hover:border-white/16'
                   }`}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-start justify-between gap-2.5">
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold tracking-[-0.02em]">
+                      <p className="text-sm font-semibold tracking-[-0.02em] sm:text-base">
                         {order.order_code}
                       </p>
                       <p
                         className={`text-sm ${
-                          selectedOrder?.id === order.id
-                            ? 'text-white/75'
-                            : 'text-white/56'
+                          selectedOrder?.id === order.id ? 'text-white/75' : 'text-white/56'
                         }`}
                       >
-                        {order.customer_name} | {order.customer_phone}
+                        {order.customer_name}
                       </p>
                     </div>
 
@@ -475,14 +450,15 @@ export function AdminOrdersPage() {
                   </div>
 
                   <div
-                    className={`mt-4 grid gap-2 text-sm sm:grid-cols-3 ${
-                      selectedOrder?.id === order.id
-                        ? 'text-white/78'
-                        : 'text-white/54'
+                    className={`mt-3 grid gap-1 text-xs sm:grid-cols-2 sm:gap-2 sm:text-sm ${
+                      selectedOrder?.id === order.id ? 'text-white/78' : 'text-white/54'
                     }`}
                   >
-                    <span>{order.itemCount} item{order.itemCount === 1 ? '' : 's'}</span>
+                    <span>{order.customer_phone}</span>
                     <span>{formatCurrency(order.total)}</span>
+                    <span>
+                      {order.itemCount} item{order.itemCount === 1 ? '' : 's'}
+                    </span>
                     <span>{formatDateTime(order.created_at)}</span>
                   </div>
                 </button>
@@ -491,11 +467,11 @@ export function AdminOrdersPage() {
           </Card>
 
           {selectedOrder ? (
-            <Card className="space-y-6 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-2">
+            <Card className="space-y-5 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-2xl font-semibold tracking-[-0.04em] text-white">
+                    <p className="text-xl font-semibold tracking-[-0.04em] text-white sm:text-2xl">
                       {selectedOrder.order_code}
                     </p>
                     <StatusBadge tone={orderStatusTone(selectedOrder.status)}>
@@ -518,7 +494,7 @@ export function AdminOrdersPage() {
                     className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-success px-4 text-sm font-medium text-white transition hover:bg-emerald-700"
                   >
                     <MessageCircle className="h-4 w-4" />
-                    Abrir WhatsApp del cliente
+                    WhatsApp
                   </a>
                   <Button
                     type="button"
@@ -526,13 +502,13 @@ export function AdminOrdersPage() {
                     onClick={() => void copyMessage(selectedOrder)}
                   >
                     <Copy className="h-4 w-4" />
-                    Copiar resumen
+                    Copiar
                   </Button>
                 </div>
               </div>
 
-              <div className="grid gap-4 lg:grid-cols-2">
-                <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+                <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
                   <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                     Cliente
                   </p>
@@ -545,16 +521,13 @@ export function AdminOrdersPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
+                <div className="rounded-[20px] border border-white/10 bg-black/20 p-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
                   <SelectField
                     label="Cambiar estado"
                     value={selectedOrder.status}
                     disabled={busyOrderId === selectedOrder.id}
                     onChange={(event) =>
-                      void updateOrderStatus(
-                        selectedOrder,
-                        event.target.value as OrderStatus,
-                      )
+                      void updateOrderStatus(selectedOrder, event.target.value as OrderStatus)
                     }
                   >
                     {orderStatusOptions
@@ -566,16 +539,15 @@ export function AdminOrdersPage() {
                       ))}
                   </SelectField>
                   <p className="mt-3 text-sm leading-6 text-white/56">
-                    Entregado / Pagado manualmente solo marca cierre operativo.
-                    No registra pagos online ni reemplaza la coordinación por WhatsApp.
+                    Cambia solo el estado operativo del pedido.
                   </p>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm font-medium text-white">Items del pedido</p>
+                <p className="text-sm font-medium text-white">Items</p>
                 {selectedOrder.items.length === 0 ? (
-                  <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-8 text-sm text-white/58">
+                  <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-6 text-sm text-white/58">
                     Este pedido no tiene items asociados.
                   </div>
                 ) : (
@@ -583,17 +555,15 @@ export function AdminOrdersPage() {
                     {selectedOrder.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex flex-col gap-2 rounded-[22px] border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between"
+                        className="flex flex-col gap-1.5 rounded-[20px] border border-white/10 bg-black/20 p-3.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:p-4"
                       >
                         <div>
-                          <p className="text-sm font-medium text-white">
-                            {item.product_name}
-                          </p>
-                          <p className="text-sm text-white/56">
+                          <p className="font-medium text-white">{item.product_name}</p>
+                          <p className="text-white/56">
                             {item.quantity} x {formatCurrency(item.unit_price)}
                           </p>
                         </div>
-                        <p className="text-sm font-semibold text-white">
+                        <p className="font-semibold text-white">
                           {formatCurrency(item.subtotal)}
                         </p>
                       </div>
@@ -603,20 +573,18 @@ export function AdminOrdersPage() {
               </div>
 
               <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
-                <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-                  <p className="text-sm font-medium text-white">
-                    Resumen para copiar o enviar
-                  </p>
+                <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+                  <p className="text-sm font-medium text-white">Resumen para copiar</p>
                   <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-white/74">
                     {selectedOrderMessage}
                   </pre>
                 </div>
 
-                <div className="rounded-[24px] border border-white/10 bg-[#0d0d0d] px-5 py-4 text-white">
+                <div className="rounded-[20px] border border-white/10 bg-[#0d0d0d] px-5 py-4 text-white">
                   <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                     Total
                   </p>
-                  <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">
+                  <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
                     {formatCurrency(selectedOrder.total)}
                   </p>
                 </div>

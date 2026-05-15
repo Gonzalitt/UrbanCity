@@ -35,11 +35,11 @@ function AdminShell() {
 
       <div className="min-w-0">
         <header className="sticky top-0 z-30 border-b border-white/10 bg-[#050505]/88 backdrop-blur-xl">
-          <div className="shell-container flex min-h-20 items-center justify-between gap-4 py-4">
+          <div className="shell-container flex min-h-[68px] items-center justify-between gap-3 py-3 sm:min-h-20 sm:gap-4 sm:py-4">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white lg:hidden"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white lg:hidden"
                 onClick={() => setMobileOpen(true)}
                 aria-label="Abrir navegacion admin"
               >
@@ -47,14 +47,14 @@ function AdminShell() {
               </button>
 
               <div className="flex min-w-0 items-center gap-3">
-                <span className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-brand-strong sm:inline-flex">
+                <span className="hidden h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-brand-strong sm:inline-flex sm:h-11 sm:w-11">
                   <ShieldCheck className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-lg font-semibold tracking-[-0.03em] text-white">
+                  <p className="truncate text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
                     {adminData.storeName}
                   </p>
-                  <p className="truncate text-sm text-white/62">{currentTitle}</p>
+                  <p className="truncate text-xs text-white/62 sm:text-sm">{currentTitle}</p>
                 </div>
               </div>
             </div>
@@ -71,7 +71,7 @@ function AdminShell() {
               <button
                 type="button"
                 onClick={adminData.refresh}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white transition hover:bg-white/10"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white transition hover:bg-white/10 sm:h-11 sm:w-11"
                 aria-label="Actualizar datos del panel"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -105,7 +105,7 @@ function AdminShell() {
           ) : null}
         </header>
 
-        <main className="shell-container py-8 sm:py-10">
+        <main className="shell-container py-5 sm:py-8 lg:py-10">
           <Outlet context={adminData} />
         </main>
       </div>

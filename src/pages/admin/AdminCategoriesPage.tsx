@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Layers3, Pencil, Power, RefreshCw, Tag, Tags } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { SectionTitle } from '@/components/ui/SectionTitle'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Textarea } from '@/components/ui/Textarea'
 import { useAdminOutletData } from '@/hooks/useAdminShellData'
@@ -34,13 +34,15 @@ export function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CategoryListItem[]>([])
   const [listLoading, setListLoading] = useState(isSupabaseConfigured)
   const [pageError, setPageError] = useState<string | null>(
-    isSupabaseConfigured ? null : 'Configura Supabase para administrar categorías.',
+    isSupabaseConfigured ? null : 'Configura Supabase para administrar categorias.',
   )
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
   const [editingCategory, setEditingCategory] = useState<CategoryListItem | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [busyCategoryId, setBusyCategoryId] = useState<string | null>(null)
+  const categoryFormRef = useRef<HTMLDivElement | null>(null)
+  const categoryListRef = useRef<HTMLDivElement | null>(null)
 
   const form = useForm<AdminCategorySchema>({
     resolver: zodResolver(adminCategorySchema),
@@ -84,7 +86,7 @@ export function AdminCategoriesPage() {
       }
 
       if (categoriesResult.error || productsResult.error) {
-        setPageError('No se pudieron cargar las categorías desde Supabase.')
+        setPageError('No se pudieron cargar las categorias desde Supabase.')
         setListLoading(false)
         return
       }
@@ -119,7 +121,27 @@ export function AdminCategoriesPage() {
   }, [reloadKey])
 
   if (loading || listLoading) {
-    return <LoadingState label="Cargando categorías..." />
+    return <LoadingState label="Cargando categorias..." />
+  }
+
+  function scrollToCategoryForm() {
+    requestAnimationFrame(() =>
+      categoryFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    )
+  }
+
+  function scrollToCategoryList() {
+    requestAnimationFrame(() =>
+      categoryListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    )
+  }
+
+  function startNewCategory() {
+    setEditingCategory(null)
+    form.reset(defaultValues)
+    setSubmitError(null)
+    setSubmitSuccess(null)
+    scrollToCategoryForm()
   }
 
   async function reloadPage() {
@@ -129,7 +151,7 @@ export function AdminCategoriesPage() {
 
   async function handleSubmit(values: AdminCategorySchema) {
     if (!supabase) {
-      setSubmitError('Configura Supabase para administrar categorías.')
+      setSubmitError('Configura Supabase para administrar categorias.')
       return
     }
 
@@ -190,40 +212,50 @@ export function AdminCategoriesPage() {
 
     setSubmitSuccess(
       category.is_active
-        ? `Categoria "${category.name}" desactivada. Los productos asociados no se eliminan ni se modifican.`
+        ? `Categoria "${category.name}" desactivada.`
         : `Categoria "${category.name}" activada nuevamente.`,
     )
     await reloadPage()
   }
 
   return (
-    <div className="space-y-8">
-      <section className="surface-panel p-6 sm:p-8 lg:p-10">
-        <SectionTitle
-          eyebrow="Categorías"
-          title="Administra la taxonomía del catálogo"
-          description="Alta, edición y activación de categorías con slugs consistentes para que la navegación pública de la tienda se mantenga prolija."
-          tone="light"
-        />
-      </section>
+    <div className="space-y-6 sm:space-y-8">
+      <AdminPageHeader
+        eyebrow="Categorias"
+        title="Categorias"
+        description="Organiza los productos por tipo o marca."
+      />
 
-      <div className="grid gap-5 md:grid-cols-3">
+      <Card className="flex flex-wrap gap-2 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-5">
+        <Button type="button" variant="secondary" onClick={startNewCategory}>
+          Nueva categoria
+        </Button>
+        <Button type="button" variant="outline" onClick={scrollToCategoryList}>
+          Ver listado
+        </Button>
+        <Button type="button" variant="ghost" className="text-white/72 hover:bg-white/8 hover:text-white" onClick={() => void reloadPage()}>
+          <RefreshCw className="h-4 w-4" />
+          Recargar
+        </Button>
+      </Card>
+
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <AdminMetricCard
           title="Total"
           value={counts.categoriesTotal}
-          description="Categorias registradas en la base."
+          description="Cargadas"
           icon={Tags}
         />
         <AdminMetricCard
           title="Activas"
           value={counts.categoriesActive}
-          description="Categorias visibles en la tienda."
+          description="Visibles"
           icon={Tag}
         />
         <AdminMetricCard
           title="Inactivas"
           value={Math.max(counts.categoriesTotal - counts.categoriesActive, 0)}
-          description="Categorias listas para revisar o archivar."
+          description="A revisar"
           icon={Layers3}
         />
       </div>
@@ -246,16 +278,17 @@ export function AdminCategoriesPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-        <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
-          <div className="space-y-2">
+      <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+        <Card
+          ref={categoryFormRef}
+          className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6"
+        >
+          <div className="space-y-1.5">
             <p className="text-sm font-medium text-white">
-              {editingCategory ? 'Editar categoría' : 'Nueva categoría'}
+              {editingCategory ? 'Editar categoria' : 'Nueva categoria'}
             </p>
             <p className="text-sm leading-6 text-white/60">
-              Si dejas el slug vacío, se genera automáticamente desde el nombre.
-              Desactivar una categoría no elimina productos: solo deja de mostrarla
-              como categoría activa en la tienda.
+              Si dejas el slug vacio, se genera automaticamente desde el nombre.
             </p>
           </div>
 
@@ -265,33 +298,33 @@ export function AdminCategoriesPage() {
           >
             <Input
               label="Nombre"
-              placeholder="Ej: Deco, Regalos, Oficina"
+              placeholder="Ej: Sneakers, Urbanas o Accesorios"
               error={form.formState.errors.name?.message}
               {...form.register('name')}
             />
 
             <Input
               label="Slug"
-              placeholder="deco"
-              hint="Se usa en URLs. Si queda vacío, se autogenera."
+              placeholder="sneakers"
+              hint="Si queda vacio, se autogenera."
               error={form.formState.errors.slug?.message}
               {...form.register('slug')}
             />
 
             <Textarea
-              label="Descripción"
-              placeholder="Breve contexto para el panel o para la tienda."
+              label="Descripcion"
+              placeholder="Breve referencia interna u orientativa."
               error={form.formState.errors.description?.message}
               {...form.register('description')}
             />
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2.5">
               <Button
                 type="submit"
                 variant="secondary"
                 disabled={form.formState.isSubmitting}
               >
-                {editingCategory ? 'Guardar cambios' : 'Crear categoría'}
+                {editingCategory ? 'Guardar cambios' : 'Crear categoria'}
               </Button>
 
               {editingCategory ? (
@@ -299,24 +332,24 @@ export function AdminCategoriesPage() {
                   type="button"
                   variant="ghost"
                   className="text-white/72 hover:bg-white/8 hover:text-white"
-                  onClick={() => {
-                    setEditingCategory(null)
-                    form.reset(defaultValues)
-                  }}
+                  onClick={startNewCategory}
                 >
-                  Cancelar edición
+                  Cancelar edicion
                 </Button>
               ) : null}
             </div>
           </form>
         </Card>
 
-        <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+        <Card
+          ref={categoryListRef}
+          className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6"
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-medium text-white">Listado</p>
               <p className="text-sm text-white/58">
-                {categories.length} categoría{categories.length === 1 ? '' : 's'} cargadas.
+                {categories.length} categoria{categories.length === 1 ? '' : 's'} cargadas.
               </p>
             </div>
 
@@ -328,40 +361,33 @@ export function AdminCategoriesPage() {
 
           <div className="space-y-3">
             {categories.length === 0 ? (
-              <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-8 text-sm text-white/58">
-                Todavía no hay categorías cargadas. Crea la primera para ordenar
-                el catálogo sin afectar productos existentes.
+              <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-6 text-sm text-white/58">
+                Todavia no hay categorias cargadas.
               </div>
             ) : null}
 
             {categories.map((category) => (
               <div
                 key={category.id}
-                className="rounded-[24px] border border-white/10 bg-black/20 p-4"
+                className="rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:p-4"
               >
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-3">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-lg font-semibold tracking-[-0.03em] text-white">
+                      <p className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
                         {category.name}
                       </p>
                       <StatusBadge tone={category.is_active ? 'success' : 'muted'}>
                         {category.is_active ? 'Activa' : 'Inactiva'}
                       </StatusBadge>
                       <StatusBadge tone="muted">
-                        {category.productCount} producto
-                        {category.productCount === 1 ? '' : 's'}
+                        {category.productCount} producto{category.productCount === 1 ? '' : 's'}
                       </StatusBadge>
                     </div>
-                    <div className="space-y-1 text-sm text-white/58">
+
+                    <div className="grid gap-1 text-sm text-white/58 sm:grid-cols-2">
                       <p>Slug: {category.slug}</p>
-                      <p>{category.description || 'Sin descripción.'}</p>
-                      {!category.is_active ? (
-                        <p>
-                          La categoría está inactiva. Los productos asociados siguen
-                          existiendo y pueden reasignarse o mostrarse en otras categorías.
-                        </p>
-                      ) : null}
+                      <p>{category.description || 'Sin descripcion.'}</p>
                     </div>
                   </div>
 
@@ -369,15 +395,18 @@ export function AdminCategoriesPage() {
                     <Button
                       type="button"
                       variant="outline"
+                      className="border-white/12 text-white hover:border-white/20 hover:bg-white/8"
                       onClick={() => {
                         setEditingCategory(category)
                         setSubmitError(null)
                         setSubmitSuccess(null)
+                        scrollToCategoryForm()
                       }}
                     >
                       <Pencil className="h-4 w-4" />
                       Editar
                     </Button>
+
                     <Button
                       type="button"
                       variant="ghost"
