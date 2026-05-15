@@ -5,6 +5,7 @@ import localExteriorImage from '@/assets/LocalExterior1.webp'
 import promoContadoImage from '@/assets/PromoContado.webp'
 import zapatillas1Image from '@/assets/Zapatillas1.webp'
 import zapatillas2Image from '@/assets/Zapatillas2.webp'
+import zapatillas3Image from '@/assets/Zapatillas3.webp'
 import {
   ArrowRight,
   ChevronLeft,
@@ -26,27 +27,27 @@ import { cn } from '@/lib/cn'
 const heroSlides = [
   {
     eyebrow: 'NUEVOS INGRESOS',
-    title: 'ZAPATILLAS URBANAS',
-    subtitle: 'PARA TODOS LOS DÍAS',
-    description: 'Elegí tu próximo par y descubrí los modelos disponibles.',
-    image: estanteriaImage,
-    imageAlt: 'Estantería con modelos urbanos disponibles en City Calzado Urbano',
+    title: 'CITY DROP',
+    subtitle: 'TU PRÓXIMO PAR',
+    description: 'Modelos urbanos seleccionados por el local.',
+    image: zapatillas3Image,
+    imageAlt: 'Modelos nuevos de zapatillas urbanas disponibles en City Calzado Urbano',
   },
   {
     eyebrow: 'MODELOS DESTACADOS',
-    title: 'CITY DROP',
-    subtitle: 'TU PRÓXIMO PAR',
-    description: 'Sneakers, urbanas y accesorios seleccionados por el local.',
+    title: 'ZAPATILLAS URBANAS',
+    subtitle: 'PARA TODOS LOS DÍAS',
+    description: 'Sneakers y accesorios para tu estilo.',
     image: zapatillas2Image,
-    imageAlt: 'Selección destacada de modelos disponibles en City Calzado Urbano',
+    imageAlt: 'Zapatillas urbanas destacadas en City Calzado Urbano',
   },
   {
-    eyebrow: 'RETIRO EN LOCAL',
-    title: 'ARMÁ TU PEDIDO',
-    subtitle: 'RETIRÁ EN CITY',
-    description: 'Agregá tus modelos al carrito y coordinamos el retiro.',
-    image: localExteriorImage,
-    imageAlt: 'Frente del local City Calzado Urbano',
+    eyebrow: 'ESTILO CITY',
+    title: 'NUEVOS MODELOS',
+    subtitle: 'EN TIENDA',
+    description: 'Descubrí los ingresos disponibles.',
+    image: zapatillas1Image,
+    imageAlt: 'Nuevos modelos de zapatillas disponibles en City Calzado Urbano',
   },
 ]
 
@@ -65,7 +66,7 @@ const benefitItems = [
   },
   {
     icon: Store,
-    mobileTitle: 'Retiro',
+    mobileTitle: 'Retiro local',
     title: 'Retiro coordinado',
     copy: 'Confirmamos disponibilidad y retiro con el local.',
   },
@@ -170,17 +171,19 @@ export function HomePage() {
               <div key={slide.eyebrow} className="hero-slide">
                 <div className="shell-container relative min-h-[380px] overflow-hidden py-7 sm:min-h-[520px] sm:py-12 lg:grid lg:min-h-[620px] lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:gap-10 lg:py-16">
                   <div className="absolute inset-0 sm:hidden">
-                    <div className="absolute right-[-18px] bottom-7 z-0 w-[58%] overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0b0b] opacity-75 shadow-[0_28px_64px_rgba(0,0,0,0.34)]">
+                    <div className="absolute inset-0 z-0">
                       <img
                         src={slide.image}
                         alt={slide.imageAlt}
-                        className="h-[170px] w-full object-cover object-center"
+                        className="h-full w-full object-cover object-center"
                       />
                     </div>
-                    <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,0.96)_46%,rgba(5,5,5,0.62)_100%)]" />
+                    <div className="absolute inset-0 z-[1] bg-black/42" />
+                    <div className="absolute inset-0 z-[2] bg-[linear-gradient(90deg,rgba(5,5,5,0.92)_0%,rgba(5,5,5,0.72)_42%,rgba(5,5,5,0.28)_78%,rgba(5,5,5,0.10)_100%)]" />
+                    <div className="absolute inset-x-0 bottom-0 z-[3] h-28 bg-gradient-to-t from-[#050505] to-transparent" />
                   </div>
 
-                  <div className="relative z-10 max-w-[78%] space-y-4 sm:max-w-[72%] sm:space-y-5 lg:max-w-xl">
+                  <div className="relative z-10 max-w-[72%] space-y-4 sm:max-w-[72%] sm:space-y-5 lg:max-w-xl">
                     <div className="space-y-4">
                       <p className="eyebrow">{slide.eyebrow}</p>
                       <div className="space-y-1">
