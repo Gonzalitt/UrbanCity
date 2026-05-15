@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowLeft, Minus, Plus, ShoppingBag } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { ProductCard } from '@/components/product/ProductCard'
@@ -38,6 +38,7 @@ function ProductDetailContent({
   const [quantity, setQuantity] = useState(1)
   const [selectedSizeLabel, setSelectedSizeLabel] = useState<string | null>(null)
   const [sizeError, setSizeError] = useState<string | null>(null)
+  const [cartFeedback, setCartFeedback] = useState<string | null>(null)
 
   const isSoldOut = product.availability === 'out_of_stock'
   const discountPercent = getDiscountPercent(
@@ -46,17 +47,35 @@ function ProductDetailContent({
   )
   const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
 
+  useEffect(() => {
+    if (!cartFeedback) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCartFeedback(null)
+    }, 2500)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [cartFeedback])
+
   function handleAddToCart() {
     if (product.sizes.length > 0 && !selectedSizeLabel) {
       setSizeError('Seleccioná un talle para continuar.')
       return
     }
 
+    setSizeError(null)
     addItem(product, quantity, selectedSizeLabel)
+    setCartFeedback(
+      selectedSizeLabel
+        ? `Agregado al carrito · Talle ${selectedSizeLabel}`
+        : 'Agregado al carrito',
+    )
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-6 pb-24 sm:space-y-8 sm:pb-0">
       <Link
         to="/catalogo"
         className="inline-flex items-center gap-2 text-sm font-medium text-white/72 hover:text-white"
@@ -80,7 +99,7 @@ function ProductDetailContent({
             <div className="space-y-3 sm:space-y-4">
               <p className="eyebrow">{product.category?.name ?? 'Catálogo'}</p>
               <div className="space-y-3">
-                <h1 className="line-clamp-2 text-2xl leading-tight font-semibold tracking-[-0.04em] text-white sm:line-clamp-none sm:text-5xl">
+                <h1 className="line-clamp-2 text-2xl font-semibold leading-tight tracking-[-0.04em] text-white sm:line-clamp-none sm:text-5xl">
                   {product.name}
                 </h1>
                 <p className="line-clamp-2 text-sm leading-6 text-white/72 sm:line-clamp-none sm:text-base sm:leading-8">
@@ -127,9 +146,9 @@ function ProductDetailContent({
                 </p>
               ) : null}
               <div className="space-y-1.5 rounded-[24px] border border-white/12 bg-white/6 p-3 text-[0.8rem] leading-5 text-white/78 sm:space-y-2 sm:p-4 sm:text-sm sm:leading-6">
-                <p>💳 3 cuotas sin interés disponibles</p>
-                <p>💰 20% OFF pago contado</p>
-                <p>📲 Billeteras virtuales incluidas como pago contado</p>
+                <p>3 cuotas sin interés disponibles</p>
+                <p>20% OFF pago contado</p>
+                <p>Billeteras virtuales incluidas como pago contado</p>
               </div>
             </div>
 
@@ -210,6 +229,15 @@ function ProductDetailContent({
                 {isSoldOut ? 'Sin stock' : 'Agregar al carrito'}
               </Button>
             </div>
+
+            {cartFeedback ? (
+              <div className="hidden items-center justify-between gap-3 rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200 sm:flex">
+                <p>{cartFeedback}</p>
+                <Link to="/carrito" className="shrink-0 font-medium text-brand-strong">
+                  Ver carrito
+                </Link>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
@@ -229,6 +257,47 @@ function ProductDetailContent({
           </div>
         </section>
       ) : null}
+
+      <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/10 bg-[#050505]/92 px-4 py-3 backdrop-blur sm:hidden">
+        <div className="mx-auto max-w-screen-sm space-y-3">
+          {cartFeedback ? (
+            <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              <div className="flex items-center justify-between gap-3">
+                <p>{cartFeedback}</p>
+                <Link to="/carrito" className="shrink-0 font-medium text-brand-strong">
+                  Ver carrito
+                </Link>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/42">
+                Precio contado
+              </p>
+              <p className="truncate text-base font-semibold text-white">
+                {formatCurrency(product.price)}
+              </p>
+              {selectedSizeLabel ? (
+                <p className="text-xs text-white/52">Talle {selectedSizeLabel}</p>
+              ) : product.sizes.length > 0 ? (
+                <p className="text-xs text-white/52">Elegí talle</p>
+              ) : null}
+            </div>
+
+            <Button
+              type="button"
+              variant={isSoldOut ? 'outline' : 'secondary'}
+              disabled={isSoldOut}
+              onClick={handleAddToCart}
+              className="shrink-0"
+            >
+              {isSoldOut ? 'Sin stock' : 'Agregar'}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

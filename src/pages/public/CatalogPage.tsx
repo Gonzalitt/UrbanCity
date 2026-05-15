@@ -16,7 +16,7 @@ export function CatalogPage() {
   const { categories, products, loading } = useStorefrontData()
   const [searchParams, setSearchParams] = useSearchParams()
   const [searchValue, setSearchValue] = useState('')
-  const [selectedSize, setSelectedSize] = useState('all')
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [sortOption, setSortOption] = useState<ProductSortOption>('relevance')
   const deferredSearch = useDeferredValue(searchValue)
   const selectedCategory = useMemo(() => {
@@ -40,12 +40,12 @@ export function CatalogPage() {
         ),
       ),
     ).sort((left, right) =>
-      left.localeCompare(right, 'es', { numeric: true })
+      left.localeCompare(right, 'es', { numeric: true }),
     )
   }, [products])
 
   if (loading) {
-    return <LoadingState label={'Cargando cat\u00e1logo...'} />
+    return <LoadingState label="Cargando catálogo..." />
   }
 
   const normalizedSearch = deferredSearch.trim().toLowerCase()
@@ -57,9 +57,10 @@ export function CatalogPage() {
       product.name.toLowerCase().includes(normalizedSearch) ||
       product.description?.toLowerCase().includes(normalizedSearch)
     const matchesSize =
-      selectedSize === 'all' ||
+      selectedSizes.length === 0 ||
       product.sizes.some(
-        (size) => size.is_available && size.size_label === selectedSize,
+        (size) =>
+          size.is_available && selectedSizes.includes(size.size_label),
       )
 
     return matchesCategory && matchesSearch && matchesSize
@@ -127,21 +128,31 @@ export function CatalogPage() {
     setSearchParams(nextSearchParams, { replace: true })
   }
 
+  function toggleSelectedSize(size: string) {
+    setSelectedSizes((current) =>
+      current.includes(size)
+        ? current.filter((item) => item !== size)
+        : [...current, size],
+    )
+  }
+
+  function clearSelectedSizes() {
+    setSelectedSizes([])
+  }
+
   function clearFilters() {
     setSearchValue('')
     handleCategoryChange('all')
-    setSelectedSize('all')
+    setSelectedSizes([])
   }
 
   return (
     <div className="space-y-8">
       <section className="surface-panel p-4 sm:p-8 lg:p-10">
         <SectionTitle
-          eyebrow={'Cat\u00e1logo'}
-          title={'Encontr\u00e1 tu pr\u00f3ximo par'}
-          description={
-            'Filtr\u00e1 por categor\u00eda y talle para encontrar r\u00e1pido tu pr\u00f3ximo par.'
-          }
+          eyebrow="Catálogo"
+          title="Encontrá tu próximo par"
+          description="Filtrá por categoría y talle para encontrar rápido tu próximo par."
           tone="light"
           compactMobile
         />
@@ -154,26 +165,21 @@ export function CatalogPage() {
         resultCount={visibleProducts.length}
         sortOption={sortOption}
         availableSizes={availableSizes}
-        selectedSize={selectedSize}
+        selectedSizes={selectedSizes}
         onSearchChange={setSearchValue}
         onCategoryChange={handleCategoryChange}
         onSortChange={setSortOption}
-        onSizeChange={setSelectedSize}
+        onSizeToggle={toggleSelectedSize}
+        onClearSizes={clearSelectedSizes}
         onClearFilters={clearFilters}
       />
 
       {visibleProducts.length === 0 ? (
         <EmptyState
           title="No encontramos productos con ese filtro"
-          description={
-            'Prob\u00e1 cambiar de talle, limpiar la b\u00fasqueda o elegir otra categor\u00eda.'
-          }
+          description="Probá cambiar de talle, limpiar la búsqueda o elegir otra categoría."
           action={
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={clearFilters}
-            >
+            <Button type="button" variant="secondary" onClick={clearFilters}>
               Limpiar filtros
             </Button>
           }
@@ -187,7 +193,7 @@ export function CatalogPage() {
       )}
 
       <div className="flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-2 text-sm text-white/62 sm:flex-row sm:items-center">
-        <p>{'Consult\u00e1 disponibilidad y coordin\u00e1 el pago por WhatsApp.'}</p>
+        <p>Consultá disponibilidad y coordiná el pago por WhatsApp.</p>
         <Link to="/carrito" className="font-medium text-brand-strong">
           Ver carrito
         </Link>
