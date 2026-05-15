@@ -447,11 +447,16 @@ export function CheckoutPage() {
             <div className="space-y-3 rounded-[24px] border border-white/10 bg-black/20 p-4">
               {items.map((item) => (
                 <div
-                  key={item.productId}
+                  key={item.cartItemId}
                   className="flex items-start justify-between gap-3 text-sm"
                 >
                   <div>
                     <p className="font-medium text-white">{item.name}</p>
+                    {item.sizeLabel ? (
+                      <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/42">
+                        Talle: {item.sizeLabel}
+                      </p>
+                    ) : null}
                     <p className="text-white/50">x{item.quantity}</p>
                   </div>
                   <span className="font-medium text-white">

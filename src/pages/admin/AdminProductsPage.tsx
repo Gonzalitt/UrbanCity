@@ -1228,7 +1228,7 @@ export function AdminProductsPage() {
                         <div className="space-y-1">
                           <p className="text-sm font-medium text-white">Talles disponibles</p>
                           <p className="text-sm leading-6 text-white/58">
-                            Marca los talles que queres mostrar para este producto.
+                            Marcá los talles que querés mostrar para este producto.
                           </p>
                         </div>
 
@@ -1258,7 +1258,7 @@ export function AdminProductsPage() {
                             type="text"
                             value={customSizeInput}
                             onChange={(event) => setCustomSizeInput(event.target.value)}
-                            placeholder="Ej: 46, 47 o Unico"
+                            placeholder="Ej: 46, 47 o Único"
                             className="h-11 w-full rounded-2xl border border-white/10 bg-[#0d0d0d] px-4 text-sm text-white placeholder:text-white/34"
                           />
                           <Button
