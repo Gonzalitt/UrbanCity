@@ -1,4 +1,4 @@
-import { Menu, LogOut, RefreshCw, ShieldCheck } from 'lucide-react'
+import { Menu, LogOut, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { AdminAccessState } from '@/components/admin/AdminAccessState'
@@ -67,15 +67,6 @@ function AdminShell() {
                   {user?.email ?? 'admin'}
                 </span>
               </div>
-
-              <button
-                type="button"
-                onClick={adminData.refresh}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white transition hover:bg-white/10 sm:h-11 sm:w-11"
-                aria-label="Actualizar datos del panel"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </button>
 
               <Link
                 to="/"

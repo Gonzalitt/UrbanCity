@@ -24,7 +24,7 @@ export function AdminDashboardPage() {
     <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
         eyebrow="Resumen"
-        title="Panel"
+        title="Panel de control"
         description="Vista rápida de catálogo y pedidos."
         hideDescriptionOnMobile
         variant="compact"

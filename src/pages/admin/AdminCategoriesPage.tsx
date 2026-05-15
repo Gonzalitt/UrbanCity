@@ -6,7 +6,6 @@ import {
   Layers3,
   Pencil,
   Power,
-  RefreshCw,
   Tag,
   Tags,
 } from 'lucide-react'
@@ -231,28 +230,31 @@ export function AdminCategoriesPage() {
     <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
         eyebrow="Categorías"
-        title="Categorías"
+        title="Creá y editá las categorías del catálogo"
         description="Organizá el catálogo."
         hideDescriptionOnMobile
         variant="compact"
       />
 
-      <Card className="grid grid-cols-[1fr_1fr_auto] gap-2 border border-white/10 bg-[#111111] p-3 text-white shadow-none sm:flex sm:flex-wrap sm:gap-3 sm:p-5 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
-        <Button type="button" variant="secondary" className="w-full px-3" onClick={startNewCategory}>
-          Nueva categoría
-        </Button>
-        <Button type="button" variant="outline" className="w-full px-3" onClick={scrollToCategoryList}>
-          Ver listado
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-full min-h-10 px-3 text-white/72 hover:bg-white/8 hover:text-white"
-          onClick={() => void reloadPage()}
-          aria-label="Recargar categorías"
-        >
-          <RefreshCw className="h-4 w-4" />
-        </Button>
+      <Card className="border border-white/10 bg-[#111111] p-3 text-white shadow-none sm:p-4 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+          <Button
+            type="button"
+            variant="secondary"
+            className="h-11 w-full px-3 text-sm sm:w-auto sm:px-5"
+            onClick={startNewCategory}
+          >
+            Nueva categoría
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 w-full px-3 text-sm sm:w-auto sm:px-5"
+            onClick={scrollToCategoryList}
+          >
+            Ver listado
+          </Button>
+        </div>
       </Card>
 
       <div className="grid grid-cols-3 gap-2">
@@ -285,18 +287,15 @@ export function AdminCategoriesPage() {
       ) : null}
 
       <div className="space-y-5">
-        <Card
-          ref={categoryFormRef}
-          className="border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]"
-        >
-          {showCategoryForm ? (
+        {showCategoryForm ? (
+          <Card
+            ref={categoryFormRef}
+            className="border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]"
+          >
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <p className="text-sm font-medium text-white">
                   {editingCategory ? 'Editar categoría' : 'Nueva categoría'}
-                </p>
-                <p className="text-sm leading-6 text-white/60">
-                  El slug se genera solo si lo dejás vacío.
                 </p>
               </div>
 
@@ -347,21 +346,8 @@ export function AdminCategoriesPage() {
                 </div>
               </form>
             </div>
-          ) : (
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-white">Nueva categoría</p>
-                <p className="text-sm leading-6 text-white/60">
-                  Abrí el formulario solo cuando lo necesites.
-                </p>
-              </div>
-
-              <Button type="button" variant="secondary" onClick={startNewCategory}>
-                Nueva categoría
-              </Button>
-            </div>
-          )}
-        </Card>
+          </Card>
+        ) : null}
 
         <Card
           ref={categoryListRef}
@@ -374,11 +360,6 @@ export function AdminCategoriesPage() {
                 {categories.length} categoría{categories.length === 1 ? '' : 's'} cargadas.
               </p>
             </div>
-
-            <Button type="button" variant="outline" onClick={() => void reloadPage()}>
-              <RefreshCw className="h-4 w-4" />
-              Recargar
-            </Button>
           </div>
 
           <div className="space-y-3">
@@ -412,11 +393,11 @@ export function AdminCategoriesPage() {
                       </StatusBadge>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px] gap-2 sm:flex sm:flex-wrap">
                       <Button
                         type="button"
                         variant="outline"
-                        className="w-full border-white/12 px-2.5 text-white hover:border-white/20 hover:bg-white/8"
+                        className="w-full min-w-0 gap-1.5 border-white/12 px-2 text-sm text-white hover:border-white/20 hover:bg-white/8 sm:w-auto sm:px-3"
                         onClick={() => {
                           setEditingCategory(category)
                           setExpandedCategoryId(category.id)
@@ -426,33 +407,34 @@ export function AdminCategoriesPage() {
                           scrollToCategoryForm()
                         }}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-4 w-4 shrink-0" />
                         Editar
                       </Button>
 
                       <Button
                         type="button"
                         variant="ghost"
-                        className="w-full px-2.5 text-white/72 hover:bg-white/8 hover:text-white"
+                        className="w-full min-w-0 gap-1.5 px-2 text-sm text-white/72 hover:bg-white/8 hover:text-white sm:w-auto sm:px-3"
                         onClick={() => void toggleCategory(category)}
                         disabled={busyCategoryId === category.id}
                       >
-                        <Power className="h-4 w-4" />
+                        <Power className="h-4 w-4 shrink-0" />
                         {category.is_active ? 'Desactivar' : 'Activar'}
                       </Button>
 
                       <Button
                         type="button"
                         variant="ghost"
-                        className="w-full px-2.5 text-white/72 hover:bg-white/8 hover:text-white"
+                        className="h-11 w-11 min-w-0 px-0 text-white/72 hover:bg-white/8 hover:text-white sm:h-auto sm:w-auto sm:px-3"
                         onClick={() =>
                           setExpandedCategoryId((current) =>
                             current === category.id ? null : category.id,
                           )
                         }
+                        aria-label={isExpanded ? 'Ocultar detalle' : 'Ver detalle'}
                       >
                         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                        {isExpanded ? 'Ocultar' : 'Ver más'}
+                        <span className="hidden sm:inline">{isExpanded ? 'Ocultar' : 'Detalle'}</span>
                       </Button>
                     </div>
 

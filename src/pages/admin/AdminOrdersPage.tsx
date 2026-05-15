@@ -6,7 +6,6 @@ import {
   Clock3,
   Copy,
   MessageCircle,
-  RefreshCw,
   Search,
   ShoppingBag,
   XCircle,
@@ -16,7 +15,6 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Input } from '@/components/ui/Input'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { SelectField } from '@/components/ui/SelectField'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -50,12 +48,20 @@ function orderStatusTone(status: OrderStatus) {
     case 'ready_for_pickup':
       return 'success'
     case 'completed':
-      return 'muted'
+      return 'success'
     case 'cancelled':
       return 'danger'
     default:
       return 'muted'
   }
+}
+
+function orderStatusCompactLabel(status: OrderStatus) {
+  if (status === 'completed') {
+    return 'Entregado'
+  }
+
+  return formatOrderStatus(status)
 }
 
 function buildCustomerFollowUpMessage(
@@ -261,7 +267,7 @@ export function AdminOrdersPage() {
     <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
         eyebrow="Pedidos"
-        title="Pedidos"
+        title="Gestioná tus ventas"
         description="Revisá pedidos y actualizá estados."
         hideDescriptionOnMobile
         variant="compact"
@@ -297,18 +303,21 @@ export function AdminOrdersPage() {
         </div>
       ) : null}
 
-      <Card className="space-y-3 border border-white/10 bg-[#111111] p-3 text-white shadow-none sm:p-5 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)] [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
-        <div className="grid gap-3 lg:grid-cols-[1fr_220px_auto]">
-          <div className="relative min-w-0">
-            <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-white/40" />
-            <Input
-              label="Buscar"
-              placeholder="Código, nombre o teléfono"
-              className="pl-10"
-              value={searchValue}
-              onChange={(event) => setSearchValue(event.target.value)}
-            />
-          </div>
+      <Card className="space-y-3 border border-white/10 bg-[#111111] p-3 text-white shadow-none sm:p-5 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)] [&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
+          <label className="block min-w-0 space-y-2">
+            <span className="text-sm font-medium text-white">Buscar</span>
+            <div className="relative min-w-0">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/38" />
+              <input
+                type="text"
+                value={searchValue}
+                onChange={(event) => setSearchValue(event.target.value)}
+                placeholder="Código, nombre o teléfono"
+                className="h-11 w-full rounded-2xl border border-white/10 bg-[#0d0d0d] pl-10 pr-3 text-sm text-white placeholder:text-white/32"
+              />
+            </div>
+          </label>
 
           <SelectField
             label="Estado"
@@ -321,13 +330,6 @@ export function AdminOrdersPage() {
               </option>
             ))}
           </SelectField>
-
-          <div className="flex items-end">
-            <Button type="button" variant="outline" className="w-full lg:w-auto" onClick={() => void reloadPage()}>
-              <RefreshCw className="h-4 w-4" />
-              Recargar
-            </Button>
-          </div>
         </div>
       </Card>
 
@@ -335,11 +337,6 @@ export function AdminOrdersPage() {
         <EmptyState
           title="Todavía no hay pedidos"
           description="Los pedidos aparecerán acá cuando un cliente termine su pedido."
-          action={
-            <Button type="button" variant="secondary" onClick={() => void reloadPage()}>
-              Revisar nuevamente
-            </Button>
-          }
         />
       ) : filteredOrders.length === 0 ? (
         <EmptyState
@@ -388,8 +385,15 @@ export function AdminOrdersPage() {
                         <p className="truncate text-sm text-white/70">{order.customer_name}</p>
                       </div>
 
-                      <StatusBadge tone={orderStatusTone(order.status)}>
-                        {formatOrderStatus(order.status)}
+                      <StatusBadge
+                        tone={orderStatusTone(order.status)}
+                        className={
+                          order.status === 'completed'
+                            ? 'border-emerald-400/20 bg-emerald-500/14 text-emerald-200'
+                            : undefined
+                        }
+                      >
+                        {orderStatusCompactLabel(order.status)}
                       </StatusBadge>
                     </div>
 
