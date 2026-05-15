@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowUpRight, ShoppingBag, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ProductVisual } from '@/components/product/ProductVisual'
@@ -36,59 +36,6 @@ function availabilityBadgeClassName(availability: StorefrontProduct['availabilit
   }
 }
 
-function formatProductSizesSummary(sizes: StorefrontProduct['sizes']) {
-  const labels = Array.from(
-    new Set(
-      sizes
-        .map((size) => size.size_label.trim())
-        .filter((sizeLabel) => sizeLabel.length > 0),
-    ),
-  ).sort((left, right) => left.localeCompare(right, 'es', { numeric: true }))
-
-  if (labels.length === 0) {
-    return null
-  }
-
-  if (labels.length === 1) {
-    return `Talle ${labels[0]}`
-  }
-
-  const numericLabels = labels.map((label) =>
-    /^\d+$/.test(label) ? Number(label) : null,
-  )
-  const allNumeric = numericLabels.every((value) => value !== null)
-  const firstLabel = labels[0]
-  const lastLabel = labels[labels.length - 1]
-
-  if (allNumeric) {
-    const numericValues = numericLabels as number[]
-    const isContinuous = numericValues.every(
-      (value, index) => {
-        if (index === 0) {
-          return true
-        }
-
-        const previousValue = numericValues[index - 1]
-        return previousValue !== undefined && value - previousValue === 1
-      },
-    )
-
-    if (isContinuous && labels.length >= 3) {
-      return `Talles: ${firstLabel}-${lastLabel}`
-    }
-  }
-
-  if (labels.length <= 5) {
-    return `Talles: ${labels.join(', ')}`
-  }
-
-  if (allNumeric) {
-    return `Talles: ${firstLabel}-${lastLabel}`
-  }
-
-  return 'Talles disponibles'
-}
-
 export function ProductCard({ product }: { product: StorefrontProduct }) {
   const addItem = useCartStore((state) => state.addItem)
   const [showQuickAdd, setShowQuickAdd] = useState(false)
@@ -101,10 +48,6 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
     product.compare_at_price,
   )
   const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
-  const sizesSummary = useMemo(
-    () => formatProductSizesSummary(product.sizes),
-    [product.sizes],
-  )
   const hasSizes = product.sizes.length > 0
   const isSoldOut = product.availability === 'out_of_stock'
 
@@ -241,11 +184,6 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
                   3 cuotas de {formatCurrency(installmentPerQuota)}
                 </p>
               ) : null}
-              {sizesSummary ? (
-                <p className="mt-1 truncate text-[0.68rem] font-medium text-white/46 sm:text-xs">
-                  {sizesSummary}
-                </p>
-              ) : null}
               <p className="mt-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-white/42 sm:text-[0.72rem] sm:tracking-[0.22em]">
                 Contado
               </p>
@@ -254,17 +192,24 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
               </p>
             </div>
 
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+            <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
               <Button
                 type="button"
                 size="sm"
                 variant={isSoldOut ? 'outline' : 'secondary'}
                 disabled={isSoldOut}
-                className="min-w-0 px-3.5"
+                className="w-full min-w-0 px-3 sm:w-full sm:px-3.5"
                 onClick={handleQuickAction}
               >
                 <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">
+                <span className="truncate sm:hidden">
+                  {isSoldOut
+                    ? 'Sin stock'
+                    : hasSizes
+                      ? 'Elegir talle'
+                      : 'Agregar'}
+                </span>
+                <span className="hidden sm:inline">
                   {isSoldOut
                     ? 'Sin stock'
                     : hasSizes
@@ -278,7 +223,8 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
                 className={buttonStyles({
                   variant: 'outline',
                   size: 'sm',
-                  className: 'gap-1.5 whitespace-nowrap px-3.5',
+                  className:
+                    'h-10 w-full justify-center gap-1.5 px-3 text-sm text-white/76 sm:h-auto sm:w-auto sm:px-3.5',
                 })}
               >
                 <span className="sm:hidden">Ver</span>

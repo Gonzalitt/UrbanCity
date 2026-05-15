@@ -25,22 +25,26 @@ export function CartLineItem({ item }: { item: CartItem }) {
   const removeItem = useCartStore((state) => state.removeItem)
 
   return (
-    <div className="grid grid-cols-[96px_1fr] gap-3 rounded-[22px] border border-white/10 bg-[#111111] p-3 shadow-[0_18px_40px_rgba(0,0,0,0.2)] transition hover:border-brand-strong/28 sm:grid-cols-[124px_1fr] sm:gap-4 sm:rounded-[28px] sm:p-4">
-      <Link to={`/catalogo/${item.slug}`}>
-        <ProductVisual
-          seed={item.slug}
-          name={item.name}
-          imageUrl={item.imageUrl}
-          className="aspect-square h-24 min-h-0 rounded-[18px] sm:h-full sm:min-h-32"
-        />
-      </Link>
+    <article className="rounded-[28px] border border-white/10 bg-[#111111] p-3 shadow-[0_18px_40px_rgba(0,0,0,0.2)] transition hover:border-brand-strong/28 sm:p-4">
+      <div className="grid grid-cols-[84px_minmax(0,1fr)] gap-4 sm:grid-cols-[120px_minmax(0,1fr)_auto] sm:items-center">
+        <Link
+          to={`/catalogo/${item.slug}`}
+          className="block h-24 w-24 shrink-0 overflow-hidden rounded-[20px] bg-[#0d0d0d] sm:h-[120px] sm:w-[120px]"
+        >
+          <ProductVisual
+            seed={item.slug}
+            name={item.name}
+            imageUrl={item.imageUrl}
+            imageFit="contain"
+            className="h-full w-full rounded-[20px]"
+          />
+        </Link>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 space-y-3">
           <div className="min-w-0 space-y-2">
             <Link
               to={`/catalogo/${item.slug}`}
-              className="line-clamp-2 text-base font-semibold tracking-[-0.03em] text-white sm:text-xl"
+              className="block line-clamp-2 text-base font-semibold tracking-[-0.03em] text-white sm:text-xl"
             >
               {item.name}
             </Link>
@@ -62,18 +66,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
             </div>
           </div>
 
-          <div className="space-y-1 text-left sm:text-right">
-            <p className="text-[0.72rem] font-medium uppercase tracking-[0.22em] text-white/42">
-              Subtotal
-            </p>
-            <p className="text-lg font-semibold tracking-[-0.03em] text-white sm:text-2xl">
-              {formatCurrency(item.price * item.quantity)}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-2 py-1.5">
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-black/20 px-2 py-1.5">
             <button
               type="button"
               className="flex h-8 w-8 items-center justify-center rounded-full text-white/76 transition hover:bg-white/8 hover:text-white sm:h-9 sm:w-9"
@@ -94,6 +87,17 @@ export function CartLineItem({ item }: { item: CartItem }) {
               <Plus className="h-4 w-4" />
             </button>
           </div>
+        </div>
+
+        <div className="col-span-2 flex items-center justify-between gap-3 border-t border-white/10 pt-3 sm:col-span-1 sm:flex-col sm:items-end sm:justify-between sm:self-stretch sm:border-t-0 sm:pt-0">
+          <div className="space-y-1 text-left sm:text-right">
+            <p className="text-[0.72rem] font-medium uppercase tracking-[0.22em] text-white/42">
+              Subtotal
+            </p>
+            <p className="text-lg font-semibold tracking-[-0.03em] text-white sm:text-2xl">
+              {formatCurrency(item.price * item.quantity)}
+            </p>
+          </div>
 
           <Button
             type="button"
@@ -106,6 +110,6 @@ export function CartLineItem({ item }: { item: CartItem }) {
           </Button>
         </div>
       </div>
-    </div>
+    </article>
   )
 }
