@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  ChevronDown,
+  ChevronUp,
   CircleHelp,
   Eye,
   EyeOff,
@@ -38,8 +40,8 @@ import { getDiscountPercent } from '@/lib/pricing'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import {
   adminProductSchema,
-  type AdminProductSchemaInput,
   type AdminProductSchema,
+  type AdminProductSchemaInput,
 } from '@/schemas/adminProduct'
 import type {
   Availability,
@@ -77,14 +79,14 @@ function productVisibilityMeta(product: Pick<ProductRow, 'is_active' | 'availabi
     return {
       label: 'Oculto',
       tone: 'muted' as const,
-      description: 'Sigue cargado, pero no se muestra en la tienda.',
+      description: 'Está cargado, pero no se muestra en la tienda.',
     }
   }
 
   return {
     label: 'Visible',
     tone: 'success' as const,
-    description: 'Se muestra en la tienda segun su disponibilidad.',
+    description: 'Se muestra en la tienda según la disponibilidad.',
   }
 }
 
@@ -215,6 +217,8 @@ export function AdminProductsPage() {
   const [reloadKey, setReloadKey] = useState(0)
   const [busyProductId, setBusyProductId] = useState<string | null>(null)
   const [showProductGuide, setShowProductGuide] = useState(false)
+  const [showProductForm, setShowProductForm] = useState(false)
+  const [expandedProductId, setExpandedProductId] = useState<string | null>(null)
   const imageManagerRef = useRef<HTMLDivElement | null>(null)
   const productFormRef = useRef<HTMLDivElement | null>(null)
   const productListRef = useRef<HTMLDivElement | null>(null)
@@ -379,7 +383,7 @@ export function AdminProductsPage() {
       return true
     }
 
-    return window.confirm('Tenes cambios sin guardar. Quieres descartarlos?')
+    return window.confirm('Tenés cambios sin guardar. ¿Querés descartarlos?')
   }
 
   function scrollToProductForm() {
@@ -395,20 +399,17 @@ export function AdminProductsPage() {
   }
 
   function startNewProduct() {
-    if (!editingProductId) {
-      scrollToProductForm()
+    if (editingProductId && !confirmDiscardChanges()) {
       return
     }
 
-    if (!confirmDiscardChanges()) {
-      return
-    }
-
-    if (hasUnsavedChanges()) {
+    if (editingProductId && hasUnsavedChanges()) {
       discardDraftForCurrentMode()
     }
 
     setEditingProductId(null)
+    setExpandedProductId(null)
+    setShowProductForm(true)
     setSubmitError(null)
     setSubmitSuccess(null)
     scrollToProductForm()
@@ -427,10 +428,13 @@ export function AdminProductsPage() {
 
     setSubmitError(null)
     setSubmitSuccess(null)
+    setExpandedProductId(productId)
 
     if (options?.scrollToImages) {
       pendingImageScrollRef.current = true
     }
+
+    setShowProductForm(true)
 
     if (nextProductId === editingProductId) {
       if (options?.scrollToImages && imageManagerRef.current) {
@@ -494,17 +498,23 @@ export function AdminProductsPage() {
     setSubmitSuccess(
       editingProduct
         ? 'Producto actualizado correctamente.'
-        : 'Producto creado correctamente. Ya puedes cargar imagenes.',
+        : 'Producto creado correctamente. Ya podés cargar imágenes.',
     )
     discardDraftForCurrentMode()
     clearProductDraft(buildDraftKey(createdOrUpdatedProduct.id))
     baseValuesRef.current = nextFormValues
     form.reset(nextFormValues)
     setEditingProductId(createdOrUpdatedProduct.id)
+    setExpandedProductId(createdOrUpdatedProduct.id)
+    setShowProductForm(true)
     await reloadPage()
   }
 
-  async function updateProduct(productId: string, updates: Partial<ProductRow>, successMessage: string) {
+  async function updateProduct(
+    productId: string,
+    updates: Partial<ProductRow>,
+    successMessage: string,
+  ) {
     if (!supabase) {
       return
     }
@@ -533,7 +543,7 @@ export function AdminProductsPage() {
 
     if (product.hasOrders) {
       setSubmitError(
-        `"${product.name}" no se puede eliminar porque ya aparece en ${product.orderCount} pedido${product.orderCount === 1 ? '' : 's'}. Si necesitas retirarlo de la tienda, dejalo inactivo o usa "Oculto".`,
+        `"${product.name}" no se puede eliminar porque ya aparece en ${product.orderCount} pedido${product.orderCount === 1 ? '' : 's'}. Si necesitás retirarlo de la tienda, dejalo oculto.`,
       )
       return
     }
@@ -572,7 +582,12 @@ export function AdminProductsPage() {
     if (editingProductId === product.id) {
       clearProductDraft(buildDraftKey(product.id))
       setEditingProductId(null)
+      setShowProductForm(false)
       form.reset(defaultValues)
+    }
+
+    if (expandedProductId === product.id) {
+      setExpandedProductId(null)
     }
 
     setSubmitSuccess('Producto eliminado correctamente.')
@@ -580,32 +595,34 @@ export function AdminProductsPage() {
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
         eyebrow="Productos"
-        title="Productos de la tienda"
-        description="Carga productos, edita precios, marca ofertas y administra imagenes."
+        title="Productos"
+        description="Cargá productos, precios, ofertas e imágenes."
+        hideDescriptionOnMobile
+        variant="compact"
       />
 
-      <Card className="flex flex-wrap gap-2 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-5">
-        <Button type="button" variant="secondary" onClick={startNewProduct}>
+      <Card className="grid grid-cols-[1fr_1fr_auto] gap-2 border border-white/10 bg-[#111111] p-3 text-white shadow-none sm:flex sm:flex-wrap sm:gap-3 sm:p-5 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+        <Button type="button" variant="secondary" className="w-full px-3" onClick={startNewProduct}>
           Nuevo producto
         </Button>
-        <Button type="button" variant="outline" onClick={scrollToProductList}>
+        <Button type="button" variant="outline" className="w-full px-3" onClick={scrollToProductList}>
           Ver listado
         </Button>
         <Button
           type="button"
           variant="ghost"
-          className="text-white/72 hover:bg-white/8 hover:text-white"
+          className="h-full min-h-10 px-3 text-white/72 hover:bg-white/8 hover:text-white"
           onClick={() => void reloadPage()}
+          aria-label="Recargar productos"
         >
           <RefreshCw className="h-4 w-4" />
-          Recargar
         </Button>
       </Card>
 
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      <div className="grid grid-cols-3 gap-2">
         <AdminMetricCard
           title="Total"
           value={counts.productsTotal}
@@ -626,16 +643,16 @@ export function AdminProductsPage() {
         />
       </div>
 
-      <Card className="space-y-3 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-5">
+      <Card className="space-y-3 border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-5 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-black/20 text-white">
+          <div className="flex items-start gap-3 min-w-0">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-black/20 text-white">
               <CircleHelp className="h-4 w-4" />
             </span>
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-white">Guia rapida</p>
-              <p className="text-sm leading-6 text-white/60">
-                Como se muestra un producto en la tienda.
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm font-medium text-white">Guía rápida</p>
+              <p className="text-xs leading-5 text-white/60 sm:text-sm sm:leading-6">
+                Cómo se muestra un producto en la tienda.
               </p>
             </div>
           </div>
@@ -643,29 +660,31 @@ export function AdminProductsPage() {
           <Button
             type="button"
             variant="ghost"
-            className="text-white/72 hover:bg-white/8 hover:text-white"
+            className="shrink-0 px-3 text-white/72 hover:bg-white/8 hover:text-white"
             onClick={() => setShowProductGuide((current) => !current)}
           >
-            {showProductGuide ? 'Ocultar guia' : 'Ver guia'}
+            {showProductGuide ? 'Ocultar' : 'Ver guía'}
           </Button>
         </div>
 
         {showProductGuide ? (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">
             {[
-              ['Visible en tienda', 'Si esta visible y no esta oculto, aparece en la tienda.'],
-              ['Oculto', 'Lo retira de la tienda sin borrar el producto.'],
+              ['Visible', 'Se ve en la tienda.'],
+              ['Oculto', 'No se muestra, pero sigue guardado.'],
               ['Disponible', 'Se puede pedir normalmente.'],
-              ['Consultar', 'El cliente consulta disponibilidad por WhatsApp.'],
-              ['Sin stock', 'Sigue visible, pero informa que hoy no esta disponible.'],
-              ['Destacado', 'Aparece con prioridad en la tienda cuando corresponde.'],
+              ['Consultar', 'Se confirma por WhatsApp.'],
+              ['Sin stock', 'Se informa que hoy no está disponible.'],
+              ['Destacado', 'Tiene prioridad en la tienda.'],
             ].map(([title, copy]) => (
               <div
                 key={title}
-                className="rounded-[20px] border border-white/10 bg-black/20 p-4"
+                className="rounded-[18px] border border-white/10 bg-black/20 p-3"
               >
                 <p className="text-sm font-medium text-white">{title}</p>
-                <p className="mt-2 text-sm leading-6 text-white/56">{copy}</p>
+                <p className="mt-1.5 text-xs leading-5 text-white/56 sm:text-sm sm:leading-6">
+                  {copy}
+                </p>
               </div>
             ))}
           </div>
@@ -673,172 +692,188 @@ export function AdminProductsPage() {
       </Card>
 
       {pageError ? (
-        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        <div className="rounded-[18px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {pageError}
         </div>
       ) : null}
 
       {submitError ? (
-        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        <div className="rounded-[18px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {submitError}
         </div>
       ) : null}
 
       {submitSuccess ? (
-        <div className="rounded-[22px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+        <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {submitSuccess}
         </div>
       ) : null}
 
-      <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+      <div className="space-y-5">
         <Card
           ref={productFormRef}
-          className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6"
+          className="border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]"
         >
-          <div className="space-y-1.5">
-            <p className="text-sm font-medium text-white">
-              {editingProduct ? 'Editar producto' : 'Nuevo producto'}
-            </p>
-            <p className="text-sm leading-6 text-white/60">
-              Si dejas el slug vacio, se genera automaticamente desde el nombre.
-            </p>
-          </div>
+          {showProductForm ? (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <p className="text-sm font-medium text-white">
+                  {editingProduct ? 'Editar producto' : 'Nuevo producto'}
+                </p>
+                <p className="text-sm leading-6 text-white/60">
+                  El slug se genera solo si lo dejás vacío.
+                </p>
+              </div>
 
-          <form
-            className="space-y-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32"
-            onSubmit={(event) => {
-              void form.handleSubmit(handleSubmit)(event)
-            }}
-          >
-            <Input
-              label="Nombre"
-              placeholder="Ej: Nike Air Max o Zapatilla urbana"
-              error={form.formState.errors.name?.message}
-              {...form.register('name')}
-            />
+              <form
+                className="space-y-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32"
+                onSubmit={(event) => {
+                  void form.handleSubmit(handleSubmit)(event)
+                }}
+              >
+                <Input
+                  label="Nombre"
+                  placeholder="Ej: Nike Air Max o zapatilla urbana"
+                  error={form.formState.errors.name?.message}
+                  {...form.register('name')}
+                />
 
-            <Input
-              label="Slug"
-              placeholder="nike-air-max"
-              hint="Si queda vacio, se autogenera."
-              error={form.formState.errors.slug?.message}
-              {...form.register('slug')}
-            />
+                <Input
+                  label="Slug"
+                  placeholder="nike-air-max"
+                  hint="Se genera solo si lo dejás vacío."
+                  error={form.formState.errors.slug?.message}
+                  {...form.register('slug')}
+                />
 
-            <Textarea
-              label="Descripcion"
-              placeholder="Describe el modelo, materiales o estilo."
-              error={form.formState.errors.description?.message}
-              {...form.register('description')}
-            />
+                <Textarea
+                  label="Descripción"
+                  placeholder="Describe el modelo, materiales o estilo."
+                  error={form.formState.errors.description?.message}
+                  {...form.register('description')}
+                />
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                label="Precio"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0"
-                error={form.formState.errors.price?.message}
-                {...form.register('price', { valueAsNumber: true })}
-              />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Input
+                    label="Precio"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0"
+                    error={form.formState.errors.price?.message}
+                    {...form.register('price', { valueAsNumber: true })}
+                  />
 
-              <Input
-                label="Precio anterior"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Ej: 120000"
-                hint="Opcional. Si es mayor al precio actual, se muestra como oferta."
-                error={form.formState.errors.compareAtPrice?.message}
-                {...form.register('compareAtPrice')}
-              />
-            </div>
+                  <Input
+                    label="Precio anterior"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Ej: 120000"
+                    hint="Opcional. Si es mayor al actual, se muestra como oferta."
+                    error={form.formState.errors.compareAtPrice?.message}
+                    {...form.register('compareAtPrice')}
+                  />
+                </div>
 
-            <SelectField
-              label="Disponibilidad"
-              hint="Disponible para vender, consultar, sin stock u oculto."
-              error={form.formState.errors.availability?.message}
-              {...form.register('availability')}
-            >
-              {availabilityOptions.map((availability) => (
-                <option key={availability} value={availability}>
-                  {formatAvailabilityLabel(availability)}
-                </option>
-              ))}
-            </SelectField>
-
-            <SelectField
-              label="Categoria"
-              error={form.formState.errors.categoryId?.message}
-              {...form.register('categoryId')}
-            >
-              <option value="">Sin categoria</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name} {category.is_active ? '' : '(inactiva)'}
-                </option>
-              ))}
-            </SelectField>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white">
-                <input type="checkbox" {...form.register('featured')} />
-                Marcar como destacado
-              </label>
-              <label className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white">
-                <input type="checkbox" {...form.register('isActive')} />
-                Visible en tienda
-              </label>
-            </div>
-
-            <div className="flex flex-wrap gap-2.5">
-              <Button type="submit" variant="secondary" disabled={form.formState.isSubmitting}>
-                {editingProduct ? 'Guardar cambios' : 'Crear producto'}
-              </Button>
-
-              {editingProduct ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="text-white/72 hover:bg-white/8 hover:text-white"
-                  onClick={() => {
-                    if (!confirmDiscardChanges()) {
-                      return
-                    }
-
-                    if (hasUnsavedChanges()) {
-                      discardDraftForCurrentMode()
-                    }
-
-                    setEditingProductId(null)
-                    setSubmitError(null)
-                    setSubmitSuccess(null)
-                    scrollToProductList()
-                  }}
+                <SelectField
+                  label="Disponibilidad"
+                  hint="Disponible, consultar, sin stock u oculto."
+                  error={form.formState.errors.availability?.message}
+                  {...form.register('availability')}
                 >
-                  Cancelar edicion
-                </Button>
-              ) : null}
-            </div>
+                  {availabilityOptions.map((availability) => (
+                    <option key={availability} value={availability}>
+                      {formatAvailabilityLabel(availability)}
+                    </option>
+                  ))}
+                </SelectField>
 
-            <p className="text-sm text-white/54">
-              {editingProduct
-                ? 'Producto seleccionado. Puedes guardar cambios y gestionar imagenes abajo.'
-                : 'Primero guarda el producto. Despues podras subir imagenes.'}
-            </p>
-          </form>
+                <SelectField
+                  label="Categoría"
+                  error={form.formState.errors.categoryId?.message}
+                  {...form.register('categoryId')}
+                >
+                  <option value="">Sin categoría</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name} {category.is_active ? '' : '(inactiva)'}
+                    </option>
+                  ))}
+                </SelectField>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white">
+                    <input type="checkbox" {...form.register('featured')} />
+                    Marcar como destacado
+                  </label>
+                  <label className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white">
+                    <input type="checkbox" {...form.register('isActive')} />
+                    Visible en tienda
+                  </label>
+                </div>
+
+                <div className="flex flex-wrap gap-2.5">
+                  <Button type="submit" variant="secondary" disabled={form.formState.isSubmitting}>
+                    {editingProduct ? 'Guardar cambios' : 'Crear producto'}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="text-white/72 hover:bg-white/8 hover:text-white"
+                    onClick={() => {
+                      if (editingProduct && !confirmDiscardChanges()) {
+                        return
+                      }
+
+                      if (editingProduct && hasUnsavedChanges()) {
+                        discardDraftForCurrentMode()
+                      }
+
+                      setEditingProductId(null)
+                      setShowProductForm(false)
+                      setSubmitError(null)
+                      setSubmitSuccess(null)
+                      scrollToProductList()
+                    }}
+                  >
+                    {editingProduct ? 'Cancelar edición' : 'Cerrar formulario'}
+                  </Button>
+                </div>
+
+                <p className="text-sm text-white/54">
+                  {editingProduct
+                    ? 'Producto seleccionado. Podés guardar cambios y gestionar imágenes abajo.'
+                    : 'Primero guardá el producto. Después vas a poder subir imágenes.'}
+                </p>
+              </form>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-white">Nuevo producto</p>
+                <p className="text-sm leading-6 text-white/60">
+                  Abrí el formulario solo cuando lo necesites.
+                </p>
+              </div>
+
+              <Button type="button" variant="secondary" onClick={startNewProduct}>
+                Nuevo producto
+              </Button>
+            </div>
+          )}
         </Card>
 
         <Card
           ref={productListRef}
-          className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6"
+          className="space-y-4 border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-medium text-white">Listado</p>
               <p className="text-sm text-white/58">
-                {products.length} producto{products.length === 1 ? '' : 's'} en la base.
+                {products.length} producto{products.length === 1 ? '' : 's'} cargados.
               </p>
             </div>
 
@@ -850,8 +885,8 @@ export function AdminProductsPage() {
 
           <div className="space-y-3">
             {products.length === 0 ? (
-              <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-6 text-sm text-white/58">
-                No hay productos cargados todavia.
+              <div className="rounded-[18px] border border-dashed border-white/12 bg-black/20 px-4 py-6 text-sm text-white/58">
+                No hay productos cargados todavía.
               </div>
             ) : null}
 
@@ -860,37 +895,81 @@ export function AdminProductsPage() {
               const isBusy = busyProductId === product.id
               const visibility = productVisibilityMeta(product)
               const discountPercent = getDiscountPercent(product.price, product.compare_at_price)
+              const isExpanded = expandedProductId === product.id
 
               return (
                 <div
                   key={product.id}
-                  className="rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:p-4"
+                  className="rounded-[18px] border border-white/10 bg-black/20 p-3"
                 >
-                  <div className="flex flex-col gap-3.5">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
-                            {product.name}
-                          </p>
-                          <StatusBadge tone={visibility.tone}>{visibility.label}</StatusBadge>
-                          <StatusBadge tone={adminAvailabilityTone(product.availability)}>
-                            {formatAvailabilityLabel(product.availability)}
-                          </StatusBadge>
-                          {product.featured ? (
-                            <StatusBadge tone="warning">Destacado</StatusBadge>
-                          ) : null}
-                          <StatusBadge tone="muted">
-                            {(productImagesMap[product.id] ?? []).length} imagen
-                            {(productImagesMap[product.id] ?? []).length === 1 ? '' : 'es'}
-                          </StatusBadge>
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 space-y-1">
+                        <p className="truncate text-base font-semibold tracking-[-0.03em] text-white">
+                          {product.name}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-white/58">
+                          <span>{formatCurrency(product.price)}</span>
+                          <span>•</span>
+                          <span className="truncate">{product.categoryName ?? 'Sin categoría'}</span>
                         </div>
+                      </div>
 
-                        <div className="grid gap-1 text-sm text-white/58 sm:grid-cols-2">
-                          <p>Categoria: {product.categoryName ?? 'Sin categoria'}</p>
-                          <p>Precio: {formatCurrency(product.price)}</p>
+                      <StatusBadge tone={visibility.tone}>{visibility.label}</StatusBadge>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <StatusBadge tone={adminAvailabilityTone(product.availability)}>
+                        {formatAvailabilityLabel(product.availability)}
+                      </StatusBadge>
+                      {product.featured ? <StatusBadge tone="warning">Destacado</StatusBadge> : null}
+                      <StatusBadge tone="muted">
+                        {(productImagesMap[product.id] ?? []).length} imagen
+                        {(productImagesMap[product.id] ?? []).length === 1 ? '' : 'es'}
+                      </StatusBadge>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="w-full px-2.5"
+                        onClick={() => beginEditingProduct(product.id)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Editar
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full border-white/12 px-2.5 text-white hover:border-white/20 hover:bg-white/8"
+                        onClick={() => beginEditingProduct(product.id, { scrollToImages: true })}
+                      >
+                        <ImagePlus className="h-4 w-4" />
+                        Imágenes
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full px-2.5 text-white/72 hover:bg-white/8 hover:text-white"
+                        onClick={() =>
+                          setExpandedProductId((current) =>
+                            current === product.id ? null : product.id,
+                          )
+                        }
+                      >
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {isExpanded ? 'Ocultar' : 'Ver más'}
+                      </Button>
+                    </div>
+
+                    {isExpanded ? (
+                      <div className="space-y-3 border-t border-white/10 pt-3">
+                        <div className="grid gap-2 text-sm text-white/58 sm:grid-cols-2">
                           <p>Slug: {product.slug}</p>
-                          <p>Visible en tienda: {visible ? 'Si' : 'No'}</p>
+                          <p>Visible en tienda: {visible ? 'Sí' : 'No'}</p>
                           {discountPercent ? (
                             <>
                               <p>Antes: {formatCurrency(product.compare_at_price ?? 0)}</p>
@@ -901,121 +980,99 @@ export function AdminProductsPage() {
                           ) : null}
                         </div>
 
-                        <p className="line-clamp-2 text-sm leading-6 text-white/58">
-                          {product.description || 'Sin descripcion.'}
+                        <p className="text-sm leading-6 text-white/58">
+                          {product.description || 'Sin descripción.'}
                         </p>
                         <p className="text-sm leading-6 text-white/54">{visibility.description}</p>
+
+                        <div className="[&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
+                          <SelectField
+                            label="Disponibilidad"
+                            value={product.availability}
+                            disabled={isBusy}
+                            onChange={(event) =>
+                              void updateProduct(
+                                product.id,
+                                { availability: event.target.value as Availability },
+                                `Disponibilidad actualizada a ${formatAvailabilityLabel(
+                                  event.target.value as Availability,
+                                )}.`,
+                              )
+                            }
+                          >
+                            {availabilityOptions.map((availability) => (
+                              <option key={availability} value={availability}>
+                                {formatAvailabilityLabel(availability)}
+                              </option>
+                            ))}
+                          </SelectField>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="text-white/72 hover:bg-white/8 hover:text-white"
+                            disabled={isBusy}
+                            onClick={() =>
+                              void updateProduct(
+                                product.id,
+                                { featured: !product.featured },
+                                product.featured
+                                  ? 'Producto quitado de destacados.'
+                                  : 'Producto marcado como destacado.',
+                              )
+                            }
+                          >
+                            <Star className="h-4 w-4" />
+                            {product.featured ? 'Quitar destacado' : 'Destacar'}
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="text-white/72 hover:bg-white/8 hover:text-white"
+                            disabled={isBusy}
+                            onClick={() =>
+                              void updateProduct(
+                                product.id,
+                                visible
+                                  ? { is_active: false }
+                                  : {
+                                      is_active: true,
+                                      ...(product.availability === 'hidden'
+                                        ? { availability: 'available' as const }
+                                        : {}),
+                                    },
+                                visible
+                                  ? 'Producto retirado de la tienda.'
+                                  : 'Producto visible nuevamente en la tienda.',
+                              )
+                            }
+                          >
+                            {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            {visible ? 'Ocultar' : 'Mostrar'}
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="text-white/72 hover:bg-white/8 hover:text-white"
+                            disabled={isBusy}
+                            onClick={() => void handleDelete(product)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Eliminar
+                          </Button>
+                        </div>
+
+                        <div className="rounded-[16px] border border-white/10 bg-[#0d0d0d] px-4 py-3 text-sm text-white/54">
+                          {product.hasOrders
+                            ? 'Este producto ya aparece en pedidos. Si no querés venderlo, ocultalo o cambiale la disponibilidad.'
+                            : 'Sin pedidos asociados. Podés eliminarlo si ya no lo necesitás.'}
+                        </div>
                       </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          className="shadow-none"
-                          onClick={() => beginEditingProduct(product.id)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                          Editar
-                        </Button>
-
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="border-white/12 text-white hover:border-white/20 hover:bg-white/8"
-                          onClick={() => beginEditingProduct(product.id, { scrollToImages: true })}
-                        >
-                          <ImagePlus className="h-4 w-4" />
-                          Imagenes
-                        </Button>
-
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="text-white/72 hover:bg-white/8 hover:text-white"
-                          disabled={isBusy}
-                          onClick={() =>
-                            void updateProduct(
-                              product.id,
-                              { featured: !product.featured },
-                              product.featured
-                                ? 'Producto quitado de destacados.'
-                                : 'Producto marcado como destacado.',
-                            )
-                          }
-                        >
-                          <Star className="h-4 w-4" />
-                          {product.featured ? 'Quitar destacado' : 'Destacar'}
-                        </Button>
-
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="text-white/72 hover:bg-white/8 hover:text-white"
-                          disabled={isBusy}
-                          onClick={() =>
-                            void updateProduct(
-                              product.id,
-                              visible
-                                ? { is_active: false }
-                                : {
-                                    is_active: true,
-                                    ...(product.availability === 'hidden'
-                                      ? { availability: 'available' as const }
-                                      : {}),
-                                  },
-                              visible
-                                ? 'Producto retirado de la tienda.'
-                                : 'Producto visible nuevamente en la tienda.',
-                            )
-                          }
-                        >
-                          {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          {visible ? 'Ocultar' : 'Mostrar'}
-                        </Button>
-
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="text-white/72 hover:bg-white/8 hover:text-white"
-                          disabled={isBusy}
-                          onClick={() => void handleDelete(product)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Eliminar
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 md:grid-cols-[220px_1fr] md:items-center">
-                      <div className="[&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
-                        <SelectField
-                          label="Disponibilidad"
-                          value={product.availability}
-                          disabled={isBusy}
-                          onChange={(event) =>
-                            void updateProduct(
-                              product.id,
-                              { availability: event.target.value as Availability },
-                              `Disponibilidad actualizada a ${formatAvailabilityLabel(
-                                event.target.value as Availability,
-                              )}.`,
-                            )
-                          }
-                        >
-                          {availabilityOptions.map((availability) => (
-                            <option key={availability} value={availability}>
-                              {formatAvailabilityLabel(availability)}
-                            </option>
-                          ))}
-                        </SelectField>
-                      </div>
-
-                      <div className="rounded-[18px] border border-white/10 bg-[#0d0d0d] px-4 py-3 text-sm text-white/54">
-                        {product.hasOrders
-                          ? 'Este producto ya aparece en pedidos. Si no quieres venderlo, ocultalo o cambiale la disponibilidad.'
-                          : 'Sin pedidos asociados. Puedes eliminarlo si ya no lo necesitas.'}
-                      </div>
-                    </div>
+                    ) : null}
                   </div>
                 </div>
               )
@@ -1032,11 +1089,11 @@ export function AdminProductsPage() {
             onRefresh={reloadPage}
           />
         ) : (
-          <Card className="border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6">
+          <Card className="border border-white/10 bg-[#111111] p-4 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-white">Imagenes del producto</p>
+              <p className="text-sm font-medium text-white">Imágenes del producto</p>
               <p className="text-sm leading-6 text-white/60">
-                Primero guarda un producto. Despues podras subir y ordenar sus imagenes.
+                Primero guardá un producto. Después vas a poder subir y ordenar imágenes.
               </p>
             </div>
           </Card>

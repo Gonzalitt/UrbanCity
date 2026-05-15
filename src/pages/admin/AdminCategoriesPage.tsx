@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Layers3, Pencil, Power, RefreshCw, Tag, Tags } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronUp,
+  Layers3,
+  Pencil,
+  Power,
+  RefreshCw,
+  Tag,
+  Tags,
+} from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
@@ -34,13 +43,15 @@ export function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CategoryListItem[]>([])
   const [listLoading, setListLoading] = useState(isSupabaseConfigured)
   const [pageError, setPageError] = useState<string | null>(
-    isSupabaseConfigured ? null : 'Configura Supabase para administrar categorias.',
+    isSupabaseConfigured ? null : 'Configura Supabase para administrar categorías.',
   )
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
   const [editingCategory, setEditingCategory] = useState<CategoryListItem | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [busyCategoryId, setBusyCategoryId] = useState<string | null>(null)
+  const [showCategoryForm, setShowCategoryForm] = useState(false)
+  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null)
   const categoryFormRef = useRef<HTMLDivElement | null>(null)
   const categoryListRef = useRef<HTMLDivElement | null>(null)
 
@@ -74,10 +85,7 @@ export function AdminCategoriesPage() {
       setPageError(null)
 
       const [categoriesResult, productsResult] = await Promise.all([
-        client
-          .from('categories')
-          .select('*')
-          .order('created_at', { ascending: false }),
+        client.from('categories').select('*').order('created_at', { ascending: false }),
         client.from('products').select('category_id'),
       ])
 
@@ -86,7 +94,7 @@ export function AdminCategoriesPage() {
       }
 
       if (categoriesResult.error || productsResult.error) {
-        setPageError('No se pudieron cargar las categorias desde Supabase.')
+        setPageError('No se pudieron cargar las categorías desde Supabase.')
         setListLoading(false)
         return
       }
@@ -121,7 +129,7 @@ export function AdminCategoriesPage() {
   }, [reloadKey])
 
   if (loading || listLoading) {
-    return <LoadingState label="Cargando categorias..." />
+    return <LoadingState label="Cargando categorías..." />
   }
 
   function scrollToCategoryForm() {
@@ -138,9 +146,11 @@ export function AdminCategoriesPage() {
 
   function startNewCategory() {
     setEditingCategory(null)
+    setExpandedCategoryId(null)
     form.reset(defaultValues)
     setSubmitError(null)
     setSubmitSuccess(null)
+    setShowCategoryForm(true)
     scrollToCategoryForm()
   }
 
@@ -151,7 +161,7 @@ export function AdminCategoriesPage() {
 
   async function handleSubmit(values: AdminCategorySchema) {
     if (!supabase) {
-      setSubmitError('Configura Supabase para administrar categorias.')
+      setSubmitError('Configura Supabase para administrar categorías.')
       return
     }
 
@@ -165,10 +175,7 @@ export function AdminCategoriesPage() {
     }
 
     const result = editingCategory
-      ? await supabase
-          .from('categories')
-          .update(payload)
-          .eq('id', editingCategory.id)
+      ? await supabase.from('categories').update(payload).eq('id', editingCategory.id)
       : await supabase.from('categories').insert({
           ...payload,
           is_active: true,
@@ -181,11 +188,13 @@ export function AdminCategoriesPage() {
 
     setSubmitSuccess(
       editingCategory
-        ? `Categoria "${values.name.trim()}" actualizada correctamente.`
-        : `Categoria "${values.name.trim()}" creada correctamente.`,
+        ? `Categoría "${values.name.trim()}" actualizada correctamente.`
+        : `Categoría "${values.name.trim()}" creada correctamente.`,
     )
     setEditingCategory(null)
+    setExpandedCategoryId(null)
     form.reset(defaultValues)
+    setShowCategoryForm(false)
     await reloadPage()
   }
 
@@ -212,46 +221,43 @@ export function AdminCategoriesPage() {
 
     setSubmitSuccess(
       category.is_active
-        ? `Categoria "${category.name}" desactivada.`
-        : `Categoria "${category.name}" activada nuevamente.`,
+        ? `Categoría "${category.name}" desactivada.`
+        : `Categoría "${category.name}" activada nuevamente.`,
     )
     await reloadPage()
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
-        eyebrow="Categorias"
-        title="Categorias"
-        description="Organiza los productos por tipo o marca."
+        eyebrow="Categorías"
+        title="Categorías"
+        description="Organizá el catálogo."
+        hideDescriptionOnMobile
+        variant="compact"
       />
 
-      <Card className="flex flex-wrap gap-2 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-5">
-        <Button type="button" variant="secondary" onClick={startNewCategory}>
-          Nueva categoria
+      <Card className="grid grid-cols-[1fr_1fr_auto] gap-2 border border-white/10 bg-[#111111] p-3 text-white shadow-none sm:flex sm:flex-wrap sm:gap-3 sm:p-5 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+        <Button type="button" variant="secondary" className="w-full px-3" onClick={startNewCategory}>
+          Nueva categoría
         </Button>
-        <Button type="button" variant="outline" onClick={scrollToCategoryList}>
+        <Button type="button" variant="outline" className="w-full px-3" onClick={scrollToCategoryList}>
           Ver listado
         </Button>
-        <Button type="button" variant="ghost" className="text-white/72 hover:bg-white/8 hover:text-white" onClick={() => void reloadPage()}>
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-full min-h-10 px-3 text-white/72 hover:bg-white/8 hover:text-white"
+          onClick={() => void reloadPage()}
+          aria-label="Recargar categorías"
+        >
           <RefreshCw className="h-4 w-4" />
-          Recargar
         </Button>
       </Card>
 
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <AdminMetricCard
-          title="Total"
-          value={counts.categoriesTotal}
-          description="Cargadas"
-          icon={Tags}
-        />
-        <AdminMetricCard
-          title="Activas"
-          value={counts.categoriesActive}
-          description="Visibles"
-          icon={Tag}
-        />
+      <div className="grid grid-cols-3 gap-2">
+        <AdminMetricCard title="Total" value={counts.categoriesTotal} description="Cargadas" icon={Tags} />
+        <AdminMetricCard title="Activas" value={counts.categoriesActive} description="Visibles" icon={Tag} />
         <AdminMetricCard
           title="Inactivas"
           value={Math.max(counts.categoriesTotal - counts.categoriesActive, 0)}
@@ -261,95 +267,111 @@ export function AdminCategoriesPage() {
       </div>
 
       {pageError ? (
-        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        <div className="rounded-[18px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {pageError}
         </div>
       ) : null}
 
       {submitError ? (
-        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        <div className="rounded-[18px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {submitError}
         </div>
       ) : null}
 
       {submitSuccess ? (
-        <div className="rounded-[22px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+        <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {submitSuccess}
         </div>
       ) : null}
 
-      <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+      <div className="space-y-5">
         <Card
           ref={categoryFormRef}
-          className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6"
+          className="border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]"
         >
-          <div className="space-y-1.5">
-            <p className="text-sm font-medium text-white">
-              {editingCategory ? 'Editar categoria' : 'Nueva categoria'}
-            </p>
-            <p className="text-sm leading-6 text-white/60">
-              Si dejas el slug vacio, se genera automaticamente desde el nombre.
-            </p>
-          </div>
+          {showCategoryForm ? (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <p className="text-sm font-medium text-white">
+                  {editingCategory ? 'Editar categoría' : 'Nueva categoría'}
+                </p>
+                <p className="text-sm leading-6 text-white/60">
+                  El slug se genera solo si lo dejás vacío.
+                </p>
+              </div>
 
-          <form
-            className="space-y-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32"
-            onSubmit={form.handleSubmit(handleSubmit)}
-          >
-            <Input
-              label="Nombre"
-              placeholder="Ej: Sneakers, Urbanas o Accesorios"
-              error={form.formState.errors.name?.message}
-              {...form.register('name')}
-            />
-
-            <Input
-              label="Slug"
-              placeholder="sneakers"
-              hint="Si queda vacio, se autogenera."
-              error={form.formState.errors.slug?.message}
-              {...form.register('slug')}
-            />
-
-            <Textarea
-              label="Descripcion"
-              placeholder="Breve referencia interna u orientativa."
-              error={form.formState.errors.description?.message}
-              {...form.register('description')}
-            />
-
-            <div className="flex flex-wrap gap-2.5">
-              <Button
-                type="submit"
-                variant="secondary"
-                disabled={form.formState.isSubmitting}
+              <form
+                className="space-y-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32"
+                onSubmit={form.handleSubmit(handleSubmit)}
               >
-                {editingCategory ? 'Guardar cambios' : 'Crear categoria'}
-              </Button>
+                <Input
+                  label="Nombre"
+                  placeholder="Ej: Sneakers, Urbanas o Accesorios"
+                  error={form.formState.errors.name?.message}
+                  {...form.register('name')}
+                />
 
-              {editingCategory ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="text-white/72 hover:bg-white/8 hover:text-white"
-                  onClick={startNewCategory}
-                >
-                  Cancelar edicion
-                </Button>
-              ) : null}
+                <Input
+                  label="Slug"
+                  placeholder="sneakers"
+                  hint="Se genera solo si lo dejás vacío."
+                  error={form.formState.errors.slug?.message}
+                  {...form.register('slug')}
+                />
+
+                <Textarea
+                  label="Descripción"
+                  placeholder="Breve referencia interna u orientativa."
+                  error={form.formState.errors.description?.message}
+                  {...form.register('description')}
+                />
+
+                <div className="flex flex-wrap gap-2.5">
+                  <Button type="submit" variant="secondary" disabled={form.formState.isSubmitting}>
+                    {editingCategory ? 'Guardar cambios' : 'Crear categoría'}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="text-white/72 hover:bg-white/8 hover:text-white"
+                    onClick={() => {
+                      setEditingCategory(null)
+                      setExpandedCategoryId(null)
+                      setShowCategoryForm(false)
+                      form.reset(defaultValues)
+                    }}
+                  >
+                    {editingCategory ? 'Cancelar edición' : 'Cerrar formulario'}
+                  </Button>
+                </div>
+              </form>
             </div>
-          </form>
+          ) : (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-white">Nueva categoría</p>
+                <p className="text-sm leading-6 text-white/60">
+                  Abrí el formulario solo cuando lo necesites.
+                </p>
+              </div>
+
+              <Button type="button" variant="secondary" onClick={startNewCategory}>
+                Nueva categoría
+              </Button>
+            </div>
+          )}
         </Card>
 
         <Card
           ref={categoryListRef}
-          className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6"
+          className="space-y-4 border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-medium text-white">Listado</p>
               <p className="text-sm text-white/58">
-                {categories.length} categoria{categories.length === 1 ? '' : 's'} cargadas.
+                {categories.length} categoría{categories.length === 1 ? '' : 's'} cargadas.
               </p>
             </div>
 
@@ -361,66 +383,89 @@ export function AdminCategoriesPage() {
 
           <div className="space-y-3">
             {categories.length === 0 ? (
-              <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-6 text-sm text-white/58">
-                Todavia no hay categorias cargadas.
+              <div className="rounded-[18px] border border-dashed border-white/12 bg-black/20 px-4 py-6 text-sm text-white/58">
+                Todavía no hay categorías cargadas.
               </div>
             ) : null}
 
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:p-4"
-              >
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
-                        {category.name}
-                      </p>
+            {categories.map((category) => {
+              const isExpanded = expandedCategoryId === category.id
+
+              return (
+                <div
+                  key={category.id}
+                  className="rounded-[18px] border border-white/10 bg-black/20 p-3"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 space-y-1">
+                        <p className="truncate text-base font-semibold tracking-[-0.03em] text-white">
+                          {category.name}
+                        </p>
+                        <p className="text-sm text-white/58">
+                          {category.productCount} producto{category.productCount === 1 ? '' : 's'}
+                        </p>
+                      </div>
+
                       <StatusBadge tone={category.is_active ? 'success' : 'muted'}>
                         {category.is_active ? 'Activa' : 'Inactiva'}
                       </StatusBadge>
-                      <StatusBadge tone="muted">
-                        {category.productCount} producto{category.productCount === 1 ? '' : 's'}
-                      </StatusBadge>
                     </div>
 
-                    <div className="grid gap-1 text-sm text-white/58 sm:grid-cols-2">
-                      <p>Slug: {category.slug}</p>
-                      <p>{category.description || 'Sin descripcion.'}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full border-white/12 px-2.5 text-white hover:border-white/20 hover:bg-white/8"
+                        onClick={() => {
+                          setEditingCategory(category)
+                          setExpandedCategoryId(category.id)
+                          setSubmitError(null)
+                          setSubmitSuccess(null)
+                          setShowCategoryForm(true)
+                          scrollToCategoryForm()
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Editar
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full px-2.5 text-white/72 hover:bg-white/8 hover:text-white"
+                        onClick={() => void toggleCategory(category)}
+                        disabled={busyCategoryId === category.id}
+                      >
+                        <Power className="h-4 w-4" />
+                        {category.is_active ? 'Desactivar' : 'Activar'}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full px-2.5 text-white/72 hover:bg-white/8 hover:text-white"
+                        onClick={() =>
+                          setExpandedCategoryId((current) =>
+                            current === category.id ? null : category.id,
+                          )
+                        }
+                      >
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {isExpanded ? 'Ocultar' : 'Ver más'}
+                      </Button>
                     </div>
-                  </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="border-white/12 text-white hover:border-white/20 hover:bg-white/8"
-                      onClick={() => {
-                        setEditingCategory(category)
-                        setSubmitError(null)
-                        setSubmitSuccess(null)
-                        scrollToCategoryForm()
-                      }}
-                    >
-                      <Pencil className="h-4 w-4" />
-                      Editar
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="text-white/72 hover:bg-white/8 hover:text-white"
-                      onClick={() => void toggleCategory(category)}
-                      disabled={busyCategoryId === category.id}
-                    >
-                      <Power className="h-4 w-4" />
-                      {category.is_active ? 'Desactivar' : 'Activar'}
-                    </Button>
+                    {isExpanded ? (
+                      <div className="space-y-2 border-t border-white/10 pt-3 text-sm text-white/58">
+                        <p>Slug: {category.slug}</p>
+                        <p>{category.description || 'Sin descripción.'}</p>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </Card>
       </div>

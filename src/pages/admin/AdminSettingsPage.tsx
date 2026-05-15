@@ -1,14 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  AtSign,
   ExternalLink,
-  MapPin,
   MessageCircle,
   Save,
   Store,
-  Timer,
-  TriangleAlert,
 } from 'lucide-react'
 import { useForm, useWatch } from 'react-hook-form'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
@@ -116,7 +112,7 @@ export function AdminSettingsPage() {
     : (instagramUrlValue ?? '').trim() || null
 
   if (loading) {
-    return <LoadingState label="Cargando configuracion de la tienda..." />
+    return <LoadingState label="Cargando configuración de la tienda..." />
   }
 
   async function handleSubmit(values: AdminStoreSettingsSchema) {
@@ -166,8 +162,8 @@ export function AdminSettingsPage() {
 
     setSubmitSuccess(
       currentSettingsId
-        ? 'Configuracion de la tienda actualizada correctamente.'
-        : 'Configuracion de la tienda creada correctamente.',
+        ? 'Configuración de la tienda actualizada correctamente.'
+        : 'Configuración de la tienda creada correctamente.',
     )
     form.reset({
       storeName: payload.store_name,
@@ -182,33 +178,35 @@ export function AdminSettingsPage() {
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
-        eyebrow="Configuracion"
-        title="Configuracion de la tienda"
-        description="Actualiza WhatsApp, Instagram, direccion y horarios."
+        eyebrow="Configuración"
+        title="Configuración"
+        description="Datos públicos de la tienda."
+        hideDescriptionOnMobile
+        variant="compact"
       />
 
       {!storeSettings ? (
-        <div className="rounded-[22px] border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+        <div className="rounded-[18px] border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
           Falta cargar los datos principales de la tienda.
         </div>
       ) : null}
 
       {submitError ? (
-        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        <div className="rounded-[18px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {submitError}
         </div>
       ) : null}
 
       {submitSuccess ? (
-        <div className="rounded-[22px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+        <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {submitSuccess}
         </div>
       ) : null}
 
       <div className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
-        <Card className="space-y-5 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6">
+        <Card className="min-w-0 space-y-4 border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           <div className="space-y-1.5">
             <p className="text-sm font-medium text-white">
               {storeSettings ? 'Editar datos de la tienda' : 'Cargar datos de la tienda'}
@@ -219,7 +217,7 @@ export function AdminSettingsPage() {
           </div>
 
           <form
-            className="space-y-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32"
+            className="space-y-4 [&_label]:min-w-0 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:min-w-0 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32"
             onSubmit={form.handleSubmit(handleSubmit)}
           >
             <div className="grid gap-4 sm:grid-cols-2">
@@ -235,7 +233,7 @@ export function AdminSettingsPage() {
                 label="WhatsApp"
                 placeholder="5491122334455"
                 autoComplete="tel"
-                hint="Se guarda solo con numeros."
+                hint="Se guarda solo con números."
                 error={form.formState.errors.whatsappPhone?.message}
                 {...form.register('whatsappPhone')}
               />
@@ -251,15 +249,15 @@ export function AdminSettingsPage() {
             />
 
             <Input
-              label="Direccion"
-              placeholder="Galeria Provincial, General Acha 172 Sur"
+              label="Dirección"
+              placeholder="Galería Provincial, General Acha 172 Sur"
               error={form.formState.errors.address?.message}
               {...form.register('address')}
             />
 
             <Input
               label="Horarios"
-              placeholder="Lunes a sabado de 10 a 19 hs"
+              placeholder="Lunes a sábado de 10 a 19 hs"
               error={form.formState.errors.openingHours?.message}
               {...form.register('openingHours')}
             />
@@ -273,17 +271,13 @@ export function AdminSettingsPage() {
             />
 
             <div className="flex flex-wrap gap-2.5">
-              <Button
-                type="submit"
-                variant="secondary"
-                disabled={form.formState.isSubmitting}
-              >
+              <Button type="submit" variant="secondary" disabled={form.formState.isSubmitting}>
                 <Save className="h-4 w-4" />
                 {form.formState.isSubmitting
                   ? 'Guardando...'
                   : storeSettings
                     ? 'Guardar cambios'
-                    : 'Crear configuracion'}
+                    : 'Crear configuración'}
               </Button>
 
               <Button
@@ -302,37 +296,37 @@ export function AdminSettingsPage() {
           </form>
         </Card>
 
-        <div className="space-y-5">
-          <Card className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6">
+        <div className="min-w-0 space-y-5">
+          <Card className="min-w-0 space-y-4 border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
             <div className="space-y-1.5">
-              <p className="text-sm font-medium text-white">Vista rapida</p>
+              <p className="text-sm font-medium text-white">Vista rápida</p>
               <p className="text-sm leading-6 text-white/60">
-                Sirve para revisar los datos antes de guardar.
+                Revisá los datos antes de guardar.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black/20 text-brand-strong">
+              <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-black/20 text-brand-strong">
                   <Store className="h-5 w-5" />
                 </div>
-                <p className="mt-3 text-xs uppercase tracking-[0.22em] text-white/40">
+                <p className="mt-3 text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
                   Tienda
                 </p>
-                <p className="mt-2 text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
+                <p className="mt-2 break-words text-base font-semibold tracking-[-0.03em] text-white">
                   {previewStoreName}
                 </p>
               </div>
 
-              <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black/20 text-brand-strong">
+              <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-black/20 text-brand-strong">
                   <MessageCircle className="h-5 w-5" />
                 </div>
-                <p className="mt-3 text-xs uppercase tracking-[0.22em] text-white/40">
+                <p className="mt-3 text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
                   WhatsApp
                 </p>
-                <p className="mt-2 text-sm text-white">
-                  {normalizedWhatsAppPhone || 'Sin numero valido todavia'}
+                <p className="mt-2 break-words text-sm text-white">
+                  {normalizedWhatsAppPhone || 'Sin número válido todavía'}
                 </p>
                 {previewWhatsAppUrl ? (
                   <a
@@ -345,63 +339,58 @@ export function AdminSettingsPage() {
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 ) : (
-                  <p className="mt-3 text-sm text-white/54">Completa un numero valido.</p>
+                  <p className="mt-3 text-sm text-white/54">Completá un número válido.</p>
                 )}
-              </div>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/20 p-4 text-sm text-white/64">
-                <AtSign className="mt-0.5 h-4 w-4 text-brand-strong" />
-                <span>Instagram y WhatsApp se muestran en la tienda.</span>
-              </div>
-              <div className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/20 p-4 text-sm text-white/64">
-                <MapPin className="mt-0.5 h-4 w-4 text-brand-strong" />
-                <span>Direccion y horarios aparecen en contacto.</span>
-              </div>
-              <div className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/20 p-4 text-sm text-white/64">
-                <Timer className="mt-0.5 h-4 w-4 text-brand-strong" />
-                <span>Horarios ayudan a coordinar retiro.</span>
-              </div>
-              <div className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/20 p-4 text-sm text-white/64">
-                <TriangleAlert className="mt-0.5 h-4 w-4 text-brand-strong" />
-                <span>El mensaje de checkout se suma al pedido.</span>
               </div>
             </div>
           </Card>
 
-          <Card className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6">
-            <p className="text-sm font-medium text-white">Links y datos publicos</p>
+          <Card className="min-w-0 space-y-4 border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+            <p className="text-sm font-medium text-white">Datos públicos</p>
 
             <div className="space-y-3 text-sm">
-              <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-white/40">
+              <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
                   Instagram
                 </p>
                 {previewInstagramUrl ? (
-                  <a
-                    href={previewInstagramUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-2 inline-flex items-center gap-2 font-medium text-white hover:text-brand-strong"
-                  >
-                    {previewInstagramUrl}
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
+                  <div className="mt-2 min-w-0 space-y-2">
+                    <a
+                      href={previewInstagramUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border border-white/12 px-3 py-2 font-medium text-white hover:border-white/20 hover:bg-white/8"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Abrir Instagram
+                    </a>
+                    <p className="min-w-0 truncate text-xs text-white/50 sm:whitespace-normal sm:break-all">
+                      {previewInstagramUrl}
+                    </p>
+                  </div>
                 ) : (
                   <p className="mt-2 text-white/54">Sin link configurado.</p>
                 )}
               </div>
 
-              <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-white/40">
-                  Direccion y horarios
+              <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
+                  Dirección y horarios
                 </p>
-                <p className="mt-2 text-white">
-                  {(addressValue ?? '').trim() || 'Direccion sin configurar'}
+                <p className="mt-2 break-words text-white">
+                  {(addressValue ?? '').trim() || 'Dirección sin configurar'}
                 </p>
-                <p className="mt-1 text-white/54">
+                <p className="mt-1 break-words text-white/54">
                   {(openingHoursValue ?? '').trim() || 'Horarios sin configurar'}
+                </p>
+              </div>
+
+              <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
+                  Mensaje del pedido
+                </p>
+                <p className="mt-2 break-words text-white/54">
+                  {(checkoutMessageValue ?? '').trim() || 'Sin mensaje configurado'}
                 </p>
               </div>
             </div>
