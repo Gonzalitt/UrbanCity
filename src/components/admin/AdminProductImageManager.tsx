@@ -5,12 +5,15 @@ import { Card } from '@/components/ui/Card'
 import {
   buildProductImageObjectPath,
   extractStorageObjectPathFromPublicUrl,
+  formatFileSize,
   formatBytesAsMb,
   formatCrudError,
+  optimizeImageFile,
   productImageAllowedMimeTypes,
   productImageMaxSizeBytes,
   productImagesBucket,
-  validateProductImageFile,
+  validateImageMimeType,
+  validateImageSize,
 } from '@/lib/admin'
 import { supabase } from '@/lib/supabase'
 import type { ProductImageRow, ProductRow } from '@/types/database'
@@ -39,6 +42,7 @@ export function AdminProductImageManager({
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [busyImageId, setBusyImageId] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
@@ -52,7 +56,7 @@ export function AdminProductImageManager({
     const files = Array.from(fileList)
 
     for (const file of files) {
-      const validationError = validateProductImageFile(file)
+      const validationError = validateImageMimeType(file, productImageAllowedMimeTypes)
 
       if (validationError) {
         setError(validationError)
@@ -62,6 +66,7 @@ export function AdminProductImageManager({
     }
 
     setUploading(true)
+    setUploadStatus('Optimizando imagen...')
     setError(null)
     setSuccess(null)
 
@@ -69,18 +74,53 @@ export function AdminProductImageManager({
       (maxValue, image) => Math.max(maxValue, image.sort_order),
       -1,
     )
+    let optimizedFilesCount = 0
+    let singleOptimizationMessage: string | null = null
 
     for (const [index, file] of files.entries()) {
-      const objectPath = buildProductImageObjectPath(product.id, file.name)
+      const optimizedResult = await optimizeImageFile(file, {
+        maxWidth: 1400,
+        maxHeight: 1400,
+        quality: 0.82,
+        outputType: 'image/webp',
+      })
 
-      const uploadResult = await supabase.storage.from(productImagesBucket).upload(objectPath, file, {
+      const sizeError = validateImageSize(
+        optimizedResult.file,
+        productImageMaxSizeBytes,
+        'La imagen sigue siendo demasiado pesada. Proba con una foto mas liviana.',
+      )
+
+      if (sizeError) {
+        setUploading(false)
+        setUploadStatus(null)
+        setError(sizeError)
+        return
+      }
+
+      if (optimizedResult.wasOptimized) {
+        optimizedFilesCount += 1
+
+        if (files.length === 1) {
+          singleOptimizationMessage = `Imagen optimizada: ${formatFileSize(
+            optimizedResult.originalSize,
+          )} -> ${formatFileSize(optimizedResult.optimizedSize)}.`
+        }
+      }
+
+      setUploadStatus('Subiendo imagen...')
+      const uploadFile = optimizedResult.file
+      const objectPath = buildProductImageObjectPath(product.id, uploadFile.name)
+
+      const uploadResult = await supabase.storage.from(productImagesBucket).upload(objectPath, uploadFile, {
         cacheControl: '3600',
         upsert: false,
-        contentType: file.type,
+        contentType: uploadFile.type,
       })
 
       if (uploadResult.error) {
         setUploading(false)
+        setUploadStatus(null)
         setError(formatCrudError(uploadResult.error.message, uploadResult.error.name))
         return
       }
@@ -99,16 +139,29 @@ export function AdminProductImageManager({
       if (insertResult.error) {
         await supabase.storage.from(productImagesBucket).remove([objectPath])
         setUploading(false)
+        setUploadStatus(null)
         setError(formatCrudError(insertResult.error.message, insertResult.error.code))
         return
       }
     }
 
     setUploading(false)
-    setSuccess(
+    setUploadStatus(null)
+    const baseSuccessMessage =
       files.length === 1
         ? 'Imagen cargada correctamente.'
-        : `${files.length} imagenes cargadas correctamente.`,
+        : `${files.length} imagenes cargadas correctamente.`
+    const optimizationMessage =
+      files.length === 1
+        ? singleOptimizationMessage
+        : optimizedFilesCount > 0
+          ? `Se optimizaron ${optimizedFilesCount} imagenes antes de subir.`
+          : null
+
+    setSuccess(
+      optimizationMessage
+        ? `${baseSuccessMessage} ${optimizationMessage}`
+        : baseSuccessMessage,
     )
     if (inputRef.current) {
       inputRef.current.value = ''
@@ -216,11 +269,11 @@ export function AdminProductImageManager({
       <div className="space-y-2">
         <p className="text-sm font-medium text-white">Imagenes de {product.name}</p>
         <p className="text-sm leading-6 text-white/64">
-          Puedes seleccionar una o varias imagenes. Formatos permitidos:{' '}
+          Puedes seleccionar una o varias imagenes. Las imagenes se optimizan automaticamente antes de subir. Podés subir fotos desde tu celular. Formatos permitidos:{' '}
           {productImageAllowedMimeTypes
             .map((type) => type.replace('image/', '').toUpperCase())
             .join(', ')}
-          . Maximo por archivo: {formatBytesAsMb(productImageMaxSizeBytes)}.
+          . Maximo final por archivo: {formatBytesAsMb(productImageMaxSizeBytes)}. Recomendado: fotos claras y bien encuadradas.
         </p>
       </div>
 
@@ -245,7 +298,7 @@ export function AdminProductImageManager({
             <div>
               <p className="text-sm font-medium text-white">Subir imagenes</p>
               <p className="text-sm text-white/64">
-                Producto seleccionado: {product.name}. Puedes subir una o varias imagenes.
+                Producto seleccionado: {product.name}. Las imagenes se optimizan automaticamente antes de subir.
               </p>
             </div>
           </div>
@@ -257,7 +310,7 @@ export function AdminProductImageManager({
             onClick={() => inputRef.current?.click()}
           >
             <Upload className="h-4 w-4" />
-            {uploading ? 'Subiendo...' : 'Subir imagenes'}
+            {uploading ? uploadStatus ?? 'Subiendo...' : 'Subir imagenes'}
           </Button>
         </div>
 
