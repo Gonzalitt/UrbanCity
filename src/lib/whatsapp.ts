@@ -54,6 +54,7 @@ export function buildWhatsAppMessage({
     `Total contado estimado: ${formatCurrency(total)}`,
     'Estado inicial: pendiente de confirmación',
     'Forma de pago a confirmar: efectivo / transferencia / billetera virtual / tarjeta / cuotas.',
+    'El total informado corresponde a precio contado. Pago con tarjeta/3 cuotas se confirma con el local.',
     'Importante: el precio publicado corresponde a pago contado estimado. El precio final se confirma por WhatsApp.',
   ]
 

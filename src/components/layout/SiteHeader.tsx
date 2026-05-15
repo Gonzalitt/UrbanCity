@@ -122,7 +122,7 @@ export function SiteHeader() {
                     {storeSettings.store_name || 'City Calzado Urbano'}
                   </p>
                   <p className="truncate text-[0.68rem] uppercase tracking-[0.18em] text-white/46 sm:text-[0.72rem]">
-                    Sneakers y calzado urbano
+                    Galería Provincial · San Juan
                   </p>
                 </div>
               </div>
@@ -146,7 +146,7 @@ export function SiteHeader() {
                 <HeaderAction
                   href={buildWhatsAppUrl(
                     storeSettings.whatsapp_phone,
-                    'Hola, quiero consultar talles y disponibilidad.',
+                    'Hola, quiero hacer una consulta.',
                   )}
                   label="WhatsApp"
                   icon={<SocialIcon type="whatsapp" className="h-4 w-4" />}

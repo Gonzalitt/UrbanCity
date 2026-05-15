@@ -10,7 +10,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
-import { getDiscountPercent } from '@/lib/pricing'
+import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
 
 function availabilityTone(availability: string) {
@@ -63,6 +63,7 @@ export function ProductDetailPage() {
     product.price,
     product.compare_at_price,
   )
+  const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -110,10 +111,18 @@ export function ProductDetailPage() {
                 ) : null}
               </div>
               <div className="space-y-1">
-                {discountPercent ? (
-                  <span className="text-sm font-medium text-white/42 line-through sm:text-lg">
-                    {formatCurrency(product.compare_at_price ?? 0)}
-                  </span>
+                {installmentPerQuota ? (
+                  <div className="space-y-0.5 text-white/42">
+                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em]">
+                      Tarjeta
+                    </p>
+                    <p className="text-lg font-semibold text-white sm:text-xl">
+                      3 cuotas de {formatCurrency(installmentPerQuota)}
+                    </p>
+                    <p className="text-sm text-white/48">
+                      Total tarjeta {formatCurrency(product.installment_price ?? 0)}
+                    </p>
+                  </div>
                 ) : null}
                 <p className="text-[0.68rem] font-medium uppercase tracking-[0.18em] text-white/42">
                   Precio contado
