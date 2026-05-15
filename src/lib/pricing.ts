@@ -19,3 +19,14 @@ export function isOnSale(
 ): boolean {
   return getDiscountPercent(price, compareAtPrice) !== null
 }
+
+export function getInstallmentPerQuota(
+  installmentPrice?: number | null,
+  quotaCount = 3,
+): number | null {
+  if (!installmentPrice || installmentPrice <= 0 || quotaCount <= 0) {
+    return null
+  }
+
+  return Math.round(installmentPrice / quotaCount)
+}

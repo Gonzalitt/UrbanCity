@@ -35,7 +35,7 @@ import {
   toNullableText,
 } from '@/lib/admin'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
-import { getDiscountPercent } from '@/lib/pricing'
+import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import {
   adminProductSchema,
@@ -103,6 +103,7 @@ function buildProductFormValues(product?: ProductRow | null): AdminProductSchema
     slug: product.slug,
     description: product.description ?? '',
     price: product.price,
+    installmentPrice: product.installment_price ?? '',
     compareAtPrice: product.compare_at_price ?? '',
     availability: product.availability,
     categoryId: product.category_id ?? '',
@@ -111,7 +112,7 @@ function buildProductFormValues(product?: ProductRow | null): AdminProductSchema
   }
 }
 
-function normalizeCompareAtPrice(value: unknown) {
+function normalizeOptionalPrice(value: unknown) {
   if (typeof value === 'number') {
     return Number.isNaN(value) ? '' : value
   }
@@ -132,12 +133,32 @@ function normalizeProductDraftValues(values: AdminProductSchemaInput) {
       typeof values.price === 'number' && Number.isFinite(values.price)
         ? values.price
         : 0,
-    compareAtPrice: normalizeCompareAtPrice(values.compareAtPrice),
+    installmentPrice: normalizeOptionalPrice(values.installmentPrice),
+    compareAtPrice: normalizeOptionalPrice(values.compareAtPrice),
     availability: values.availability ?? 'available',
     categoryId: values.categoryId ?? '',
     featured: Boolean(values.featured),
     isActive: Boolean(values.isActive),
   }
+}
+
+function toFiniteNumber(value: unknown) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+
+    if (!trimmed) {
+      return null
+    }
+
+    const parsed = Number(trimmed)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+
+  return null
 }
 
 function readProductDraft(key: string) {
@@ -192,6 +213,7 @@ const defaultValues: AdminProductSchemaInput = {
   slug: '',
   description: '',
   price: 0,
+  installmentPrice: '',
   compareAtPrice: '',
   availability: 'available',
   categoryId: '',
@@ -234,6 +256,22 @@ export function AdminProductsPage() {
     defaultValues,
   })
   const watchedDraftValues = useWatch({ control: form.control })
+  const watchedPrice = useWatch({ control: form.control, name: 'price' })
+  const watchedCompareAtPrice = useWatch({
+    control: form.control,
+    name: 'compareAtPrice',
+  })
+  const watchedInstallmentPrice = useWatch({
+    control: form.control,
+    name: 'installmentPrice',
+  })
+  const discountPreview = getDiscountPercent(
+    toFiniteNumber(watchedPrice) ?? 0,
+    toFiniteNumber(watchedCompareAtPrice),
+  )
+  const installmentPreview = getInstallmentPerQuota(
+    toFiniteNumber(watchedInstallmentPrice),
+  )
 
   useEffect(() => {
     if (editingProductId && !editingProduct) {
@@ -470,6 +508,7 @@ export function AdminProductsPage() {
       slug: resolveSlug(values.name, values.slug),
       description: toNullableText(values.description ?? ''),
       price: values.price,
+      installment_price: values.installmentPrice ?? null,
       compare_at_price: values.compareAtPrice ?? null,
       availability: values.availability,
       category_id: values.categoryId || null,
@@ -752,15 +791,27 @@ export function AdminProductsPage() {
                   {...form.register('description')}
                 />
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-3">
                   <Input
-                    label="Precio"
+                    label="Precio contado"
                     type="number"
                     min="0"
                     step="0.01"
                     placeholder="0"
+                    hint="Precio principal que se muestra en la tienda."
                     error={form.formState.errors.price?.message}
                     {...form.register('price', { valueAsNumber: true })}
+                  />
+
+                  <Input
+                    label="Precio tarjeta total"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Ej: 50000"
+                    hint="Total a pagar con tarjeta. La tienda lo muestra dividido en 3 cuotas."
+                    error={form.formState.errors.installmentPrice?.message}
+                    {...form.register('installmentPrice')}
                   />
 
                   <Input
@@ -769,10 +820,33 @@ export function AdminProductsPage() {
                     min="0"
                     step="0.01"
                     placeholder="Ej: 120000"
-                    hint="Opcional. Si es mayor al actual, se muestra como oferta."
+                    hint="Opcional. Se usa para calcular el % OFF."
                     error={form.formState.errors.compareAtPrice?.message}
                     {...form.register('compareAtPrice')}
                   />
+                </div>
+
+                {installmentPreview ? (
+                  <div className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 text-sm">
+                    <p className="font-medium text-white">Precio tarjeta</p>
+                    <p className="mt-2 text-white/72">
+                      Se mostrará como: 3 cuotas de {formatCurrency(installmentPreview)}
+                    </p>
+                  </div>
+                ) : null}
+
+                <div className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 text-sm">
+                  <p className="font-medium text-white">Oferta calculada</p>
+                  {discountPreview ? (
+                    <div className="mt-2 inline-flex items-center rounded-full border border-emerald-400/18 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-200">
+                      {discountPreview}% OFF
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-white/58">Sin oferta calculada.</p>
+                  )}
+                  <p className="mt-2 text-xs leading-5 text-white/48">
+                    Se muestra si el precio anterior es mayor al contado.
+                  </p>
                 </div>
 
                 <SelectField
@@ -876,6 +950,7 @@ export function AdminProductsPage() {
               const isBusy = busyProductId === product.id
               const visibility = productVisibilityMeta(product)
               const discountPercent = getDiscountPercent(product.price, product.compare_at_price)
+              const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
               const isExpanded = expandedProductId === product.id
 
               return (
@@ -903,6 +978,9 @@ export function AdminProductsPage() {
                       <StatusBadge tone={adminAvailabilityTone(product.availability)}>
                         {formatAvailabilityLabel(product.availability)}
                       </StatusBadge>
+                      {discountPercent ? (
+                        <StatusBadge tone="success">{discountPercent}% OFF</StatusBadge>
+                      ) : null}
                       {product.featured ? <StatusBadge tone="warning">Destacado</StatusBadge> : null}
                       <StatusBadge tone="muted">
                         {(productImagesMap[product.id] ?? []).length} imagen
@@ -955,11 +1033,27 @@ export function AdminProductsPage() {
                           {discountPercent ? (
                             <>
                               <p>Antes: {formatCurrency(product.compare_at_price ?? 0)}</p>
+                              {installmentPerQuota ? (
+                                <p>
+                                  Tarjeta: 3 cuotas de {formatCurrency(installmentPerQuota)} · Total{' '}
+                                  {formatCurrency(product.installment_price ?? 0)}
+                                </p>
+                              ) : null}
                               <p className="font-medium text-brand-strong">{discountPercent}% OFF</p>
                             </>
-                          ) : product.compare_at_price ? (
-                            <p>Precio anterior: {formatCurrency(product.compare_at_price)}</p>
-                          ) : null}
+                          ) : (
+                            <>
+                              {installmentPerQuota ? (
+                                <p>
+                                  Tarjeta: 3 cuotas de {formatCurrency(installmentPerQuota)} · Total{' '}
+                                  {formatCurrency(product.installment_price ?? 0)}
+                                </p>
+                              ) : null}
+                              {product.compare_at_price ? (
+                                <p>Antes: {formatCurrency(product.compare_at_price)}</p>
+                              ) : null}
+                            </>
+                          )}
                         </div>
 
                         <p className="text-sm leading-6 text-white/58">

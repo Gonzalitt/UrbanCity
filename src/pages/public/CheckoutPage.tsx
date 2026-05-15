@@ -258,6 +258,10 @@ export function CheckoutPage() {
       checkoutDraftStorageKey,
       JSON.stringify(nextDraft),
     )
+
+    if (nextDraft.whatsappUrl) {
+      window.location.assign(nextDraft.whatsappUrl)
+    }
   }
 
   return (
@@ -349,7 +353,7 @@ export function CheckoutPage() {
                 ? 'Pedido ya generado'
                 : form.formState.isSubmitting
                   ? 'Generando pedido...'
-                  : 'Generar pedido para WhatsApp'}
+                  : 'Generar pedido y abrir WhatsApp'}
             </Button>
           </form>
 

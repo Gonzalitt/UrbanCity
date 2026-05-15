@@ -8,6 +8,7 @@ import {
   Power,
   Tag,
   Tags,
+  Trash2,
 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
@@ -226,6 +227,52 @@ export function AdminCategoriesPage() {
     await reloadPage()
   }
 
+  async function deleteCategory(category: CategoryListItem) {
+    if (!supabase) {
+      return
+    }
+
+    if (category.productCount > 0) {
+      setSubmitError(
+        'No se puede eliminar una categoría con productos asociados. Primero cambiá esos productos de categoría o desactivala.',
+      )
+      return
+    }
+
+    if (
+      typeof window !== 'undefined' &&
+      !window.confirm('¿Eliminar esta categoría? Esta acción no se puede deshacer.')
+    ) {
+      return
+    }
+
+    setBusyCategoryId(category.id)
+    setSubmitError(null)
+    setSubmitSuccess(null)
+
+    const { error } = await supabase.from('categories').delete().eq('id', category.id)
+
+    setBusyCategoryId(null)
+
+    if (error) {
+      setSubmitError(formatCrudError(error.message, error.code))
+      return
+    }
+
+    if (editingCategory?.id === category.id) {
+      setEditingCategory(null)
+      setShowCategoryForm(false)
+      form.reset(defaultValues)
+    }
+
+    if (expandedCategoryId === category.id) {
+      setExpandedCategoryId(null)
+    }
+
+    setSubmitSuccess('Categoría eliminada correctamente.')
+    await reloadPage()
+  }
+
   return (
     <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
@@ -393,7 +440,7 @@ export function AdminCategoriesPage() {
                       </StatusBadge>
                     </div>
 
-                    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px] gap-2 sm:flex sm:flex-wrap">
+                    <div className="grid min-w-0 grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                       <Button
                         type="button"
                         variant="outline"
@@ -425,7 +472,18 @@ export function AdminCategoriesPage() {
                       <Button
                         type="button"
                         variant="ghost"
-                        className="h-11 w-11 min-w-0 px-0 text-white/72 hover:bg-white/8 hover:text-white sm:h-auto sm:w-auto sm:px-3"
+                        className="w-full min-w-0 gap-1.5 px-2 text-sm text-rose-200 hover:bg-rose-500/10 hover:text-rose-100 sm:w-auto sm:px-3"
+                        onClick={() => void deleteCategory(category)}
+                        disabled={busyCategoryId === category.id}
+                      >
+                        <Trash2 className="h-4 w-4 shrink-0" />
+                        Eliminar
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full min-w-0 gap-1.5 px-2 text-white/72 hover:bg-white/8 hover:text-white sm:h-auto sm:w-auto sm:px-3"
                         onClick={() =>
                           setExpandedCategoryId((current) =>
                             current === category.id ? null : category.id,

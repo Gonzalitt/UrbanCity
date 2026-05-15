@@ -61,11 +61,21 @@ alter table public.products
 add column if not exists compare_at_price numeric(12,2);
 
 alter table public.products
+add column if not exists installment_price numeric(12,2);
+
+alter table public.products
 drop constraint if exists products_compare_at_price_non_negative;
 
 alter table public.products
 add constraint products_compare_at_price_non_negative
 check (compare_at_price is null or compare_at_price >= 0);
+
+alter table public.products
+drop constraint if exists products_installment_price_non_negative;
+
+alter table public.products
+add constraint products_installment_price_non_negative
+check (installment_price is null or installment_price >= 0);
 
 create table if not exists public.product_images (
   id uuid primary key default gen_random_uuid(),

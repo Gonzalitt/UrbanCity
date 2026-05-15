@@ -144,9 +144,29 @@
   .hero-slide {
     min-width: 100%;
   }
+
+  .featured-products-track {
+    animation: featuredProductsMarquee 30s linear infinite;
+    will-change: transform;
+  }
+
+  .featured-products-track:hover,
+  .featured-products-track:focus-within {
+    animation-play-state: paused;
+  }
 }
 
 @keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes featuredProductsMarquee {
   from {
     transform: translateX(0);
   }
@@ -163,5 +183,9 @@
 
   .hero-slider-track {
     transition: none;
+  }
+
+  .featured-products-track {
+    animation: none;
   }
 }

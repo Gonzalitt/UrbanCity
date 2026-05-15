@@ -112,8 +112,9 @@ export function HomePage() {
   const [isHeroPaused, setIsHeroPaused] = useState(false)
 
   const featuredProducts = products.filter((product) => product.featured)
-  const visibleProducts =
-    featuredProducts.length > 0 ? featuredProducts.slice(0, 4) : products.slice(0, 4)
+  const featuredCarouselProducts =
+    featuredProducts.length > 1 ? [...featuredProducts, ...featuredProducts] : featuredProducts
+  const singleFeaturedProduct = featuredProducts[0] ?? null
   const heroSlides =
     homeHeroSlides.length > 0
       ? homeHeroSlides.map((slide) => ({
@@ -287,11 +288,24 @@ export function HomePage() {
           tone="light"
         />
 
-        {visibleProducts.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {visibleProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+        {featuredProducts.length > 1 ? (
+          <div className="relative overflow-hidden">
+            <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="featured-products-track flex w-max gap-3 sm:gap-4">
+                {featuredCarouselProducts.map((product, index) => (
+                  <div
+                    key={`${product.id}-${index}`}
+                    className="w-[46vw] shrink-0 sm:w-[260px] md:w-[280px] lg:w-[300px]"
+                  >
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : singleFeaturedProduct ? (
+          <div className="max-w-[320px]">
+            <ProductCard product={singleFeaturedProduct} />
           </div>
         ) : (
           <EmptyState

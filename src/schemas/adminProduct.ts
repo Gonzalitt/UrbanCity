@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const compareAtPriceSchema = z.preprocess((value) => {
+const optionalPriceSchema = z.preprocess((value) => {
   if (value === '' || value === null || value === undefined) {
     return null
   }
@@ -21,7 +21,7 @@ const compareAtPriceSchema = z.preprocess((value) => {
   }
 
   return value
-}, z.number().min(0, 'El precio anterior no puede ser negativo.').nullable())
+}, z.number().min(0, 'El precio no puede ser negativo.').nullable())
 
 export const adminProductSchema = z.object({
   name: z
@@ -42,7 +42,8 @@ export const adminProductSchema = z.object({
     .optional()
     .or(z.literal('')),
   price: z.number().min(0, 'El precio no puede ser negativo.'),
-  compareAtPrice: compareAtPriceSchema.optional(),
+  installmentPrice: optionalPriceSchema.optional(),
+  compareAtPrice: optionalPriceSchema.optional(),
   availability: z.enum(['available', 'inquiry', 'out_of_stock', 'hidden']),
   categoryId: z.string().optional().or(z.literal('')),
   featured: z.boolean().default(false),

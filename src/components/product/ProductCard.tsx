@@ -2,7 +2,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
-import { getDiscountPercent } from '@/lib/pricing'
+import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import type { StorefrontProduct } from '@/types/store'
 import { ProductVisual } from '@/components/product/ProductVisual'
 
@@ -37,6 +37,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
     product.price,
     product.compare_at_price,
   )
+  const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
 
   return (
     <article className="group overflow-hidden rounded-[22px] border border-white/10 bg-[#111111] p-1.5 transition duration-300 hover:-translate-y-1 hover:border-brand-strong/35 hover:shadow-[0_24px_44px_rgba(0,0,0,0.34)] sm:rounded-[30px] sm:p-2.5">
@@ -84,20 +85,14 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
 
         <div className="flex items-end justify-between gap-2 sm:items-center sm:gap-4">
           <div>
-            {discountPercent ? (
-              <>
-                <p className="text-[0.72rem] font-medium text-white/42 line-through sm:text-sm">
-                  {formatCurrency(product.compare_at_price ?? 0)}
-                </p>
-                <p className="text-[0.62rem] font-medium uppercase tracking-[0.16em] text-white/42 sm:text-[0.72rem] sm:tracking-[0.22em]">
-                  Contado
-                </p>
-              </>
-            ) : (
-              <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/42 sm:text-xs sm:tracking-[0.22em]">
-                Contado
+            {installmentPerQuota ? (
+              <p className="text-[0.72rem] font-medium text-white/48 sm:text-sm">
+                3 cuotas de {formatCurrency(installmentPerQuota)}
               </p>
-            )}
+            ) : null}
+            <p className="mt-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-white/42 sm:text-[0.72rem] sm:tracking-[0.22em]">
+              Contado
+            </p>
             <p className="text-lg font-semibold tracking-[-0.03em] text-white sm:text-2xl">
               {formatCurrency(product.price)}
             </p>

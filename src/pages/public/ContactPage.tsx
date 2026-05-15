@@ -13,7 +13,7 @@ export function ContactPage() {
     storeSettings.instagram_url?.trim() ||
     'https://www.instagram.com/citycalzadourbano/'
   const fallbackAddress =
-    'Galería Provincial, General Acha 172 Sur, San Juan, Argentina'
+    'Galería Provincial, Local 28, General Acha 172 Sur, San Juan, Argentina'
   const fallbackEmbedUrl =
     'https://www.google.com/maps?q=-31.5368791,-68.5240926&z=18&output=embed'
   const fallbackPlaceUrl =
