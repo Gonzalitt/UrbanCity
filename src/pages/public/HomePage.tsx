@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import crediAppLogo from '@/assets/CrediApp_icon.png'
 import cuotasSinInteresImage from '@/assets/CuotasSinInteres.webp'
 import estanteriaImage from '@/assets/Estanteria.webp'
+import goCuotasLogo from '@/assets/GoCuotas_icon.png'
 import localExteriorImage from '@/assets/LocalExterior1.webp'
 import promoContadoImage from '@/assets/PromoContado.webp'
 import zapatillas1Image from '@/assets/Zapatillas1.webp'
@@ -31,7 +33,8 @@ const fallbackHeroSlides = [
     subtitle: 'TU PRÓXIMO PAR',
     description: 'Modelos urbanos seleccionados por el local.',
     image: zapatillas3Image,
-    imageAlt: 'Modelos nuevos de zapatillas urbanas disponibles en City Calzado Urbano',
+    imageAlt:
+      'Modelos nuevos de zapatillas urbanas disponibles en City Calzado Urbano',
   },
   {
     eyebrow: 'MODELOS DESTACADOS',
@@ -51,22 +54,39 @@ const fallbackHeroSlides = [
   },
 ]
 
+const paymentAppItems = [
+  {
+    name: 'Go Cuotas',
+    logo: goCuotasLogo,
+  },
+  {
+    name: 'CrediApp',
+    logo: crediAppLogo,
+  },
+]
+
 const benefitItems = [
   {
     icon: CreditCard,
-    mobileTitle: '3 cuotas',
+    mobileTitle: '3 CUOTAS\nSIN INTERÉS',
     title: '3 cuotas sin interés',
-    copy: 'Pagá con tarjeta en 3 cuotas sin interés.',
+    copy: 'Pagá con tarjeta de crédito en 3 cuotas sin interés.',
+  },
+  {
+    icon: CreditCard,
+    mobileTitle: 'OTROS MEDIOS',
+    title: 'Otros medios de pago',
+    logos: paymentAppItems,
   },
   {
     icon: HandCoins,
-    mobileTitle: '20% OFF',
-    title: '20% OFF contado',
+    mobileTitle: '20% OFF\nCONTADO',
+    title: '20% OFF Contado',
     copy: 'Efectivo, transferencia y billeteras virtuales incluidas.',
   },
   {
     icon: Store,
-    mobileTitle: 'Retiro local',
+    mobileTitle: 'RETIRO\nEN EL LOCAL',
     title: 'Retiro coordinado',
     copy: 'Confirmamos disponibilidad y retiro con el local.',
   },
@@ -113,7 +133,9 @@ export function HomePage() {
 
   const featuredProducts = products.filter((product) => product.featured)
   const featuredCarouselProducts =
-    featuredProducts.length > 1 ? [...featuredProducts, ...featuredProducts] : featuredProducts
+    featuredProducts.length > 1
+      ? [...featuredProducts, ...featuredProducts]
+      : featuredProducts
   const singleFeaturedProduct = featuredProducts[0] ?? null
   const heroSlides =
     homeHeroSlides.length > 0
@@ -228,7 +250,7 @@ export function HomePage() {
                     </div>
                   </div>
 
-                  <div className="relative z-10 hidden sm:flex items-center justify-end">
+                  <div className="relative z-10 hidden items-center justify-end sm:flex">
                     <div className="relative w-full max-w-[620px] overflow-hidden rounded-[34px] border border-white/10 bg-[#0b0b0b] shadow-[0_36px_80px_rgba(0,0,0,0.36)]">
                       <img
                         src={slide.image}
@@ -247,7 +269,7 @@ export function HomePage() {
             type="button"
             aria-label="Slide anterior"
             onClick={goToPreviousSlide}
-            className="absolute top-1/2 left-4 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#0f0f0f]/88 text-white backdrop-blur-sm hover:bg-white/10 sm:inline-flex"
+            className="absolute left-4 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#0f0f0f]/88 text-white backdrop-blur-sm hover:bg-white/10 sm:inline-flex"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -256,12 +278,12 @@ export function HomePage() {
             type="button"
             aria-label="Slide siguiente"
             onClick={goToNextSlide}
-            className="absolute top-1/2 right-4 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#0f0f0f]/88 text-white backdrop-blur-sm hover:bg-white/10 sm:inline-flex"
+            className="absolute right-4 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-[#0f0f0f]/88 text-white backdrop-blur-sm hover:bg-white/10 sm:inline-flex"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
 
-          <div className="absolute right-0 bottom-6 left-0 z-20 flex justify-center gap-2">
+          <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
             {heroSlides.map((slide, index) => (
               <button
                 key={`${slide.title}-${index}`}
@@ -320,27 +342,49 @@ export function HomePage() {
         )}
       </section>
 
-      <section className="grid grid-cols-3 gap-2 md:grid-cols-3 md:gap-4">
+      <section className="grid grid-cols-2 items-stretch gap-2 md:grid-cols-4 md:gap-4">
         {benefitItems.map((item) => {
           const Icon = item.icon
+          const logos = item.logos ?? []
+          const isPaymentAppsCard = Boolean(item.logos)
 
           return (
             <div
               key={item.title}
-              className="rounded-[16px] border border-white/10 bg-[#151515] p-2.5 text-center shadow-[0_18px_36px_rgba(0,0,0,0.2)] sm:rounded-[24px] sm:p-4 md:text-left"
+              className="flex h-full flex-col rounded-[16px] border border-white/10 bg-[#151515] p-2.5 text-center shadow-[0_18px_36px_rgba(0,0,0,0.2)] sm:rounded-[24px] sm:p-4 md:text-left"
             >
               <div className="mx-auto flex h-7 w-7 items-center justify-center rounded-xl bg-brand-soft text-brand-strong md:mx-0 md:h-10 md:w-10 md:rounded-2xl">
                 <Icon className="h-3.5 w-3.5 md:h-5 md:w-5" />
               </div>
-              <span className="mt-2 block text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-white md:hidden">
+              <span className="mt-2 block whitespace-pre-line text-[0.72rem] font-semibold uppercase leading-4 tracking-[0.12em] text-white md:hidden">
                 {item.mobileTitle}
               </span>
               <h3 className="mt-3 hidden text-lg font-semibold tracking-[-0.03em] text-white md:block">
                 {item.title}
               </h3>
-              <p className="mt-2 hidden text-sm leading-6 text-white/68 md:block">
-                {item.copy}
-              </p>
+              {isPaymentAppsCard ? (
+                <div className="mt-2.5 flex w-full items-center justify-center gap-4 md:mt-3 md:gap-20">
+                  {logos.map((logo) => (
+                    <img
+                      key={logo.name}
+                      src={logo.logo}
+                      alt={logo.name}
+                      className={cn(
+                        'object-contain brightness-110 contrast-125',
+                        logo.name === 'Go Cuotas'
+                          ? 'max-h-10 max-w-[78px] md:max-h-12 md:max-w-[92px]'
+                          : 'max-h-7 max-w-[92px] md:max-h-10 md:max-w-[108px]',
+                      )}
+                      loading="lazy"
+                    />
+                  ))}
+                </div>
+              ) : null}
+              {!isPaymentAppsCard ? (
+                <p className="mt-2 hidden text-sm leading-6 text-white/68 md:block">
+                  {item.copy}
+                </p>
+              ) : null}
             </div>
           )
         })}
