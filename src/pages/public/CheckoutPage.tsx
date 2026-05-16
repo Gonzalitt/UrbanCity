@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import crediAppLogo from '@/assets/CrediApp_icon.png'
+import goCuotasLogo from '@/assets/GoCuotas_icon.png'
 import { ShieldCheck, ShoppingBag } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
@@ -313,6 +315,32 @@ export function CheckoutPage() {
           <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 text-sm leading-6 text-white/74">
             Al generar el pedido no estás pagando online. Confirmamos
             disponibilidad, talle, forma de pago y precio final por WhatsApp.
+          </div>
+
+          <div className="rounded-[20px] border border-white/10 bg-[#111111]/82 px-4 py-3">
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm font-medium text-white/76">
+                También podés pagar con Go Cuotas y CrediApp.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex h-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-3.5">
+                  <img
+                    src={goCuotasLogo}
+                    alt="Go Cuotas"
+                    className="max-h-5 max-w-[96px] object-contain brightness-110 contrast-125"
+                    loading="lazy"
+                  />
+                </span>
+                <span className="inline-flex h-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-3.5">
+                  <img
+                    src={crediAppLogo}
+                    alt="CrediApp"
+                    className="max-h-5 max-w-[96px] object-contain brightness-110 contrast-125"
+                    loading="lazy"
+                  />
+                </span>
+              </div>
+            </div>
           </div>
 
           <form
