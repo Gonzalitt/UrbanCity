@@ -90,11 +90,6 @@ export function AdminCatalogPage() {
     [products],
   )
   const selectedProductsCount = slotDrafts.filter((slot) => slot.productId).length
-  const selectedProductIds = new Set(
-    slotDrafts
-      .map((slot) => slot.productId)
-      .filter((productId): productId is string => productId.length > 0),
-  )
   const productById = useMemo(
     () => new Map(products.map((product) => [product.id, product])),
     [products],
@@ -190,17 +185,30 @@ export function AdminCatalogPage() {
 
   function setSlotProduct(slot: number, productId: string) {
     setSlotDrafts((current) =>
-      current.map((item) =>
-        item.slot === slot
-          ? {
-              ...item,
-              productId,
-            }
-          : item,
-      ),
+      current.map((item) => {
+        if (item.slot === slot) {
+          return {
+            ...item,
+            productId,
+          }
+        }
+
+        if (productId && item.productId === productId) {
+          return {
+            ...item,
+            productId: '',
+          }
+        }
+
+        return item
+      }),
     )
     setActionError(null)
     setActionSuccess(null)
+  }
+
+  function getProductAssignedPosition(productId: string) {
+    return slotDrafts.find((slot) => slot.productId === productId)?.slot ?? null
   }
 
   function clearSlot(slot: number) {
@@ -359,6 +367,10 @@ export function AdminCatalogPage() {
               Los lugares vacíos se saltean. Después de estos productos, el
               catálogo sigue mostrando el resto automáticamente.
             </p>
+            <p className="text-sm leading-6 text-white/58">
+              Si elegís un producto que ya estaba en otra posición, se moverá
+              automáticamente.
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -420,17 +432,16 @@ export function AdminCatalogPage() {
                     >
                       <option value="">Sin producto</option>
                       {visibleProducts.map((product) => {
-                        const isUsedInAnotherSlot =
-                          selectedProductIds.has(product.id) &&
-                          slotDraft.productId !== product.id
+                        const assignedPosition = getProductAssignedPosition(
+                          product.id,
+                        )
 
                         return (
-                          <option
-                            key={product.id}
-                            value={product.id}
-                            disabled={isUsedInAnotherSlot}
-                          >
+                          <option key={product.id} value={product.id}>
                             {product.name}
+                            {assignedPosition && assignedPosition !== slotDraft.slot
+                              ? ` · en #${assignedPosition}`
+                              : ''}
                           </option>
                         )
                       })}

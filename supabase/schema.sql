@@ -376,8 +376,9 @@ before update on public.product_sizes
 for each row
 execute function public.set_updated_at();
 
+drop trigger if exists trg_catalog_featured_products_updated_at on public.catalog_featured_products;
 drop trigger if exists set_catalog_featured_products_updated_at on public.catalog_featured_products;
-create trigger set_catalog_featured_products_updated_at
+create trigger trg_catalog_featured_products_updated_at
 before update on public.catalog_featured_products
 for each row
 execute function public.set_updated_at();
