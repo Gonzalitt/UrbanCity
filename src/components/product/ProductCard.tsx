@@ -189,21 +189,21 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
               </p>
             </div>
 
-            <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+            <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(118px,1fr)_minmax(112px,auto)] sm:items-center">
               <Button
                 type="button"
                 size="sm"
                 variant={isSoldOut ? 'outline' : 'secondary'}
                 disabled={isSoldOut}
                 className={cn(
-                  'order-1 w-full min-w-0 px-3',
+                  'order-1 w-full min-w-0 px-3 text-[0.8rem] sm:order-1 sm:h-10 sm:px-3 sm:text-[0.78rem] xl:text-sm',
                   !isSoldOut &&
-                    'sm:order-2 sm:w-auto sm:border sm:border-white/12 sm:bg-white/6 sm:text-white sm:shadow-none sm:hover:bg-white/10',
+                    'sm:border sm:border-white/12 sm:bg-white/6 sm:text-white sm:shadow-none sm:hover:bg-white/10',
                 )}
                 onClick={handleQuickAction}
               >
                 <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">
+                <span className="truncate whitespace-nowrap">
                   {isSoldOut
                     ? 'Sin stock'
                     : hasSizes
@@ -218,14 +218,15 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
                   buttonStyles({
                     variant: 'outline',
                     size: 'sm',
-                    className: 'order-2 w-full justify-center gap-1.5 px-3',
+                    className:
+                      'order-2 w-full justify-center gap-1.5 px-3 text-[0.8rem] sm:order-2 sm:h-10 sm:w-auto sm:min-w-[108px] sm:px-3 sm:text-[0.78rem] xl:text-sm',
                   }),
-                  'text-sm text-white/76 shadow-none sm:order-1 sm:border-transparent sm:bg-brand-strong sm:text-black sm:shadow-[0_14px_28px_rgba(182,255,0,0.2)] sm:hover:bg-[#d1ff52]',
+                  'whitespace-nowrap text-white/76 shadow-none sm:border-transparent sm:bg-brand-strong sm:text-black sm:shadow-[0_14px_28px_rgba(182,255,0,0.2)] sm:hover:bg-[#d1ff52]',
                 )}
               >
                 <span className="sm:hidden">Ver</span>
-                <span className="hidden sm:inline">Ver detalle</span>
-                <ArrowUpRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 sm:h-4 sm:w-4" />
+                <span className="hidden whitespace-nowrap sm:inline">Ver detalle</span>
+                <ArrowUpRight className="h-3.5 w-3.5 shrink-0 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 sm:h-4 sm:w-4" />
               </Link>
             </div>
 
@@ -248,10 +249,10 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
 
       {showQuickAdd ? (
         <div
-          className="fixed inset-0 z-[90] bg-black/78 backdrop-blur-md sm:backdrop-blur-lg"
+          className="fixed inset-0 z-[90] bg-black/72 backdrop-blur-[3px] sm:backdrop-blur-[4px]"
           onClick={closeQuickAdd}
         >
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(182,255,0,0.10),transparent_32%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(182,255,0,0.06),transparent_36%)]" />
 
           <div
             role="dialog"
