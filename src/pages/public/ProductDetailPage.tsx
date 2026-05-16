@@ -97,7 +97,7 @@ function ProductDetailContent({
       </Link>
 
       <section className="surface-panel overflow-hidden">
-        <div className="grid gap-4 p-3.5 sm:gap-5 sm:p-8 lg:grid-cols-[1fr_0.95fr] lg:p-10">
+        <div className="grid gap-4 p-3.5 sm:gap-5 sm:p-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(420px,0.88fr)] lg:p-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(440px,0.8fr)] xl:p-10">
           <div className="space-y-3">
             <ProductVisual
               seed={product.slug}
@@ -105,11 +105,11 @@ function ProductDetailContent({
               categoryName={product.category?.name}
               imageUrl={selectedImage?.url}
               imageFit="contain"
-              className="h-[190px] sm:h-auto sm:aspect-[1/1.05] sm:min-h-[320px]"
+              className="h-[220px] rounded-[22px] border border-white/8 bg-white sm:h-auto sm:aspect-[1/1.02] sm:min-h-[420px] lg:min-h-[520px] xl:min-h-[580px]"
             />
 
             {productImages.length > 1 ? (
-              <div className="flex gap-2 overflow-x-auto pb-1">
+              <div className="flex gap-2.5 overflow-x-auto pb-1">
                 {productImages.map((image, index) => {
                   const isSelected = index === safeSelectedImageIndex
 
@@ -117,9 +117,9 @@ function ProductDetailContent({
                     <button
                       key={image.id}
                       type="button"
-                      className={`h-14 w-14 shrink-0 overflow-hidden rounded-[16px] border transition sm:h-[72px] sm:w-[72px] ${
+                      className={`h-[58px] w-[58px] shrink-0 overflow-hidden rounded-[18px] border transition sm:h-[72px] sm:w-[72px] ${
                         isSelected
-                          ? 'border-brand-strong bg-brand-strong/12'
+                          ? 'border-brand-strong bg-brand-strong/10 shadow-[0_0_0_1px_rgba(182,255,0,0.25)]'
                           : 'border-white/10 bg-white/6 hover:border-white/22'
                       }`}
                       onClick={() => setSelectedImageIndex(index)}
@@ -128,7 +128,7 @@ function ProductDetailContent({
                       <img
                         src={image.url}
                         alt={image.alt ?? `${product.name} foto ${index + 1}`}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full bg-white object-contain"
                       />
                     </button>
                   )
@@ -137,17 +137,21 @@ function ProductDetailContent({
             ) : null}
           </div>
 
-          <div className="space-y-4 sm:space-y-6">
-            <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-4 lg:self-start lg:space-y-5">
+            <div className="space-y-3">
               <p className="eyebrow">{product.category?.name ?? 'Catálogo'}</p>
+
               <div className="space-y-3">
-                <h1 className="line-clamp-2 text-2xl font-semibold leading-tight tracking-[-0.04em] text-white sm:line-clamp-none sm:text-5xl">
+                <h1 className="text-2xl font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl lg:text-[2.8rem] xl:text-5xl">
                   {product.name}
                 </h1>
-                <p className="line-clamp-2 text-sm leading-6 text-white/72 sm:line-clamp-none sm:text-base sm:leading-8">
-                  {product.description}
-                </p>
+                {product.description ? (
+                  <p className="max-w-[52ch] text-sm leading-6 text-white/72 sm:text-base sm:leading-7">
+                    {product.description}
+                  </p>
+                ) : null}
               </div>
+
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <StatusBadge
                   tone={availabilityTone(product.availability)}
@@ -161,47 +165,54 @@ function ProductDetailContent({
                   </span>
                 ) : null}
               </div>
-              <div className="space-y-1">
-                {installmentPerQuota ? (
-                  <div className="space-y-0.5 text-white/42">
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em]">
-                      Tarjeta
+            </div>
+
+            <div className="space-y-3 border-b border-white/10 pb-4">
+              {product.installment_price ? (
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/42">
+                      Precio lista
                     </p>
-                    <p className="text-lg font-semibold text-white sm:text-xl">
-                      3 cuotas de {formatCurrency(installmentPerQuota)}
-                    </p>
-                    <p className="text-sm text-white/48">
-                      Total tarjeta {formatCurrency(product.installment_price ?? 0)}
+                    <p className="text-lg font-semibold text-white/82">
+                      {formatCurrency(product.installment_price)}
                     </p>
                   </div>
-                ) : null}
-                <p className="text-[0.68rem] font-medium uppercase tracking-[0.18em] text-white/42">
-                  Precio contado
-                </p>
-                <p className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
-                  {formatCurrency(product.price)}
-                </p>
-              </div>
-              {discountPercent ? (
-                <p className="text-sm font-medium text-brand-strong">
-                  Oferta vigente sujeta a disponibilidad.
-                </p>
+
+                  {installmentPerQuota ? (
+                    <p className="max-w-[220px] text-right text-sm font-medium leading-5 text-brand-strong">
+                      3 cuotas sin interés de {formatCurrency(installmentPerQuota)}
+                    </p>
+                  ) : null}
+                </div>
               ) : null}
-              <div className="space-y-1.5 rounded-[24px] border border-white/12 bg-white/6 p-3 text-[0.8rem] leading-5 text-white/78 sm:space-y-2 sm:p-4 sm:text-sm sm:leading-6">
-                <p>3 cuotas sin interés disponibles</p>
-                <p>20% OFF pago contado</p>
-                <p>Billeteras virtuales incluidas como pago contado</p>
+
+              <div>
+                <div className="flex flex-wrap items-end justify-between gap-2">
+                  <div>
+                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/42">
+                      Precio contado
+                    </p>
+                    <p className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
+                      {formatCurrency(product.price)}
+                    </p>
+                  </div>
+                  <p className="text-sm font-medium text-brand-strong">
+                    con transferencia o contado
+                  </p>
+                </div>
               </div>
             </div>
 
             {product.sizes.length > 0 ? (
-              <div className="space-y-3 rounded-[24px] border border-white/12 bg-white/6 p-3.5 sm:p-4">
+              <div className="space-y-2.5 rounded-[24px] border border-white/12 bg-white/6 p-3 sm:p-4">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-white">Elegí talle</p>
                   <p className="text-xs leading-5 text-white/58 sm:text-sm">
-                    Seleccioná un talle disponible para agregar al carrito.
+                    Seleccioná un talle disponible.
                   </p>
                 </div>
+
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => {
                     const isSelected = selectedSizeLabel === size.size_label
@@ -225,19 +236,15 @@ function ProductDetailContent({
                     )
                   })}
                 </div>
+
                 {sizeError ? (
                   <p className="text-sm text-rose-200">{sizeError}</p>
                 ) : null}
               </div>
             ) : null}
 
-            <div className="order-3 rounded-[24px] border border-white/12 bg-white/6 p-3 text-xs leading-5 text-white/78 sm:order-none sm:p-4 sm:text-sm sm:leading-6">
-              Pedido pendiente de confirmación. Te contactamos para validar talle,
-              disponibilidad y forma de pago.
-            </div>
-
-            <div className="order-2 flex flex-col gap-3 sm:order-none sm:flex-row sm:items-center">
-              <div className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-2 py-2 sm:w-auto">
+            <div className="grid gap-3 sm:grid-cols-[140px_1fr] sm:items-center">
+              <div className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-2">
                 <button
                   type="button"
                   className="flex h-10 w-10 items-center justify-center rounded-full text-white/76 hover:bg-white/10"
@@ -263,7 +270,7 @@ function ProductDetailContent({
                 type="button"
                 size="lg"
                 variant={isSoldOut ? 'outline' : 'secondary'}
-                className="w-full sm:w-auto"
+                className="h-12 w-full justify-center sm:h-14"
                 disabled={isSoldOut}
                 onClick={handleAddToCart}
               >
@@ -280,6 +287,17 @@ function ProductDetailContent({
                 </Link>
               </div>
             ) : null}
+
+            <div className="space-y-3 rounded-[24px] border border-white/12 bg-white/6 p-3.5 sm:p-4">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/42">
+                Medios de pago
+              </p>
+              <div className="space-y-2 text-sm leading-6 text-white/72">
+                {installmentPerQuota ? <p>3 cuotas sin interés disponibles.</p> : null}
+                <p>Go Cuotas y CrediApp disponibles según condiciones del medio de pago.</p>
+                <p>20% OFF abonando contado o transferencia.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

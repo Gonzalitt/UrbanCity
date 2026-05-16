@@ -49,6 +49,10 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
     product.compare_at_price,
   )
   const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
+  const primaryImageUrl = product.primaryImage?.url ?? null
+  const hoverImageUrl =
+    product.images.find((image) => image.id !== product.primaryImage?.id)?.url ??
+    null
   const hasSizes = product.sizes.length > 0
   const isSoldOut = product.availability === 'out_of_stock'
 
@@ -137,13 +141,25 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
     <>
       <article className="group overflow-hidden rounded-[22px] border border-white/10 bg-[#111111] p-1.5 transition duration-300 hover:-translate-y-1 hover:border-brand-strong/35 hover:shadow-[0_24px_44px_rgba(0,0,0,0.34)] sm:rounded-[30px] sm:p-2.5">
         <Link to={`/catalogo/${product.slug}`} className="relative block">
-          <ProductVisual
-            seed={product.slug}
-            name={product.name}
-            categoryName={product.category?.name}
-            imageUrl={product.primaryImage?.url}
-            className="aspect-square rounded-[18px] border border-white/8 bg-[#0d0d0d] sm:aspect-[4/4.5] sm:rounded-[24px]"
-          />
+          <div className="relative">
+            <ProductVisual
+              seed={product.slug}
+              name={product.name}
+              categoryName={product.category?.name}
+              imageUrl={primaryImageUrl}
+              imageFit="contain"
+              className="aspect-square rounded-[18px] border border-white/8 bg-white sm:aspect-[4/4.5] sm:rounded-[24px]"
+            />
+
+            {hoverImageUrl ? (
+              <img
+                src={hoverImageUrl}
+                alt=""
+                className="pointer-events-none absolute inset-0 hidden h-full w-full rounded-[18px] bg-white object-contain opacity-0 transition duration-300 sm:rounded-[24px] md:block md:group-hover:opacity-100"
+                loading="lazy"
+              />
+            ) : null}
+          </div>
           {discountPercent ? (
             <span className="absolute top-2.5 left-2.5 inline-flex items-center rounded-full bg-brand-strong px-2 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-black sm:top-4 sm:left-4 sm:px-3 sm:text-[0.68rem] sm:tracking-[0.18em]">
               {discountPercent}% OFF
