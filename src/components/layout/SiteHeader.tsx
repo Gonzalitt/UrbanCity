@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import cityLogo from '@/assets/city-logo.jpg'
 import { Search, ShoppingBag } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
@@ -9,69 +8,17 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp'
 import { useCartStore } from '@/store/cartStore'
 
 const promoStripItems = [
-  '\ud83d\udcb3 3 CUOTAS SIN INTER\u00c9S',
-  '\ud83d\udcb0 20% OFF PAGO CONTADO',
-  '\ud83d\udcf2 BILLETERAS VIRTUALES CON 20% OFF',
+  '3 CUOTAS SIN INTERÉS',
+  '20% OFF PAGO CONTADO',
+  'BILLETERAS VIRTUALES CON 20% OFF',
   'PEDIDOS POR WHATSAPP',
 ]
 
 const navLinks = [
   { to: '/', label: 'Inicio' },
-  { to: '/catalogo', label: 'Cat\u00e1logo' },
+  { to: '/catalogo', label: 'Catálogo' },
   { to: '/contacto', label: 'Contacto' },
 ]
-
-function HeaderAction({
-  href,
-  to,
-  label,
-  badge,
-  icon,
-  mobileLabel = false,
-}: {
-  href?: string
-  to?: string
-  label: string
-  badge?: number
-  icon: ReactNode
-  mobileLabel?: boolean
-}) {
-  const content = (
-    <>
-      {icon}
-      <span
-        className={cn(
-          'hidden text-sm font-medium sm:inline',
-          mobileLabel && 'inline text-sm sm:inline',
-        )}
-      >
-        {label}
-      </span>
-      {typeof badge === 'number' ? (
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-strong px-1.5 text-[0.65rem] font-bold text-black">
-          {badge}
-        </span>
-      ) : null}
-    </>
-  )
-
-  const className =
-    'inline-flex items-center gap-2 whitespace-nowrap text-white/72 transition hover:text-white'
-
-  if (href) {
-    return (
-      <a href={href} target="_blank" rel="noreferrer" className={className}>
-        {content}
-      </a>
-    )
-  }
-
-  return (
-    <Link to={to ?? '/'} className={className}>
-      {content}
-    </Link>
-  )
-}
 
 export function SiteHeader() {
   const { storeSettings } = useStorefrontData()
@@ -101,11 +48,11 @@ export function SiteHeader() {
           <div className="hidden lg:block">
             <Link
               to="/catalogo"
-              aria-label="Ir al cat\u00e1logo para buscar productos"
+              aria-label="Ir al catálogo para buscar productos"
               className="inline-flex h-11 w-full max-w-[290px] items-center gap-3 rounded-full border border-white/10 bg-[#111111] px-4 text-sm text-white/44 transition hover:bg-white/8 hover:text-white/62"
             >
               <Search className="h-4 w-4 text-white/54" />
-              <span>{'\u00bfQu\u00e9 est\u00e1s buscando?'}</span>
+              <span>¿Qué estás buscando?</span>
             </Link>
           </div>
 
@@ -121,7 +68,7 @@ export function SiteHeader() {
                   <p className="truncate text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
                     {storeSettings.store_name || 'City Calzado Urbano'}
                   </p>
-                  <p className="truncate text-[0.68rem] uppercase tracking-[0.18em] text-white/46 sm:text-[0.72rem]">
+                  <p className="max-w-[180px] text-[0.58rem] uppercase leading-3 tracking-[0.10em] text-white/46 sm:max-w-none sm:text-[0.72rem] sm:tracking-[0.18em] lg:text-center">
                     Galería Provincial · San Juan
                   </p>
                 </div>
@@ -130,12 +77,15 @@ export function SiteHeader() {
 
             <div className="flex items-center gap-2 lg:justify-self-end">
               {storeSettings.instagram_url ? (
-                <HeaderAction
+                <a
                   href={storeSettings.instagram_url}
-                  label="Instagram"
-                  icon={<SocialIcon type="instagram" className="h-4 w-4" />}
-                  mobileLabel={false}
-                />
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/6 text-white/82 transition hover:border-white/18 hover:bg-white/10 hover:text-white sm:h-auto sm:w-auto sm:gap-2 sm:rounded-none sm:border-transparent sm:bg-transparent sm:text-white/72"
+                >
+                  <SocialIcon type="instagram" className="h-5 w-5 sm:h-4 sm:w-4" />
+                  <span className="hidden text-sm font-medium sm:inline">Instagram</span>
+                </a>
               ) : null}
 
               {storeSettings.instagram_url ? (
@@ -143,39 +93,45 @@ export function SiteHeader() {
               ) : null}
 
               {hasWhatsApp ? (
-                <HeaderAction
+                <a
                   href={buildWhatsAppUrl(
                     storeSettings.whatsapp_phone,
                     'Hola, quiero hacer una consulta.',
                   )}
-                  label="WhatsApp"
-                  icon={<SocialIcon type="whatsapp" className="h-4 w-4" />}
-                  mobileLabel={false}
-                />
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hidden items-center gap-2 text-white/72 transition hover:text-white sm:inline-flex"
+                >
+                  <SocialIcon type="whatsapp" className="h-4 w-4" />
+                  <span className="text-sm font-medium">WhatsApp</span>
+                </a>
               ) : null}
 
               {hasWhatsApp ? (
                 <span className="hidden h-4 w-px bg-white/12 sm:block" />
               ) : null}
 
-              <HeaderAction
+              <Link
                 to="/carrito"
-                label="Carrito"
-                badge={itemCount}
-                icon={<ShoppingBag className="h-4 w-4" />}
-                mobileLabel={false}
-              />
+                className="relative inline-flex h-9 min-w-[44px] items-center justify-center rounded-full border border-white/10 bg-white/6 px-2.5 text-white/82 transition hover:border-white/18 hover:bg-white/10 hover:text-white sm:h-auto sm:min-w-0 sm:gap-2 sm:rounded-none sm:border-transparent sm:bg-transparent sm:px-0 sm:text-white/72"
+              >
+                <ShoppingBag className="h-5 w-5 sm:h-4 sm:w-4" />
+                <span className="hidden text-sm font-medium sm:inline">Carrito</span>
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-strong px-1.5 text-[0.65rem] font-bold text-black sm:static sm:ml-0 sm:h-5 sm:min-w-5">
+                  {itemCount}
+                </span>
+              </Link>
             </div>
           </div>
 
           <div className="lg:hidden">
             <Link
               to="/catalogo"
-              aria-label="Ir al cat\u00e1logo para buscar productos"
+              aria-label="Ir al catálogo para buscar productos"
               className="inline-flex h-11 w-full items-center gap-3 rounded-full border border-white/10 bg-[#111111] px-4 text-sm text-white/44 transition hover:bg-white/8 hover:text-white/62"
             >
               <Search className="h-4 w-4 text-white/54" />
-              <span>{'\u00bfQu\u00e9 est\u00e1s buscando?'}</span>
+              <span>¿Qué estás buscando?</span>
             </Link>
           </div>
         </div>

@@ -1114,6 +1114,8 @@ export function AdminProductsPage() {
               const isManagingSizes = managingSizesProductId === product.id
               const sizeRows = productSizesMap[product.id] ?? []
               const activeSizeCount = sizeRows.filter((size) => size.is_available).length
+              const productImages = productImagesMap[product.id] ?? []
+              const primaryAdminImage = productImages[0] ?? null
               const customExistingSizeLabels = Array.from(
                 new Set(
                   sizeRows
@@ -1143,14 +1145,31 @@ export function AdminProductsPage() {
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 space-y-1">
-                        <p className="truncate text-base font-semibold tracking-[-0.03em] text-white">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white sm:h-16 sm:w-16">
+                          {primaryAdminImage ? (
+                            <img
+                              src={primaryAdminImage.url}
+                              alt={primaryAdminImage.alt || product.name}
+                              className="h-full w-full object-contain"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-black/20 text-white/34">
+                              <ImagePlus className="h-5 w-5" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="min-w-0 space-y-1">
+                        <p className="line-clamp-2 text-base font-semibold tracking-[-0.03em] text-white">
                           {product.name}
                         </p>
                         <div className="flex flex-wrap items-center gap-2 text-sm text-white/58">
                           <span>{formatCurrency(product.price)}</span>
                           <span>•</span>
                           <span className="truncate">{product.categoryName ?? 'Sin categoría'}</span>
+                        </div>
                         </div>
                       </div>
 
