@@ -406,22 +406,6 @@ export function AdminOrdersPage() {
     setActionError(null)
     setActionSuccess(null)
 
-    const deleteItemsResult = await supabase
-      .from('order_items')
-      .delete()
-      .eq('order_id', order.id)
-
-    if (deleteItemsResult.error) {
-      setBusyOrderId(null)
-      setActionError(
-        `No se pudo eliminar ${order.order_code}. ${formatCrudError(
-          deleteItemsResult.error.message,
-          deleteItemsResult.error.code,
-        )}`,
-      )
-      return
-    }
-
     const deleteOrderResult = await supabase.from('orders').delete().eq('id', order.id)
 
     setBusyOrderId(null)
