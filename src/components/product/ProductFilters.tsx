@@ -108,7 +108,7 @@ export function ProductFilters({
                       Filtrar por talle
                     </p>
                     <p className="text-sm leading-6 text-white/58">
-                      Selecciona uno o mas talles disponibles.
+                      Seleccioná uno o más talles disponibles.
                     </p>
                   </div>
                   <button
@@ -128,7 +128,7 @@ export function ProductFilters({
                         Talles
                       </p>
                       <p className="text-xs text-white/54">
-                        Podes elegir uno o mas de uno.
+                        Podés elegir uno o más de uno.
                       </p>
                     </div>
 
@@ -192,7 +192,7 @@ export function ProductFilters({
             <input
               value={searchValue}
               onChange={(event) => onSearchChange(event.target.value)}
-              placeholder="Buscar por nombre o descripcion"
+              placeholder="Buscar por nombre o descripción"
               className="h-12 w-full rounded-2xl border border-white/10 bg-[#101010] pl-11 pr-4 text-sm text-white placeholder:text-white/38 focus:border-brand-strong/55 focus:ring-4 focus:ring-brand-strong/10"
             />
           </label>
