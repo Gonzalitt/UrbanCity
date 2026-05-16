@@ -5,6 +5,7 @@ import { ProductVisual } from '@/components/product/ProductVisual'
 import { Button } from '@/components/ui/Button'
 import { buttonStyles } from '@/components/ui/buttonStyles'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { cn } from '@/lib/cn'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
 import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
@@ -152,13 +153,13 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
 
         <div className="space-y-3 p-2.5 sm:space-y-4 sm:p-4">
           <div className="flex items-start justify-between gap-2 sm:gap-3">
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <p className="text-[0.62rem] uppercase tracking-[0.16em] text-brand-strong/78 sm:text-xs sm:tracking-[0.22em]">
                 {product.category?.name ?? 'Catálogo'}
               </p>
               <Link
                 to={`/catalogo/${product.slug}`}
-                className="block line-clamp-2 text-[0.95rem] leading-5 font-semibold tracking-[-0.03em] text-white transition group-hover:text-brand-strong sm:text-xl"
+                className="block min-h-[3.75rem] line-clamp-3 text-[0.95rem] leading-5 font-semibold tracking-[-0.03em] text-white transition group-hover:text-brand-strong sm:min-h-[4.5rem] sm:text-xl sm:leading-6"
               >
                 {product.name}
               </Link>
@@ -172,10 +173,6 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
               {formatAvailabilityLabel(product.availability)}
             </StatusBadge>
           </div>
-
-          <p className="hidden min-h-12 text-sm leading-6 text-white/60 sm:block sm:line-clamp-2">
-            {product.description}
-          </p>
 
           <div className="space-y-2.5">
             <div>
@@ -198,18 +195,15 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
                 size="sm"
                 variant={isSoldOut ? 'outline' : 'secondary'}
                 disabled={isSoldOut}
-                className="w-full min-w-0 px-3 sm:w-full sm:px-3.5"
+                className={cn(
+                  'order-1 w-full min-w-0 px-3',
+                  !isSoldOut &&
+                    'sm:order-2 sm:w-auto sm:border sm:border-white/12 sm:bg-white/6 sm:text-white sm:shadow-none sm:hover:bg-white/10',
+                )}
                 onClick={handleQuickAction}
               >
                 <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate sm:hidden">
-                  {isSoldOut
-                    ? 'Sin stock'
-                    : hasSizes
-                      ? 'Elegir talle'
-                      : 'Agregar'}
-                </span>
-                <span className="hidden sm:inline">
+                <span className="truncate">
                   {isSoldOut
                     ? 'Sin stock'
                     : hasSizes
@@ -220,12 +214,14 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
 
               <Link
                 to={`/catalogo/${product.slug}`}
-                className={buttonStyles({
-                  variant: 'outline',
-                  size: 'sm',
-                  className:
-                    'h-10 w-full justify-center gap-1.5 px-3 text-sm text-white/76 sm:h-auto sm:w-auto sm:px-3.5',
-                })}
+                className={cn(
+                  buttonStyles({
+                    variant: 'outline',
+                    size: 'sm',
+                    className: 'order-2 w-full justify-center gap-1.5 px-3',
+                  }),
+                  'text-sm text-white/76 shadow-none sm:order-1 sm:border-transparent sm:bg-brand-strong sm:text-black sm:shadow-[0_14px_28px_rgba(182,255,0,0.2)] sm:hover:bg-[#d1ff52]',
+                )}
               >
                 <span className="sm:hidden">Ver</span>
                 <span className="hidden sm:inline">Ver detalle</span>
@@ -252,14 +248,16 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
 
       {showQuickAdd ? (
         <div
-          className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-[90] bg-black/78 backdrop-blur-md sm:backdrop-blur-lg"
           onClick={closeQuickAdd}
         >
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(182,255,0,0.10),transparent_32%)]" />
+
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby={`quick-add-title-${product.id}`}
-            className="absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#101010] p-4 text-white shadow-[0_-24px_80px_rgba(0,0,0,0.55)] sm:top-1/2 sm:left-1/2 sm:bottom-auto sm:w-[min(420px,calc(100vw-32px))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[30px] sm:p-5"
+            className="absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#101010]/98 p-4 text-white shadow-[0_-24px_80px_rgba(0,0,0,0.55)] sm:top-1/2 sm:left-1/2 sm:bottom-auto sm:w-[min(420px,calc(100vw-32px))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[30px] sm:p-5"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="space-y-4">

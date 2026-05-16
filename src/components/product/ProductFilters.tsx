@@ -178,15 +178,17 @@ export function ProductFilters({
 
       {showFilters ? (
         <div
-          className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] bg-black/78 backdrop-blur-md sm:backdrop-blur-lg"
           onClick={() => setShowFilters(false)}
         >
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(182,255,0,0.10),transparent_32%)]" />
+
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="catalog-filters-title"
             id="catalog-filters-panel"
-            className="absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#101010] p-4 text-white shadow-[0_-24px_80px_rgba(0,0,0,0.55)] sm:top-1/2 sm:left-1/2 sm:bottom-auto sm:w-[min(680px,calc(100vw-32px))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[32px] sm:p-6"
+            className="absolute inset-x-0 bottom-0 max-h-[84vh] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#101010]/98 p-4 text-white shadow-[0_-28px_90px_rgba(0,0,0,0.62)] sm:top-1/2 sm:left-1/2 sm:bottom-auto sm:w-[min(680px,calc(100vw-32px))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[32px] sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="space-y-4 sm:space-y-5">
