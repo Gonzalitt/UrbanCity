@@ -51,8 +51,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
   const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
   const primaryImageUrl = product.primaryImage?.url ?? null
   const hoverImageUrl =
-    product.images.find((image) => image.id !== product.primaryImage?.id)?.url ??
-    null
+    product.images.length > 1 ? product.images[1]?.url ?? null : null
   const hasSizes = product.sizes.length > 0
   const isSoldOut = product.availability === 'out_of_stock'
 
@@ -159,13 +158,13 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
                 src={hoverImageUrl}
                 alt=""
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-10 hidden h-full w-full rounded-[18px] bg-white object-contain opacity-0 transition-opacity duration-300 sm:block sm:rounded-[24px] sm:group-hover:opacity-100"
+                className="pointer-events-none absolute inset-0 z-10 hidden h-full w-full rounded-[18px] bg-white object-contain opacity-0 transition-opacity duration-300 md:block md:group-hover:opacity-100 sm:rounded-[24px]"
                 loading="lazy"
               />
             ) : null}
           </div>
           {discountPercent ? (
-            <span className="absolute top-2.5 left-2.5 inline-flex items-center rounded-full bg-brand-strong px-2 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-black sm:top-4 sm:left-4 sm:px-3 sm:text-[0.68rem] sm:tracking-[0.18em]">
+            <span className="absolute top-2.5 left-2.5 z-20 inline-flex items-center rounded-full bg-brand-strong px-2 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-black sm:top-4 sm:left-4 sm:px-3 sm:text-[0.68rem] sm:tracking-[0.18em]">
               {discountPercent}% OFF
             </span>
           ) : null}

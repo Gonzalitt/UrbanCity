@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, Minus, Plus, ShoppingBag } from 'lucide-react'
+import {
+  ArrowLeft,
+  ChevronDown,
+  Minus,
+  Plus,
+  ShoppingBag,
+} from 'lucide-react'
+import goCuotasLogo from '@/assets/GoCuotas_icon.png'
 import { Link, useParams } from 'react-router-dom'
 import { ProductCard } from '@/components/product/ProductCard'
 import { ProductVisual } from '@/components/product/ProductVisual'
@@ -9,6 +16,7 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
+import { cn } from '@/lib/cn'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
 import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
@@ -41,6 +49,7 @@ function ProductDetailContent({
   const [sizeError, setSizeError] = useState<string | null>(null)
   const [cartFeedback, setCartFeedback] = useState<string | null>(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [paymentsOpen, setPaymentsOpen] = useState(false)
 
   const isSoldOut = product.availability === 'out_of_stock'
   const discountPercent = getDiscountPercent(
@@ -58,6 +67,7 @@ function ProductDetailContent({
   const safeSelectedImageIndex =
     selectedImageIndex < productImages.length ? selectedImageIndex : 0
   const selectedImage = productImages[safeSelectedImageIndex] ?? null
+  const hasDesktopImageRail = productImages.length > 1
 
   useEffect(() => {
     if (!cartFeedback) {
@@ -86,6 +96,34 @@ function ProductDetailContent({
     )
   }
 
+  function renderThumbnail(image: ProductImageRow, index: number, desktop = false) {
+    const isSelected = index === safeSelectedImageIndex
+
+    return (
+      <button
+        key={image.id}
+        type="button"
+        className={cn(
+          'shrink-0 overflow-hidden border transition',
+          desktop
+            ? 'h-16 w-16 rounded-[18px] xl:h-20 xl:w-20'
+            : 'h-[58px] w-[58px] rounded-[18px] sm:h-[72px] sm:w-[72px]',
+          isSelected
+            ? 'border-brand-strong bg-brand-strong/10 shadow-[0_0_0_1px_rgba(182,255,0,0.25)]'
+            : 'border-white/10 bg-white/6 hover:border-white/22',
+        )}
+        onClick={() => setSelectedImageIndex(index)}
+        aria-label={`Ver foto ${index + 1} de producto`}
+      >
+        <img
+          src={image.url}
+          alt={image.alt ?? `${product.name} foto ${index + 1}`}
+          className="h-full w-full bg-white object-contain"
+        />
+      </button>
+    )
+  }
+
   return (
     <div className="space-y-6 pb-24 sm:space-y-8 sm:pb-0">
       <Link
@@ -96,8 +134,21 @@ function ProductDetailContent({
         Volver al catálogo
       </Link>
 
-      <section className="surface-panel overflow-hidden">
-        <div className="grid gap-4 p-3.5 sm:gap-5 sm:p-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(480px,0.95fr)] lg:p-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(520px,0.92fr)] xl:p-10 2xl:grid-cols-[minmax(0,1.1fr)_minmax(560px,0.9fr)]">
+      <section className="surface-panel overflow-hidden p-3.5 sm:p-6 lg:p-8 xl:p-10">
+        <div
+          className={cn(
+            'grid gap-5 sm:gap-6 lg:items-start',
+            hasDesktopImageRail
+              ? 'lg:grid-cols-[84px_minmax(520px,1fr)_minmax(430px,520px)] xl:grid-cols-[96px_minmax(640px,1fr)_minmax(460px,560px)] 2xl:grid-cols-[104px_minmax(760px,1fr)_minmax(500px,600px)]'
+              : 'lg:grid-cols-[minmax(0,1fr)_minmax(430px,520px)] xl:grid-cols-[minmax(0,1fr)_minmax(460px,560px)] 2xl:grid-cols-[minmax(0,1fr)_minmax(500px,600px)]',
+          )}
+        >
+          {hasDesktopImageRail ? (
+            <aside className="hidden lg:sticky lg:top-32 lg:flex lg:flex-col lg:gap-3">
+              {productImages.map((image, index) => renderThumbnail(image, index, true))}
+            </aside>
+          ) : null}
+
           <div className="space-y-3">
             <ProductVisual
               seed={product.slug}
@@ -105,48 +156,26 @@ function ProductDetailContent({
               categoryName={product.category?.name}
               imageUrl={selectedImage?.url}
               imageFit="contain"
-              className="h-[220px] rounded-[22px] border border-white/8 bg-white sm:h-auto sm:aspect-[1/1.02] sm:min-h-[420px] lg:min-h-[520px] xl:min-h-[580px]"
+              className="h-[260px] rounded-[24px] border border-white/8 bg-white sm:h-[420px] lg:h-[calc(100vh-230px)] lg:min-h-[560px] lg:max-h-[760px] xl:min-h-[640px] 2xl:min-h-[700px]"
             />
 
             {productImages.length > 1 ? (
-              <div className="flex gap-2.5 overflow-x-auto pb-1">
-                {productImages.map((image, index) => {
-                  const isSelected = index === safeSelectedImageIndex
-
-                  return (
-                    <button
-                      key={image.id}
-                      type="button"
-                      className={`h-[58px] w-[58px] shrink-0 overflow-hidden rounded-[18px] border transition sm:h-[72px] sm:w-[72px] ${
-                        isSelected
-                          ? 'border-brand-strong bg-brand-strong/10 shadow-[0_0_0_1px_rgba(182,255,0,0.25)]'
-                          : 'border-white/10 bg-white/6 hover:border-white/22'
-                      }`}
-                      onClick={() => setSelectedImageIndex(index)}
-                      aria-label={`Ver foto ${index + 1} de producto`}
-                    >
-                      <img
-                        src={image.url}
-                        alt={image.alt ?? `${product.name} foto ${index + 1}`}
-                        className="h-full w-full bg-white object-contain"
-                      />
-                    </button>
-                  )
-                })}
+              <div className="flex gap-2.5 overflow-x-auto pb-1 lg:hidden">
+                {productImages.map((image, index) => renderThumbnail(image, index))}
               </div>
             ) : null}
           </div>
 
-          <div className="space-y-4 lg:self-start lg:space-y-4 xl:space-y-5">
+          <div className="space-y-4 lg:sticky lg:top-32 lg:self-start xl:space-y-5">
             <div className="space-y-3">
               <p className="eyebrow">{product.category?.name ?? 'Catálogo'}</p>
 
-              <div className="space-y-3">
-                <h1 className="text-2xl font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl lg:text-[2.8rem] xl:text-5xl">
+              <div className="space-y-2.5">
+                <h1 className="text-3xl font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl xl:text-[2.7rem] 2xl:text-5xl">
                   {product.name}
                 </h1>
                 {product.description ? (
-                  <p className="max-w-[52ch] text-sm leading-6 text-white/72 sm:text-base sm:leading-7">
+                  <p className="max-w-[52ch] text-sm leading-6 text-white/70 sm:text-base sm:leading-7">
                     {product.description}
                   </p>
                 ) : null}
@@ -167,9 +196,9 @@ function ProductDetailContent({
               </div>
             </div>
 
-            <div className="space-y-3 border-b border-white/10 pb-4">
+            <div className="space-y-3 border-y border-white/10 py-4">
               {product.installment_price ? (
-                <div className="grid gap-3 sm:grid-cols-[minmax(0,0.8fr)_minmax(220px,1fr)] sm:items-start">
+                <div className="grid grid-cols-[minmax(0,0.7fr)_minmax(180px,1fr)] items-start gap-4">
                   <div>
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/42">
                       Precio lista
@@ -179,33 +208,48 @@ function ProductDetailContent({
                     </p>
                   </div>
 
-                  {installmentPerQuota ? (
-                    <div className="sm:text-right">
-                      <p className="text-sm font-semibold leading-5 text-brand-strong">
-                      3 cuotas sin interés de {formatCurrency(installmentPerQuota)}
-                      </p>
-                    </div>
-                  ) : null}
+                  <div className="text-right">
+                    {installmentPerQuota ? (
+                      <>
+                        <p className="text-sm font-semibold leading-5 text-brand-strong">
+                          3 cuotas sin interés de {formatCurrency(installmentPerQuota)}
+                        </p>
+                        <div className="mt-2 inline-flex items-center justify-end gap-2">
+                          <img
+                            src={goCuotasLogo}
+                            alt="Go Cuotas"
+                            className="h-5 w-auto object-contain"
+                            loading="lazy"
+                          />
+                          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white/78">
+                            SIN interés con DÉBITO
+                          </span>
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
                 </div>
               ) : null}
 
-              <div className="space-y-1.5">
-                <p className="text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl lg:text-[3.3rem]">
+              <div className="space-y-1">
+                <p className="text-4xl font-semibold tracking-[-0.04em] text-white xl:text-5xl">
                   {formatCurrency(product.price)}
                 </p>
-                <p className="text-sm font-medium text-brand-strong sm:text-base">
+                <p className="text-sm font-semibold text-brand-strong">
                   con transferencia o contado
                 </p>
               </div>
             </div>
 
             {product.sizes.length > 0 ? (
-              <div className="space-y-2.5 rounded-[24px] border border-white/12 bg-white/6 p-3 sm:p-3.5">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-white">Elegí talle</p>
-                  <p className="text-xs leading-5 text-white/58 sm:text-sm">
-                    Seleccioná un talle disponible.
+              <div className="space-y-2 border-b border-white/10 pb-4">
+                <div className="flex items-center gap-4">
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white/45">
+                    Talle
                   </p>
+                  {selectedSizeLabel ? (
+                    <p className="text-sm font-medium text-white">{selectedSizeLabel}</p>
+                  ) : null}
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -216,11 +260,12 @@ function ProductDetailContent({
                       <button
                         key={size.id}
                         type="button"
-                        className={`inline-flex min-w-[52px] items-center justify-center rounded-full border px-3 py-2 text-sm font-medium transition ${
+                        className={cn(
+                          'inline-flex h-10 min-w-[42px] items-center justify-center rounded-xl border px-3 text-sm font-medium transition',
                           isSelected
                             ? 'border-brand-strong bg-brand-strong text-black'
-                            : 'border-white/12 bg-black/20 text-white/78 hover:border-white/24 hover:bg-white/8'
-                        }`}
+                            : 'border-white/14 bg-black/20 text-white/78 hover:border-white/24 hover:bg-white/8',
+                        )}
                         onClick={() => {
                           setSelectedSizeLabel(size.size_label)
                           setSizeError(null)
@@ -238,7 +283,7 @@ function ProductDetailContent({
               </div>
             ) : null}
 
-            <div className="grid gap-3 sm:grid-cols-[140px_1fr] sm:items-center">
+            <div className="grid gap-3 sm:grid-cols-[128px_1fr]">
               <div className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-2">
                 <button
                   type="button"
@@ -265,7 +310,7 @@ function ProductDetailContent({
                 type="button"
                 size="lg"
                 variant={isSoldOut ? 'outline' : 'secondary'}
-                className="h-12 w-full justify-center sm:h-14"
+                className="h-14 w-full justify-center"
                 disabled={isSoldOut}
                 onClick={handleAddToCart}
               >
@@ -283,15 +328,33 @@ function ProductDetailContent({
               </div>
             ) : null}
 
-            <div className="space-y-2.5 rounded-[24px] border border-white/12 bg-white/6 p-3.5 sm:p-4">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/42">
-                Medios de pago
-              </p>
-              <div className="space-y-2 text-sm leading-6 text-white/72">
-                {installmentPerQuota ? <p>3 cuotas sin interés disponibles.</p> : null}
-                <p>Go Cuotas y CrediApp disponibles.</p>
-                <p>20% OFF abonando contado o transferencia.</p>
-              </div>
+            <div className="border-t border-white/10 pt-4">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between gap-3 text-left"
+                onClick={() => setPaymentsOpen((current) => !current)}
+                aria-expanded={paymentsOpen}
+                aria-controls="product-payments-panel"
+              >
+                <span className="text-sm font-semibold text-white">Medios de pago</span>
+                <ChevronDown
+                  className={cn(
+                    'h-4 w-4 text-white/62 transition',
+                    paymentsOpen && 'rotate-180',
+                  )}
+                />
+              </button>
+
+              {paymentsOpen ? (
+                <div
+                  id="product-payments-panel"
+                  className="mt-3 space-y-2 text-sm leading-6 text-white/72"
+                >
+                  <p>Tarjetas de crédito 3 cuotas sin interés disponibles.</p>
+                  <p>Go Cuotas SIN interés con DÉBITO y CrediApp disponibles.</p>
+                  <p>20% OFF abonando contado o transferencia.</p>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -328,11 +391,11 @@ function ProductDetailContent({
 
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/42">
-                Precio contado
-              </p>
               <p className="truncate text-base font-semibold text-white">
                 {formatCurrency(product.price)}
+              </p>
+              <p className="text-xs font-medium text-brand-strong">
+                con transferencia o contado
               </p>
               {selectedSizeLabel ? (
                 <p className="text-xs text-white/52">Talle {selectedSizeLabel}</p>
