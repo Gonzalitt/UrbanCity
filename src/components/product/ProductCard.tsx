@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { buttonStyles } from '@/components/ui/buttonStyles'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { cn } from '@/lib/cn'
+import { dispatchCartAddedEvent } from '@/lib/cartEvents'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
 import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
@@ -49,6 +50,9 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
     product.compare_at_price,
   )
   const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
+  const primaryImageUrl = product.primaryImage?.url ?? null
+  const hoverImageUrl =
+    product.images.length > 1 ? product.images[1]?.url ?? null : null
   const hasSizes = product.sizes.length > 0
   const isSoldOut = product.availability === 'out_of_stock'
 
@@ -105,6 +109,13 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
 
   function handleDirectAdd() {
     addItem(product, 1, null)
+    dispatchCartAddedEvent({
+      name: product.name,
+      price: product.installment_price ?? product.price,
+      imageUrl: product.primaryImage?.url ?? product.images[0]?.url ?? null,
+      sizeLabel: null,
+      quantity: 1,
+    })
     setCartFeedback('Agregado al carrito')
   }
 
@@ -128,6 +139,13 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
     }
 
     addItem(product, 1, selectedSizeLabel)
+    dispatchCartAddedEvent({
+      name: product.name,
+      price: product.installment_price ?? product.price,
+      imageUrl: product.primaryImage?.url ?? product.images[0]?.url ?? null,
+      sizeLabel: selectedSizeLabel,
+      quantity: 1,
+    })
     closeQuickAdd()
     setSelectedSizeLabel(null)
     setCartFeedback(`Agregado al carrito · Talle ${selectedSizeLabel}`)
@@ -136,16 +154,32 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
   return (
     <>
       <article className="group overflow-hidden rounded-[22px] border border-white/10 bg-[#111111] p-1.5 transition duration-300 hover:-translate-y-1 hover:border-brand-strong/35 hover:shadow-[0_24px_44px_rgba(0,0,0,0.34)] sm:rounded-[30px] sm:p-2.5">
-        <Link to={`/catalogo/${product.slug}`} className="relative block">
-          <ProductVisual
-            seed={product.slug}
-            name={product.name}
-            categoryName={product.category?.name}
-            imageUrl={product.primaryImage?.url}
-            className="aspect-square rounded-[18px] border border-white/8 bg-[#0d0d0d] sm:aspect-[4/4.5] sm:rounded-[24px]"
-          />
+        <Link
+          to={`/catalogo/${product.slug}`}
+          className="relative block overflow-hidden rounded-[18px] sm:rounded-[24px]"
+        >
+          <div className="relative overflow-hidden rounded-[18px] sm:rounded-[24px]">
+            <ProductVisual
+              seed={product.slug}
+              name={product.name}
+              categoryName={product.category?.name}
+              imageUrl={primaryImageUrl}
+              imageFit="contain"
+              className="aspect-square rounded-[18px] border border-white/8 bg-white sm:aspect-[4/4.5] sm:rounded-[24px]"
+            />
+
+            {hoverImageUrl ? (
+              <img
+                src={hoverImageUrl}
+                alt=""
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-10 hidden h-full w-full rounded-[18px] bg-white object-contain opacity-0 transition-opacity duration-300 md:block md:group-hover:opacity-100 sm:rounded-[24px]"
+                loading="lazy"
+              />
+            ) : null}
+          </div>
           {discountPercent ? (
-            <span className="absolute top-2.5 left-2.5 inline-flex items-center rounded-full bg-brand-strong px-2 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-black sm:top-4 sm:left-4 sm:px-3 sm:text-[0.68rem] sm:tracking-[0.18em]">
+            <span className="absolute top-2.5 left-2.5 z-20 inline-flex items-center rounded-full bg-brand-strong px-2 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-black sm:top-4 sm:left-4 sm:px-3 sm:text-[0.68rem] sm:tracking-[0.18em]">
               {discountPercent}% OFF
             </span>
           ) : null}
@@ -231,7 +265,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
             </div>
 
             {cartFeedback ? (
-              <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-200">
+              <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-200 md:hidden">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p>{cartFeedback}</p>
                   <Link
