@@ -433,15 +433,15 @@ function ProductDetailContent({
       ) : null}
 
       {sizePickerOpen ? (
-        <div className="fixed inset-0 z-[90] sm:hidden">
+        <div className="fixed inset-0 z-[100] h-[100dvh] overflow-hidden sm:hidden">
           <button
             type="button"
             aria-label="Cerrar selección de talle"
-            className="absolute inset-0 bg-black/72 backdrop-blur-sm"
+            className="absolute inset-0 h-full w-full bg-black/74 backdrop-blur-md"
             onClick={() => setSizePickerOpen(false)}
           />
 
-          <div className="absolute inset-x-0 bottom-0 rounded-t-[28px] border border-white/10 bg-[#101010] p-5 shadow-[0_-24px_80px_rgba(0,0,0,0.55)]">
+          <div className="absolute inset-x-0 bottom-0 max-h-[calc(100dvh-3rem)] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#101010] p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] shadow-[0_-24px_80px_rgba(0,0,0,0.55)]">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <p className="text-lg font-semibold text-white">Elegí tu talle</p>
@@ -513,61 +513,63 @@ function ProductDetailContent({
         </div>
       ) : null}
 
-      <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/10 bg-[#050505]/92 px-4 py-3 backdrop-blur sm:hidden">
-        <div className="mx-auto max-w-screen-sm space-y-3">
-          {cartFeedback ? (
-            <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-              <div className="flex items-center justify-between gap-3">
-                <p>{cartFeedback}</p>
-                <Link
-                  to="/carrito"
-                  className="shrink-0 font-medium text-brand-strong"
-                >
-                  Ver carrito
-                </Link>
+      {!sizePickerOpen ? (
+        <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/10 bg-[#050505]/92 px-4 py-3 backdrop-blur sm:hidden">
+          <div className="mx-auto max-w-screen-sm space-y-3">
+            {cartFeedback ? (
+              <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+                <div className="flex items-center justify-between gap-3">
+                  <p>{cartFeedback}</p>
+                  <Link
+                    to="/carrito"
+                    className="shrink-0 font-medium text-brand-strong"
+                  >
+                    Ver carrito
+                  </Link>
+                </div>
               </div>
-            </div>
-          ) : null}
+            ) : null}
 
-          <div className="flex items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-base font-semibold text-white">
-                {formatCurrency(product.price)}
-              </p>
-              <p className="text-xs font-medium text-brand-strong">
-                con transferencia o contado
-              </p>
-              {selectedSizeLabel ? (
-                <p className="text-xs text-white/52">Talle {selectedSizeLabel}</p>
-              ) : product.sizes.length > 0 ? (
-                <p className="text-xs text-white/52">Elegí talle</p>
-              ) : null}
-            </div>
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-base font-semibold text-white">
+                  {formatCurrency(product.price)}
+                </p>
+                <p className="text-xs font-medium text-brand-strong">
+                  con transferencia o contado
+                </p>
+                {selectedSizeLabel ? (
+                  <p className="text-xs text-white/52">Talle {selectedSizeLabel}</p>
+                ) : product.sizes.length > 0 ? (
+                  <p className="text-xs text-white/52">Elegí talle</p>
+                ) : null}
+              </div>
 
-            <Button
-              type="button"
-              variant={isSoldOut ? 'outline' : 'secondary'}
-              disabled={isSoldOut}
-              onClick={() =>
-                handleAddToCart({ openSizePickerOnMissingSize: true })
-              }
-              className="h-12 shrink-0 px-4 text-sm"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              {isSoldOut ? (
-                'Sin stock'
-              ) : (
-                <>
-                  <span className="hidden min-[380px]:inline">
-                    Agregar al carrito
-                  </span>
-                  <span className="min-[380px]:hidden">Agregar</span>
-                </>
-              )}
-            </Button>
+              <Button
+                type="button"
+                variant={isSoldOut ? 'outline' : 'secondary'}
+                disabled={isSoldOut}
+                onClick={() =>
+                  handleAddToCart({ openSizePickerOnMissingSize: true })
+                }
+                className="h-12 shrink-0 px-4 text-sm"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {isSoldOut ? (
+                  'Sin stock'
+                ) : (
+                  <>
+                    <span className="hidden min-[380px]:inline">
+                      Agregar al carrito
+                    </span>
+                    <span className="min-[380px]:hidden">Agregar</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
     </div>
   )
 }
