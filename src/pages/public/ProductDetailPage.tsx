@@ -5,9 +5,10 @@ import {
   Minus,
   Plus,
   ShoppingBag,
+  X,
 } from 'lucide-react'
-import goCuotasLogo from '@/assets/GoCuotas_icon.png'
 import { Link, useParams } from 'react-router-dom'
+import goCuotasLogo from '@/assets/GoCuotas_icon.png'
 import { ProductCard } from '@/components/product/ProductCard'
 import { ProductVisual } from '@/components/product/ProductVisual'
 import { Button } from '@/components/ui/Button'
@@ -16,8 +17,8 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
-import { cn } from '@/lib/cn'
 import { dispatchCartAddedEvent } from '@/lib/cartEvents'
+import { cn } from '@/lib/cn'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
 import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
@@ -51,6 +52,7 @@ function ProductDetailContent({
   const [cartFeedback, setCartFeedback] = useState<string | null>(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [paymentsOpen, setPaymentsOpen] = useState(false)
+  const [sizePickerOpen, setSizePickerOpen] = useState(false)
 
   const isSoldOut = product.availability === 'out_of_stock'
   const discountPercent = getDiscountPercent(
@@ -92,29 +94,59 @@ function ProductDetailContent({
     return () => window.clearTimeout(timeoutId)
   }, [cartFeedback])
 
-  function handleAddToCart() {
-    if (product.sizes.length > 0 && !selectedSizeLabel) {
+  function addCurrentSelectionToCart(
+    sizeLabel: string | null = selectedSizeLabel,
+  ) {
+    if (product.sizes.length > 0 && !sizeLabel) {
       setSizeError('Seleccioná un talle para continuar.')
-      return
+      return false
     }
 
     setSizeError(null)
-    addItem(product, quantity, selectedSizeLabel)
+    addItem(product, quantity, sizeLabel)
     dispatchCartAddedEvent({
       name: product.name,
       price: product.installment_price ?? product.price,
       imageUrl: product.primaryImage?.url ?? product.images[0]?.url ?? null,
-      sizeLabel: selectedSizeLabel,
+      sizeLabel,
       quantity,
     })
     setCartFeedback(
-      selectedSizeLabel
-        ? `Agregado al carrito · Talle ${selectedSizeLabel}`
+      sizeLabel
+        ? `Agregado al carrito · Talle ${sizeLabel}`
         : 'Agregado al carrito',
     )
+
+    return true
   }
 
-  function renderThumbnail(image: ProductImageRow, index: number, desktop = false) {
+  function handleAddToCart(options?: { openSizePickerOnMissingSize?: boolean }) {
+    if (product.sizes.length > 0 && !selectedSizeLabel) {
+      setSizeError('Seleccioná un talle para continuar.')
+
+      if (options?.openSizePickerOnMissingSize) {
+        setSizePickerOpen(true)
+      }
+
+      return
+    }
+
+    addCurrentSelectionToCart()
+  }
+
+  function handleAddToCartFromSizePicker() {
+    const added = addCurrentSelectionToCart(selectedSizeLabel)
+
+    if (added) {
+      setSizePickerOpen(false)
+    }
+  }
+
+  function renderThumbnail(
+    image: ProductImageRow,
+    index: number,
+    desktop = false,
+  ) {
     const isSelected = index === safeSelectedImageIndex
 
     return (
@@ -163,7 +195,9 @@ function ProductDetailContent({
         >
           {hasDesktopImageRail ? (
             <aside className="hidden lg:flex lg:flex-col lg:items-center lg:gap-3 lg:self-start">
-              {productImages.map((image, index) => renderThumbnail(image, index, true))}
+              {productImages.map((image, index) =>
+                renderThumbnail(image, index, true),
+              )}
             </aside>
           ) : null}
 
@@ -181,7 +215,9 @@ function ProductDetailContent({
 
             {productImages.length > 1 ? (
               <div className="flex gap-2.5 overflow-x-auto pb-1 lg:hidden">
-                {productImages.map((image, index) => renderThumbnail(image, index))}
+                {productImages.map((image, index) =>
+                  renderThumbnail(image, index),
+                )}
               </div>
             ) : null}
           </div>
@@ -232,7 +268,8 @@ function ProductDetailContent({
                     {installmentPerQuota ? (
                       <div className="sm:text-right">
                         <p className="text-sm font-semibold leading-5 text-brand-strong">
-                          3 cuotas sin interés de {formatCurrency(installmentPerQuota)}
+                          3 cuotas sin interés de{' '}
+                          {formatCurrency(installmentPerQuota)}
                         </p>
                         <div className="mt-2 flex items-center gap-2 sm:inline-flex sm:justify-end">
                           <img
@@ -309,7 +346,9 @@ function ProductDetailContent({
                   <button
                     type="button"
                     className="flex h-10 w-10 items-center justify-center rounded-full text-white/76 hover:bg-white/10"
-                    onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                    onClick={() =>
+                      setQuantity((current) => Math.max(1, current - 1))
+                    }
                     aria-label="Restar cantidad"
                   >
                     <Minus className="h-4 w-4" />
@@ -320,7 +359,9 @@ function ProductDetailContent({
                   <button
                     type="button"
                     className="flex h-10 w-10 items-center justify-center rounded-full text-white/76 hover:bg-white/10"
-                    onClick={() => setQuantity((current) => Math.min(99, current + 1))}
+                    onClick={() =>
+                      setQuantity((current) => Math.min(99, current + 1))
+                    }
                     aria-label="Sumar cantidad"
                   >
                     <Plus className="h-4 w-4" />
@@ -333,7 +374,7 @@ function ProductDetailContent({
                   variant={isSoldOut ? 'outline' : 'secondary'}
                   className="h-14 w-full justify-center"
                   disabled={isSoldOut}
-                  onClick={handleAddToCart}
+                  onClick={() => handleAddToCart()}
                 >
                   <ShoppingBag className="h-4 w-4" />
                   {isSoldOut ? 'Sin stock' : 'Agregar al carrito'}
@@ -348,7 +389,9 @@ function ProductDetailContent({
                   aria-expanded={paymentsOpen}
                   aria-controls="product-payments-panel"
                 >
-                  <span className="text-sm font-semibold text-white">Medios de pago</span>
+                  <span className="text-sm font-semibold text-white">
+                    Medios de pago
+                  </span>
                   <ChevronDown
                     className={cn(
                       'h-4 w-4 text-white/62 transition',
@@ -389,13 +432,97 @@ function ProductDetailContent({
         </section>
       ) : null}
 
+      {sizePickerOpen ? (
+        <div className="fixed inset-0 z-[90] sm:hidden">
+          <button
+            type="button"
+            aria-label="Cerrar selección de talle"
+            className="absolute inset-0 bg-black/72 backdrop-blur-sm"
+            onClick={() => setSizePickerOpen(false)}
+          />
+
+          <div className="absolute inset-x-0 bottom-0 rounded-t-[28px] border border-white/10 bg-[#101010] p-5 shadow-[0_-24px_80px_rgba(0,0,0,0.55)]">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <p className="text-lg font-semibold text-white">Elegí tu talle</p>
+                <p className="text-sm leading-6 text-white/60">
+                  Seleccioná un talle disponible para agregar al carrito.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Cerrar selector de talle"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/6 text-white/72"
+                onClick={() => setSizePickerOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-1">
+              <p className="text-sm font-semibold text-white">{product.name}</p>
+              <p className="text-sm text-brand-strong">
+                {formatCurrency(product.price)} · con transferencia o contado
+              </p>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <div className="grid grid-cols-4 gap-2">
+                {product.sizes.map((size) => {
+                  const isSelected = selectedSizeLabel === size.size_label
+
+                  return (
+                    <button
+                      key={`mobile-size-${size.id}`}
+                      type="button"
+                      className={cn(
+                        'inline-flex h-11 min-w-0 items-center justify-center rounded-xl border px-3 text-sm font-medium transition',
+                        isSelected
+                          ? 'border-brand-strong bg-brand-strong text-black'
+                          : 'border-white/14 bg-black/20 text-white/78 hover:border-white/24 hover:bg-white/8',
+                      )}
+                      onClick={() => {
+                        setSelectedSizeLabel(size.size_label)
+                        setSizeError(null)
+                      }}
+                    >
+                      {size.size_label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {sizeError ? (
+                <p className="text-sm text-rose-200">{sizeError}</p>
+              ) : null}
+
+              <Button
+                type="button"
+                size="lg"
+                variant={isSoldOut ? 'outline' : 'secondary'}
+                className="h-12 w-full justify-center"
+                disabled={isSoldOut}
+                onClick={handleAddToCartFromSizePicker}
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {isSoldOut ? 'Sin stock' : 'Agregar al carrito'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/10 bg-[#050505]/92 px-4 py-3 backdrop-blur sm:hidden">
         <div className="mx-auto max-w-screen-sm space-y-3">
           {cartFeedback ? (
             <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
               <div className="flex items-center justify-between gap-3">
                 <p>{cartFeedback}</p>
-                <Link to="/carrito" className="shrink-0 font-medium text-brand-strong">
+                <Link
+                  to="/carrito"
+                  className="shrink-0 font-medium text-brand-strong"
+                >
                   Ver carrito
                 </Link>
               </div>
@@ -421,7 +548,9 @@ function ProductDetailContent({
               type="button"
               variant={isSoldOut ? 'outline' : 'secondary'}
               disabled={isSoldOut}
-              onClick={handleAddToCart}
+              onClick={() =>
+                handleAddToCart({ openSizePickerOnMissingSize: true })
+              }
               className="h-12 shrink-0 px-4 text-sm"
             >
               <ShoppingBag className="h-4 w-4" />
@@ -429,7 +558,9 @@ function ProductDetailContent({
                 'Sin stock'
               ) : (
                 <>
-                  <span className="hidden min-[380px]:inline">Agregar al carrito</span>
+                  <span className="hidden min-[380px]:inline">
+                    Agregar al carrito
+                  </span>
                   <span className="min-[380px]:hidden">Agregar</span>
                 </>
               )}
