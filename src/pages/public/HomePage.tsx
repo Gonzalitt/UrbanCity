@@ -160,12 +160,6 @@ export function HomePage() {
   const instagramUrl =
     storeSettings.instagram_url?.trim() ||
     'https://www.instagram.com/citycalzadourbano/'
-  const primaryInstagramItem = instagramShowcaseItems[0]
-  const secondaryInstagramItems = instagramShowcaseItems.slice(1)
-  const secondaryInstagramColumns = [
-    secondaryInstagramItems.slice(0, 2),
-    secondaryInstagramItems.slice(2, 4),
-  ]
   const slideCount = heroSlides.length
 
   useEffect(() => {
@@ -453,12 +447,12 @@ export function HomePage() {
                   href={instagramUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="group relative h-[220px] w-[68vw] max-w-[250px] shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#111111]"
+                  className="group relative h-[200px] w-[66vw] max-w-[240px] shrink-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111111]"
                 >
                   <img
                     src={item.image}
                     alt={item.alt}
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                    className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.02]"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.06),rgba(5,5,5,0.42)_54%,rgba(5,5,5,0.82)_100%)]" />
                   <div className="absolute inset-x-0 top-0 p-4">
@@ -471,57 +465,29 @@ export function HomePage() {
             </div>
           </div>
 
-          {primaryInstagramItem ? (
-            <div className="mt-6 hidden h-[300px] gap-3 lg:grid lg:grid-cols-[1.1fr_0.9fr_0.9fr] xl:h-[320px]">
+          <div className="mt-6 hidden grid-cols-5 gap-3 lg:grid">
+            {instagramShowcaseItems.map((item, index) => (
               <a
+                key={`${item.alt}-${index}`}
                 href={instagramUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="group relative min-w-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111111]"
+                className="group relative h-[220px] min-w-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111111] xl:h-[240px] 2xl:h-[260px]"
               >
                 <img
-                  src={primaryInstagramItem.image}
-                  alt={primaryInstagramItem.alt}
-                  className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                  src={item.image}
+                  alt={item.alt}
+                  className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.02]"
                 />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.04),rgba(5,5,5,0.3)_48%,rgba(5,5,5,0.76)_100%)]" />
-                <div className="absolute inset-x-0 top-0 p-5">
-                  <span className="inline-flex rounded-full border border-white/12 bg-black/36 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-white">
-                    {primaryInstagramItem.label}
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.04),rgba(5,5,5,0.28)_48%,rgba(5,5,5,0.72)_100%)]" />
+                <div className="absolute inset-x-0 top-0 p-4">
+                  <span className="inline-flex rounded-full border border-white/12 bg-black/36 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-white">
+                    {item.label}
                   </span>
                 </div>
               </a>
-
-              {secondaryInstagramColumns.map((column, columnIndex) => (
-                <div
-                  key={`instagram-column-${columnIndex}`}
-                  className="grid min-w-0 grid-rows-2 gap-3"
-                >
-                  {column.map((item, index) => (
-                    <a
-                      key={`${item.alt}-${columnIndex}-${index}`}
-                      href={instagramUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group relative min-w-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111111]"
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.alt}
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-                      />
-                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.06),rgba(5,5,5,0.42)_52%,rgba(5,5,5,0.82)_100%)]" />
-                      <div className="absolute inset-x-0 top-0 p-4">
-                        <span className="inline-flex rounded-full border border-white/12 bg-black/36 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-white">
-                          {item.label}
-                        </span>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              ))}
-            </div>
-          ) : null}
+            ))}
+          </div>
         </div>
       </section>
     </div>
