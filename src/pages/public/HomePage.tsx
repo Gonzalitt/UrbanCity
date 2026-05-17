@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import crediAppLogo from '@/assets/CrediApp_icon.png'
+import cuotasSinInteresImage from '@/assets/CuotasSinInteres.webp'
 import estanteriaImage from '@/assets/Estanteria.webp'
 import goCuotasLogo from '@/assets/GoCuotas_icon.png'
 import localExteriorImage from '@/assets/LocalExterior1.webp'
@@ -107,6 +108,16 @@ const instagramShowcaseItems = [
     image: promoContadoImage,
     alt: 'Promoción de pago contado en City Calzado Urbano',
   },
+  {
+    label: '3 cuotas sin interés',
+    image: cuotasSinInteresImage,
+    alt: 'Promoción de 3 cuotas sin interés',
+  },
+  {
+    label: 'Nuevos pares',
+    image: zapatillas1Image,
+    alt: 'Nuevos pares de zapatillas urbanas en City Calzado Urbano',
+  },
 ]
 
 export function HomePage() {
@@ -151,6 +162,10 @@ export function HomePage() {
     'https://www.instagram.com/citycalzadourbano/'
   const primaryInstagramItem = instagramShowcaseItems[0]
   const secondaryInstagramItems = instagramShowcaseItems.slice(1)
+  const secondaryInstagramColumns = [
+    secondaryInstagramItems.slice(0, 2),
+    secondaryInstagramItems.slice(2, 4),
+  ]
   const slideCount = heroSlides.length
 
   useEffect(() => {
@@ -438,7 +453,7 @@ export function HomePage() {
                   href={instagramUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="group relative h-[260px] w-[74vw] max-w-[300px] shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#111111]"
+                  className="group relative h-[220px] w-[68vw] max-w-[250px] shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#111111]"
                 >
                   <img
                     src={item.image}
@@ -457,12 +472,12 @@ export function HomePage() {
           </div>
 
           {primaryInstagramItem ? (
-            <div className="mt-7 hidden h-[420px] gap-4 lg:grid lg:grid-cols-[1.35fr_0.65fr] xl:h-[460px]">
+            <div className="mt-6 hidden h-[300px] gap-3 lg:grid lg:grid-cols-[1.1fr_0.9fr_0.9fr] xl:h-[320px]">
               <a
                 href={instagramUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="group relative min-w-0 overflow-hidden rounded-[28px] border border-white/10 bg-[#111111]"
+                className="group relative min-w-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111111]"
               >
                 <img
                   src={primaryInstagramItem.image}
@@ -477,29 +492,34 @@ export function HomePage() {
                 </div>
               </a>
 
-              <div className="grid min-w-0 grid-rows-2 gap-4">
-                {secondaryInstagramItems.map((item, index) => (
-                  <a
-                    key={`${item.alt}-${index}`}
-                    href={instagramUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group relative min-w-0 overflow-hidden rounded-[28px] border border-white/10 bg-[#111111]"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.alt}
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.06),rgba(5,5,5,0.42)_52%,rgba(5,5,5,0.82)_100%)]" />
-                    <div className="absolute inset-x-0 top-0 p-4">
-                      <span className="inline-flex rounded-full border border-white/12 bg-black/36 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-white">
-                        {item.label}
-                      </span>
-                    </div>
-                  </a>
-                ))}
-              </div>
+              {secondaryInstagramColumns.map((column, columnIndex) => (
+                <div
+                  key={`instagram-column-${columnIndex}`}
+                  className="grid min-w-0 grid-rows-2 gap-3"
+                >
+                  {column.map((item, index) => (
+                    <a
+                      key={`${item.alt}-${columnIndex}-${index}`}
+                      href={instagramUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group relative min-w-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111111]"
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.alt}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                      />
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.06),rgba(5,5,5,0.42)_52%,rgba(5,5,5,0.82)_100%)]" />
+                      <div className="absolute inset-x-0 top-0 p-4">
+                        <span className="inline-flex rounded-full border border-white/12 bg-black/36 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-white">
+                          {item.label}
+                        </span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ))}
             </div>
           ) : null}
         </div>

@@ -234,7 +234,7 @@ function ProductDetailContent({
                         <p className="text-sm font-semibold leading-5 text-brand-strong">
                           3 cuotas sin interés de {formatCurrency(installmentPerQuota)}
                         </p>
-                        <div className="mt-2 inline-flex items-center gap-2 sm:justify-end">
+                        <div className="mt-2 flex items-center gap-2 sm:inline-flex sm:justify-end">
                           <img
                             src={goCuotasLogo}
                             alt="Go Cuotas"

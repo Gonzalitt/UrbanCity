@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import crediAppLogo from '@/assets/CrediApp_icon.png'
 import goCuotasLogo from '@/assets/GoCuotas_icon.png'
@@ -135,9 +135,9 @@ export function CheckoutPage() {
   const invalidQuantityItems = items.filter((item) => item.quantity > 99)
   const checkoutBlockingMessage =
     invalidAvailabilityItems.length > 0
-      ? 'Hay productos del carrito que ya no están disponibles para pedir. Revisá el carrito antes de generar el pedido.'
+      ? 'Hay productos del carrito que ya no estÃ¡n disponibles para pedir. RevisÃ¡ el carrito antes de generar el pedido.'
       : invalidQuantityItems.length > 0
-        ? 'Hay cantidades fuera del límite permitido. Revisá el carrito antes de generar el pedido.'
+        ? 'Hay cantidades fuera del lÃ­mite permitido. RevisÃ¡ el carrito antes de generar el pedido.'
         : null
 
   const form = useForm<CheckoutSchema>({
@@ -161,10 +161,10 @@ export function CheckoutPage() {
     return (
       <EmptyState
         title="No hay productos para enviar"
-        description="Agregá al menos un producto al carrito antes de pasar al checkout."
+        description="AgregÃ¡ al menos un producto al carrito antes de pasar al checkout."
         action={
           <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-            Ver catálogo
+            Ver catÃ¡logo
           </Link>
         }
       />
@@ -205,10 +205,17 @@ export function CheckoutPage() {
       )
 
       if (rpcError) {
+        console.error('[checkout:create_order_with_items]', {
+          message: rpcError.message,
+          details: rpcError.details,
+          hint: rpcError.hint,
+          code: rpcError.code,
+        })
+
         setSubmitError(
           rpcError.message?.toLowerCase().includes('talle')
-            ? 'No pudimos confirmar el pedido. Revisá que el talle elegido siga disponible.'
-            : 'No pudimos confirmar el pedido en este momento. Intentá nuevamente en unos minutos.',
+            ? 'No pudimos confirmar el pedido. RevisÃ¡ que el talle elegido siga disponible.'
+            : `No pudimos confirmar el pedido: ${rpcError.message ?? 'error desconocido'}`,
         )
         return
       }
@@ -218,7 +225,7 @@ export function CheckoutPage() {
 
       if (!savedOrder) {
         setSubmitError(
-          'No pudimos confirmar el pedido en este momento. Intentá nuevamente en unos minutos.',
+          'No pudimos confirmar el pedido en este momento. IntentÃ¡ nuevamente en unos minutos.',
         )
         return
       }
@@ -279,8 +286,8 @@ export function CheckoutPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Checkout"
-          title="Completá tus datos y generá el pedido"
-          description="Completá tus datos y seguí con la coordinación por WhatsApp."
+          title="CompletÃ¡ tus datos y generÃ¡ el pedido"
+          description="CompletÃ¡ tus datos y seguÃ­ con la coordinaciÃ³n por WhatsApp."
           tone="light"
         />
       </section>
@@ -289,20 +296,20 @@ export function CheckoutPage() {
         <Card className="space-y-6 border border-white/10 bg-[#111111] shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           {!hasWhatsApp ? (
             <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
-              El canal de WhatsApp del local no está disponible en este momento.
+              El canal de WhatsApp del local no estÃ¡ disponible en este momento.
             </div>
           ) : null}
 
           <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 sm:p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-strong/82">
-              Cómo funciona tu pedido
+              CÃ³mo funciona tu pedido
             </p>
             <ol className="mt-4 space-y-3 text-sm leading-6 text-white/74">
               <li className="flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-[0.72rem] font-semibold text-white">
                   1
                 </span>
-                <span>Generás el pedido.</span>
+                <span>GenerÃ¡s el pedido.</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-[0.72rem] font-semibold text-white">
@@ -318,7 +325,7 @@ export function CheckoutPage() {
               </li>
             </ol>
             <p className="mt-4 text-sm font-medium text-white/58">
-              No se realiza ningún pago online desde la web.
+              No se realiza ningÃºn pago online desde la web.
             </p>
           </div>
 
@@ -354,7 +361,7 @@ export function CheckoutPage() {
               Datos para coordinar
             </p>
             <p className="text-sm leading-6 text-white/60">
-              Completá tus datos y te enviamos el resumen listo para seguir por
+              CompletÃ¡ tus datos y te enviamos el resumen listo para seguir por
               WhatsApp.
             </p>
           </div>
@@ -372,7 +379,7 @@ export function CheckoutPage() {
                 {...form.register('customerName')}
               />
               <Input
-                label="Teléfono"
+                label="TelÃ©fono"
                 placeholder="Tu WhatsApp"
                 autoComplete="tel"
                 error={form.formState.errors.customerPhone?.message}
@@ -430,7 +437,7 @@ export function CheckoutPage() {
                     Pedido generado
                   </p>
                   <p className="text-sm leading-6 text-white/74">
-                    Código {draft.orderCode}. Confirmamos disponibilidad, forma
+                    CÃ³digo {draft.orderCode}. Confirmamos disponibilidad, forma
                     de pago y precio final por WhatsApp.
                   </p>
                 </div>
